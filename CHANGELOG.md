@@ -41,3 +41,17 @@
 - Views: `apresentador/painel`, `apresentador/control`, `apresentador/resultado`
 - Views: `projecao/tela`, `projecao/espera` (sem controles administrativos)
 - Design moderno com Tailwind CSS para projetores e TVs
+
+### Sistema de gestão de perguntas (P0)
+
+- `PerguntaController`: criar, listar, editar, visualizar, aprovar, rejeitar perguntas
+- Rotas web: `perguntas.*` (index, create, store, show, edit, update, destroy, aprovar, rejeitar)
+- Rotas API: `api/livros/{id}/capitulos` para carregamento dinâmico de capítulos
+- `Api\LivroController`: endpoint de capítulos por livro
+- Views: `perguntas/index`, `create`, `edit`, `show` com Tailwind CSS
+- Middleware `IgrejaScope`: isolamento por `igreja_id` em todas as requisições
+- Seeders: `LivrosBiblicosSeeder` (66 livros), `NiveisDificuldadeSeeder` (5 níveis),
+  `CategoriasSeeder` (8 categorias), `QuestoesExemploSeeder` (2 perguntas exemplo)
+- Modelos: `$table` definido para `LivroBiblico`, `NivelDificuldade`, `Categoria`
+- Validação de referências bíblicas (livro/capítulo/versículo existem)
+
