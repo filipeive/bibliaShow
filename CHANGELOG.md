@@ -1,0 +1,43 @@
+# Changelog — Bíblia Show 2.0
+
+## [v0.1.0] — 2026-11-09
+
+### Estrutura inicial do projeto
+
+- Scaffold Laravel 13 + PHP 8.4
+- Laravel Reverb instalado e configurado (WebSockets)
+- Laravel Boost instalado (guidelines, skills, MCP)
+- `.env`: `APP_NAME=Bíblia Show`, `APP_LOCALE=pt`, `BROADCAST_CONNECTION=reverb`
+- `ARCHITETURA.md` na raiz com especificações A–H
+- `docs/` com ARCHITETURA, MODELO_DE_DADOS, API, INSTALACAO, TESTES
+- Matriz de prioridades P0/P1/P2 e critérios de aceitação
+- Testes a passar (2 testes, 2 asserções)
+
+### Modelos base e motor de jogo
+
+- Modelos: `Igreja`, `Usuario`, `LivroBiblico`, `Capitulo`, `Categoria`,
+  `NivelDificuldade`, `Questao`, `Sala`, `Jogo`
+- Migrações: `igrejas`, `usuarios`, `livros_biblicos`, `capitulos`,
+  `categorias`, `niveis_dificuldade`, `questoes`, `salas`, `jogos`
+- Motor de jogo modular: contratos, seletor aleatório, pontuação,
+  temporizador, estado, eventos, `GameEngine`
+- Testes unitários do motor: instanciação, início, resposta correta,
+  resposta incorreta, não repetição de perguntas (7 testes, 10 asserções)
+
+### Modo individual offline (P0)
+
+- `GameController`: jogar, responder, resultado com sessão
+- Rotas: `jogar`, `jogar/responder`, `jogar/resultado`
+- Views: `game/play`, `game/result` com Tailwind CSS
+- Motor de jogo persistido na sessão para continuar após recarregar
+- Temporizador regressivo com envio automático ao esgotar
+- Feedback de acerto/erro com explicação e pontos
+
+### Modo apresentador e projeção (P0)
+
+- `ApresentadorController`: painel, criar sala, controle (próxima/pausar/retomar/finalizar), resultado
+- `ProjecaoController`: tela de projeção pública independente
+- Rotas: `apresentador.*`, `projecao.tela`
+- Views: `apresentador/painel`, `apresentador/control`, `apresentador/resultado`
+- Views: `projecao/tela`, `projecao/espera` (sem controles administrativos)
+- Design moderno com Tailwind CSS para projetores e TVs
