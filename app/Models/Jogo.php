@@ -30,4 +30,9 @@ class Jogo extends Model
     {
         return $this->belongsTo(Questao::class, 'pergunta_atual_id');
     }
+
+    public function respostas()
+    {
+        return $this->hasMany(Resposta::class);
+    }
 }

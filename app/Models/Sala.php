@@ -37,4 +37,19 @@ class Sala extends Model
     {
         return $this->hasMany(Jogo::class)->whereIn('estado', ['aguardando', 'em_curso', 'pausado']);
     }
+
+    public function participantes()
+    {
+        return $this->hasMany(Participante::class);
+    }
+
+    public function equipes()
+    {
+        return $this->hasMany(Equipe::class);
+    }
+
+    public function jogoAtivo()
+    {
+        return $this->hasOne(Jogo::class)->whereIn('estado', ['aguardando', 'em_curso', 'pausado'])->latest();
+    }
 }

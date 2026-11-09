@@ -1,5 +1,23 @@
 # Changelog — Bíblia Show 2.0
 
+## [v0.1.1] — 2026-11-09
+
+### Multijogador em tempo real (P1)
+
+- Modelos: `Participante`, `Equipe`, `Resposta` com SoftDeletes
+- Migrações: `participantes`, `equipes`, `respostas`
+- Relacionamentos: `Sala` → participantes/equipes/jogoAtivo; `Jogo` → respostas;
+  `Participante` → sala/equipe/respostas; `Equipe` → sala/participantes/respostas;
+  `Resposta` → jogo/questao/participante/equipe
+- Eventos WebSocket (ShouldBroadcast → Reverb): `ParticipanteEntrou`,
+  `PerguntaIniciada`, `RespostaEnviada`, `RankingAtualizado`, `JogoEstadoAlterado`
+- Canais de broadcast privados: `game.{salaId}` com autenticação por igreja
+- `ParticipantController`: entrar na sala via código, responder pergunta,
+  listar participantes/equipes, sair
+- `ApresentadorController`: criar equipe, broadcast de estado/pergunta/ranking
+- Rotas API: `api/salas/entrar`, `api/salas/{sala}`, `api/salas/{sala}/responder`,
+  `api/salas/{sala}/participantes/{participante}`
+
 ## [v0.1.0] — 2026-11-09
 
 ### Estrutura inicial do projeto
