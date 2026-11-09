@@ -9,6 +9,8 @@ class NivelDificuldade extends Model
 {
     use HasFactory;
 
+    protected $table = 'niveis_dificuldade';
+
     protected $fillable = [
         'nome',
         'nivel',

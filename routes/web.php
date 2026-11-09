@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\ApresentadorController;
 use App\Http\Controllers\ProjecaoController;
+use App\Http\Controllers\PerguntaController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -28,4 +29,16 @@ Route::prefix('apresentador')->name('apresentador.')->group(function () {
 
 Route::prefix('projecao')->name('projecao.')->group(function () {
     Route::get('/{sala}', [ProjecaoController::class, 'tela'])->name('tela');
+});
+
+Route::prefix('perguntas')->name('perguntas.')->group(function () {
+    Route::get('/', [PerguntaController::class, 'index'])->name('index');
+    Route::get('/criar', [PerguntaController::class, 'create'])->name('create');
+    Route::post('/', [PerguntaController::class, 'store'])->name('store');
+    Route::get('/{questao}', [PerguntaController::class, 'show'])->name('show');
+    Route::get('/{questao}/editar', [PerguntaController::class, 'edit'])->name('edit');
+    Route::put('/{questao}', [PerguntaController::class, 'update'])->name('update');
+    Route::delete('/{questao}', [PerguntaController::class, 'destroy'])->name('destroy');
+    Route::post('/{questao}/aprovar', [PerguntaController::class, 'aprovar'])->name('aprovar');
+    Route::post('/{questao}/rejeitar', [PerguntaController::class, 'rejeitar'])->name('rejeitar');
 });

@@ -2,7 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use App\Models\Igreja;
+use App\Models\Usuario;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -10,16 +11,26 @@ class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $igreja = Igreja::create([
+            'nome' => 'Igreja Exemplo',
+            'slug' => 'igreja-exemplo',
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $admin = Usuario::create([
+            'igreja_id' => $igreja->id,
+            'nome' => 'Administrador',
+            'email' => 'admin@igreja.com',
+            'password' => bcrypt('password'),
+            'papel' => 'admin_geral',
+        ]);
+
+        $this->call([
+            LivrosBiblicosSeeder::class,
+            NiveisDificuldadeSeeder::class,
+            CategoriasSeeder::class,
+            QuestoesExemploSeeder::class,
         ]);
     }
 }

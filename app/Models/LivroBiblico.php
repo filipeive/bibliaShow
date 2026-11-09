@@ -9,6 +9,8 @@ class LivroBiblico extends Model
 {
     use HasFactory;
 
+    protected $table = 'livros_biblicos';
+
     protected $fillable = [
         'abreviacao',
         'nome',
