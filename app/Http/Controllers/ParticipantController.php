@@ -86,6 +86,19 @@ class ParticipantController extends Controller
         ]);
     }
 
+    public function entrarView($codigo)
+    {
+        $sala = Sala::where('codigo_acesso', strtoupper($codigo))
+            ->where('status', '!=', 'terminada')
+            ->first();
+
+        if (!$sala) {
+            abort(404, 'Sala não encontrada ou encerrada.');
+        }
+
+        return view('participante.entrar', compact('sala'));
+    }
+
     public function mostrar(Request $request, Sala $sala)
     {
         $participantes = $sala->participantes()->conectados()->with('equipe')->get();

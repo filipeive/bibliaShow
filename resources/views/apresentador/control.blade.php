@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Bíblia Show - Controle</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/pusher-js@8/dist/web/pusher.js"></script>
+    <script src="https://unpkg.com/laravel-echo@1/dist/echo.iife.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@gh-pages/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
@@ -108,11 +112,48 @@
                     </div>
 
                     <div class="mt-6 bg-white rounded-xl shadow-lg p-6">
-                        <h3 class="text-sm font-semibold text-slate-900 mb-4">Participantes</h3>
-                        <div class="space-y-2">
-                            <div class="flex items-center justify-between p-3 bg-slate-50 rounded">
-                                <span class="text-sm text-slate-700">Aguardando participantes...</span>
-                            </div>
+                        <h3 class="text-sm font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                            Participantes ao Vivo
+                        </h3>
+                        <div id="participantesList" class="space-y-2 max-h-60 overflow-y-auto pr-2">
+                            @foreach($participantes as $participante)
+                                <div id="participante-{{ $participante->id }}"
+                                     class="flex items-center justify-between p-3 bg-slate-50 rounded border border-slate-100">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-bold">
+                                            {{ strtoupper(substr($participante->nome, 0, 1)) }}
+                                        </div>
+                                        <div>
+                                            <span class="text-sm font-medium text-slate-900 block">{{ $participante->nome }}</span>
+                                            @if($participante->equipe)
+                                                <span class="text-xs text-slate-500">{{ $participante->equipe }}</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <span class="text-xs font-mono font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">
+                                        {{ $participante->pontuacao_total }} pts
+                                    </span>
+                                </div>
+                            @endforeach
+                            @if($participantes->isEmpty())
+                                <div class="flex items-center justify-between p-3 bg-slate-50 rounded">
+                                    <span class="text-sm text-slate-400">Nenhum participante conectado</span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="mt-6 bg-amber-50 rounded-xl shadow-lg p-6 border border-amber-100">
+                        <h3 class="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-3">QR Code de Entrada</h3>
+                        <div class="flex flex-col items-center gap-3">
+                            <div id="qrcode" class="w-32 h-32 bg-white rounded p-2 border border-amber-200"></div>
+                            <p class="text-xs font-mono font-bold text-amber-700 bg-amber-100 px-2 py-1 rounded">
+                                {{ $sala->codigo_acesso }}
+                            </p>
+                            <p class="text-[10px] text-amber-500/70 text-center leading-tight">
+                                Escaneie com o celular para entrar
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -128,6 +169,110 @@
             </div>
         @endif
     </div>
+
+    <script>
+        // Gerar QR Code para entrada da sala
+        new QRCode(document.getElementById('qrcode'), {
+            text: window.location.origin + '/entrar/{{ $sala->codigo_acesso }}',
+            width: 160,
+            height: 160,
+            colorDark: '#0f172a',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H,
+        });
+
+        // Conexão Reverb via Laravel Echo
+        window.Echo = new Echo({
+            broadcaster: 'reverb',
+            key: '{{ env('REVERB_APP_KEY') }}',
+            wsHost: '{{ env('REVERB_HOST') }}',
+            wsPort: {{ env('REVERB_PORT') }},
+            wssPort: {{ env('REVERB_PORT') }},
+            forceTLS: {{ env('REVERB_SCHEME') === 'https' ? 'true' : 'false' }},
+            disableStats: true,
+            enabledTransports: ['ws', 'wss'],
+        });
+
+        const channel = window.Echo.private('game.{{ $sala->id }}');
+
+        channel.listen('.participante-entrou', (e) => {
+            if (e.saiu) {
+                const el = document.getElementById('participante-' + e.id);
+                if (el) el.remove();
+                if (document.querySelectorAll('#participantesList > div').length === 0) {
+                    document.getElementById('participantesList').innerHTML = '<div class="flex items-center justify-between p-3 bg-slate-50 rounded"><span class="text-sm text-slate-400">Nenhum participante conectado</span></div>';
+                }
+                return;
+            }
+
+            // Atualizar ou adicionar participante
+            const list = document.getElementById('participantesList');
+            const emptyMsg = list.querySelector('.text-slate-400');
+            if (emptyMsg) emptyMsg.remove();
+
+            const existing = document.getElementById('participante-' + e.id);
+            if (existing) {
+                existing.querySelector('.text-slate-900').innerText = e.nome;
+            } else {
+                const el = document.createElement('div');
+                el.id = 'participante-' + e.id;
+                el.className = 'flex items-center justify-between p-3 bg-slate-50 rounded border border-slate-100 animate-in fade-in slide-in-from-right-2 duration-300';
+                el.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-bold">${e.nome.charAt(0).toUpperCase()}</div>
+                        <div>
+                            <span class="text-sm font-medium text-slate-900 block">${e.nome}</span>
+                            ${e.equipe ? '<span class="text-xs text-slate-500">' + e.equipe + '</span>' : ''}
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">0 pts</span>
+                `;
+                list.prepend(el);
+            }
+        });
+
+        channel.listen('.resposta-enviada', (e) => {
+            // Atualizar pontos do participante na lista
+            const el = document.getElementById('participante-' + e.participanteId);
+            if (el) {
+                const ptsEl = el.querySelector('.font-mono');
+                if (ptsEl) ptsEl.innerText = e.pontos + ' pts';
+            }
+
+            // Notificação visual breve
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-4 right-4 bg-white border border-slate-200 rounded-lg p-4 shadow-xl flex items-center gap-3 z-50 animate-in fade-in slide-in-from-right-2 duration-300';
+            toast.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold text-lg">✓</div>
+                <div>
+                    <div class="text-sm font-semibold text-slate-900">${e.nomeParticipante}</div>
+                    <div class="text-xs text-slate-500">${e.correta ? 'Acertou!' : 'Errou'} • ${e.pontos} pts</div>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        });
+
+        channel.listen('.ranking-atualizado', (e) => {
+            // Ranking é atualizado via lista de participantes acima
+            console.log('Ranking atualizado:', e.ranking);
+        });
+
+        channel.listen('.jogo-estado-alterado', (e) => {
+            console.log('Estado alterado:', e.estado);
+            if (e.estado === 'terminado') {
+                document.getElementById('participantesList').innerHTML = '<div class="flex items-center justify-between p-3 bg-slate-50 rounded"><span class="text-sm text-slate-400">Jogo finalizado</span></div>';
+            }
+        });
+
+        // Tratamento de erro de conexão
+        window.Echo.connector.pusher.connection.bind('error', (err) => {
+            console.error('Erro Reverb:', err);
+        });
+        window.Echo.connector.pusher.connection.bind('connected', () => {
+            console.log('Conectado ao Reverb');
+        });
+    </script>
 
 </body>
 </html>

@@ -5,6 +5,7 @@ use App\Http\Controllers\GameController;
 use App\Http\Controllers\ApresentadorController;
 use App\Http\Controllers\ProjecaoController;
 use App\Http\Controllers\PerguntaController;
+use App\Http\Controllers\ParticipantController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -42,3 +43,6 @@ Route::prefix('perguntas')->name('perguntas.')->group(function () {
     Route::post('/{questao}/aprovar', [PerguntaController::class, 'aprovar'])->name('aprovar');
     Route::post('/{questao}/rejeitar', [PerguntaController::class, 'rejeitar'])->name('rejeitar');
 });
+
+// Participant entry (multijogador)
+Route::get('/entrar/{codigo}', [ParticipantController::class, 'entrarView'])->name('entrar.view');
