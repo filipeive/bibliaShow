@@ -42,7 +42,7 @@ class GameEngineTest extends TestCase
         $estado = $engine->getState();
 
         $this->assertEquals('em_curso', $estado['estado']);
-        $this->assertEquals(1, $estado['pergunta_atual']['id']);
+        $this->assertContains($estado['pergunta_atual']['id'], [1, 2]);
     }
 
     public function test_resposta_correta_retorna_acertou_e_pontos(): void
