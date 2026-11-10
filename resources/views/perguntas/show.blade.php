@@ -3,136 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bíblia Show - Pergunta #{{ $questao->id }}</title>
+    <title>Bíblia Show — Pergunta #{{ $questao->id }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-50 min-h-screen text-slate-900">
 
     <div class="max-w-4xl mx-auto px-4 py-8">
-        <header class="mb-8">
-            <a href="{{ route('perguntas.index') }}" class="text-slate-500 hover:text-slate-700">← Voltar</a>
-            <h1 class="text-2xl font-bold text-slate-900">Pergunta #{{ $questao->id }}</h1>
+        <header class="flex items-center justify-between mb-8">
+            <div>
+                <a href="{{ route('perguntas.index') }}" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                    </svg>
+                    Voltar à lista
+                </a>
+                <h1 class="text-2xl font-extrabold text-slate-900 mt-1">
+                    Pergunta {{ $questao->codigo_classico ? ('#' . $questao->codigo_classico) : ('#' . $questao->id) }}
+                </h1>
+            </div>
+            <a href="{{ route('perguntas.edit', $questao->id) }}" class="bg-amber-500 hover:bg-amber-600 text-slate-950 px-5 py-2.5 rounded-xl font-extrabold text-sm shadow">
+                Editar Pergunta
+            </a>
         </header>
 
-        <div class="bg-white rounded-xl shadow-lg p-8">
-            <div class="flex justify-between items-start mb-6">
-                <div>
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold
-                            {{ $questao->aprovada ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
-                            {{ $questao->aprovada ? 'Aprovada' : 'Pendente' }}
-                        </span>
-                        @if(!$questao->referencia_verificada)
-                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
-                                Ref. não verificada
-                            </span>
-                        @endif
-                    </div>
-                    <div class="flex items-center gap-4 text-sm text-slate-500">
-                        <span>Submetida por: {{ $questao->submetidaPor->nome ?? 'Desconhecido' }}</span>
-                        @if($questao->revisada_em)
-                            <span>Revisada em: {{ $questao->revisada_em->format('d/m/Y H:i') }}</span>
-                        @endif
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    @if(!$questao->aprovada)
-                        <form action="{{ route('perguntas.aprovar', $questao->id) }}" method="POST" class="inline">
-                            @csrf
-                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium">Aprovar</button>
-                        </form>
-                        <button onclick="document.getElementById('rejeitarForm').submit()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium">Rejeitar</button>
-                        <form id="rejeitarForm" action="{{ route('perguntas.rejeitar', $questao->id) }}" method="POST" class="hidden">
-                            @csrf
-                        </form>
-                    @endif
-                    <a href="{{ route('perguntas.edit', $questao->id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">Editar</a>
-                </div>
+        @if(session('success'))
+            <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl mb-6 text-emerald-800 text-sm font-medium">
+                {{ session('success') }}
             </div>
+        @endif
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div class="bg-slate-50 p-4 rounded-lg">
-                    <p class="text-xs font-semibold text-slate-500 uppercase">Livro</p>
-                    <p class="text-lg font-medium text-slate-800">{{ $questao->livro->abreviacao }} - {{ $questao->livro->nome }}</p>
+        <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-8">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+                    <p class="text-xs font-bold text-slate-400 uppercase">Livro Bíblico</p>
+                    <p class="text-base font-extrabold text-slate-900 mt-0.5">{{ $questao->livro->abreviacao ?? '' }} - {{ $questao->livro->nome ?? '-' }}</p>
                 </div>
-                <div class="bg-slate-50 p-4 rounded-lg">
-                    <p class="text-xs font-semibold text-slate-500 uppercase">Referência</p>
-                    <p class="text-lg font-medium text-slate-800 font-mono">
-                        {{ $questao->livro->abreviacao }} {{ $questao->capitulo->numero ?? '?' }}:{{ $questao->versiculo_de ?? '-' }}@if($questao->versiculo_ate)-{{ $questao->versiculo_ate }}@endif
+                <div class="bg-amber-50 p-4 rounded-xl border border-amber-200/80">
+                    <p class="text-xs font-bold text-amber-700 uppercase">Dica / Referência Bíblica</p>
+                    <p class="text-base font-extrabold text-amber-950 mt-0.5">
+                        {{ $questao->referencia_biblica ?: (($questao->livro->abreviacao ?? '') . ' ' . ($questao->capitulo->numero ?? '?') . ':' . ($questao->versiculo_de ?? '-')) }}
                     </p>
                 </div>
-                <div class="bg-slate-50 p-4 rounded-lg">
-                    <p class="text-xs font-semibold text-slate-500 uppercase">Categoria</p>
-                    <p class="text-lg font-medium text-slate-800">{{ $questao->categoria->nome ?? '-' }}</p>
-                </div>
-                <div class="bg-slate-50 p-4 rounded-lg">
-                    <p class="text-xs font-semibold text-slate-500 uppercase">Dificuldade</p>
-                    <p class="text-lg font-medium text-slate-800">Nível {{ $questao->dificuldade->nivel ?? '-' }}</p>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+                    <p class="text-xs font-bold text-slate-400 uppercase">Fase do Jogo</p>
+                    <p class="text-base font-extrabold text-slate-900 mt-0.5">
+                        {{ $questao->dificuldade->nivel ?? 1 }}ª Fase ({{ $questao->dificuldade->pontos_base ?? 10 }} pts)
+                    </p>
                 </div>
             </div>
 
             <div class="mb-8">
-                <h3 class="text-lg font-semibold text-slate-900 mb-3">Pergunta</h3>
-                <div class="bg-slate-50 p-6 rounded-lg border-l-4 border-l-blue-500">
-                    <p class="text-xl text-slate-800 leading-relaxed">{{ $questao->texto }}</p>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Enunciado</h3>
+                <div class="bg-slate-900 text-white p-6 rounded-2xl">
+                    <p class="text-xl font-bold leading-relaxed">{{ $questao->texto }}</p>
                 </div>
             </div>
 
-            @if($questao->opcoes)
+            @php
+                $opcoes = is_string($questao->opcoes) ? json_decode($questao->opcoes, true) : ($questao->opcoes ?? []);
+                $letras = ['A', 'B', 'C', 'D'];
+            @endphp
+
+            @if(is_array($opcoes) && count($opcoes) > 0)
                 <div class="mb-8">
-                    <h3 class="text-lg font-semibold text-slate-900 mb-3">Opções de Resposta</h3>
-                    <div class="bg-slate-50 p-6 rounded-lg">
-                        <ul class="list-disc list-inside space-y-2 text-slate-700">
-                            @php $opcoes = is_string($questao->opcoes) ? json_decode($questao->opcoes, true) : $questao->opcoes; @endphp
-                            @if(is_array($opcoes))
-                                @foreach($opcoes as $opcao)
-                                    <li>{{ $opcao }}</li>
-                                @endforeach
-                            @endif
-                        </ul>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Alternativas</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        @foreach($opcoes as $idx => $opcao)
+                            @php
+                                $ehCorreta = mb_strtolower(trim((string) $opcao), 'UTF-8') === mb_strtolower(trim((string) $questao->resposta_correta), 'UTF-8');
+                            @endphp
+                            <div class="p-4 rounded-xl border-2 flex items-center gap-3 {{ $ehCorreta ? 'border-emerald-500 bg-emerald-50 text-emerald-950' : 'border-slate-200 bg-slate-50 text-slate-800' }}">
+                                <span class="w-8 h-8 rounded-lg font-extrabold flex items-center justify-center text-sm shrink-0 {{ $ehCorreta ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700' }}">
+                                    {{ $letras[$idx] ?? ($idx + 1) }}
+                                </span>
+                                <span class="font-bold text-sm flex-1">{{ $opcao }}</span>
+                                @if($ehCorreta)
+                                    <span class="text-xs font-extrabold bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded">Correta</span>
+                                @endif
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             @endif
 
-            <div class="mb-8">
-                <h3 class="text-lg font-semibold text-slate-900 mb-3">Resposta Correta</h3>
-                <div class="bg-green-50 p-6 rounded-lg border border-green-200">
-                    <p class="text-lg text-green-800 font-medium">{{ $questao->resposta_correta }}</p>
-                </div>
-            </div>
-
-            @if($questao->explicacao)
-                <div class="mb-8">
-                    <h3 class="text-lg font-semibold text-slate-900 mb-3">Explicação</h3>
-                    <div class="bg-slate-50 p-6 rounded-lg">
-                        <p class="text-slate-700 leading-relaxed">{{ $questao->explicacao }}</p>
+            @php
+                $ajudas = is_string($questao->ajudas) ? json_decode($questao->ajudas, true) : ($questao->ajudas ?? []);
+            @endphp
+            @if(!empty($ajudas['convidados']))
+                <div class="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-blue-700 mb-2">Convidados Bíblicos (Ajudas do Clássico)</h3>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach($ajudas['convidados'] as $i => $conv)
+                            @php $naoSabe = (($i + 1) === (int) ($ajudas['errado'] ?? 0)); @endphp
+                            <span class="px-3 py-1 rounded-lg text-xs font-bold {{ $naoSabe ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800' }}">
+                                {{ $conv }} — {{ $naoSabe ? 'Responde que não sabe' : 'Informa a resposta correta' }}
+                            </span>
+                        @endforeach
                     </div>
                 </div>
             @endif
-
-            @if($questao->contexto)
-                <div class="mb-8">
-                    <h3 class="text-lg font-semibold text-slate-900 mb-3">Contexto da Passagem</h3>
-                    <div class="bg-slate-50 p-6 rounded-lg">
-                        <p class="text-slate-700 leading-relaxed">{{ $questao->contexto }}</p>
-                    </div>
-                </div>
-            @endif
-
-            @if($questao->notas)
-                <div class="mb-8">
-                    <h3 class="text-lg font-semibold text-slate-900 mb-3">Notas Editoriais</h3>
-                    <div class="bg-amber-50 p-6 rounded-lg border border-amber-200">
-                        <p class="text-slate-700 leading-relaxed">{{ $questao->notas }}</p>
-                    </div>
-                </div>
-            @endif
-
-            <div class="mt-8 flex justify-end">
-                <a href="{{ route('perguntas.index') }}" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-6 py-3 rounded-lg font-medium">Voltar à lista</a>
-            </div>
         </div>
     </div>
 

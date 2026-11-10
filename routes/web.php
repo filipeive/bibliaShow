@@ -1,19 +1,23 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\GameController;
 use App\Http\Controllers\ApresentadorController;
-use App\Http\Controllers\ProjecaoController;
-use App\Http\Controllers\PerguntaController;
+use App\Http\Controllers\GameController;
 use App\Http\Controllers\ParticipantController;
+use App\Http\Controllers\PerguntaController;
+use App\Http\Controllers\ProjecaoController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/curiosidades', [GameController::class, 'curiosidades'])->name('curiosidades');
+
 Route::prefix('jogar')->name('game.')->group(function () {
     Route::get('/', [GameController::class, 'jogar'])->name('play');
     Route::post('/responder', [GameController::class, 'responder'])->name('answer');
+    Route::post('/ajuda', [GameController::class, 'usarAjuda'])->name('lifeline');
+    Route::post('/encerrar', [GameController::class, 'encerrar'])->name('finish');
     Route::get('/resultado', [GameController::class, 'resultado'])->name('result');
 });
 
@@ -21,6 +25,7 @@ Route::prefix('apresentador')->name('apresentador.')->group(function () {
     Route::get('/', [ApresentadorController::class, 'painel'])->name('painel');
     Route::post('/criar', [ApresentadorController::class, 'criarSala'])->name('criar');
     Route::get('/control/{sala}', [ApresentadorController::class, 'control'])->name('control');
+    Route::post('/control/{sala}/equipes', [ApresentadorController::class, 'criarEquipe'])->name('equipe.criar');
     Route::post('/control/{sala}/proxima', [ApresentadorController::class, 'proximaPergunta'])->name('proxima');
     Route::post('/control/{sala}/pausar', [ApresentadorController::class, 'pausar'])->name('pausar');
     Route::post('/control/{sala}/retomar', [ApresentadorController::class, 'retomar'])->name('retomar');
@@ -44,5 +49,5 @@ Route::prefix('perguntas')->name('perguntas.')->group(function () {
     Route::post('/{questao}/rejeitar', [PerguntaController::class, 'rejeitar'])->name('rejeitar');
 });
 
-// Participant entry (multijogador)
-Route::get('/entrar/{codigo}', [ParticipantController::class, 'entrarView'])->name('entrar.view');
+// Entrada e jogo de participantes (multijogador)
+Route::get('/entrar/{codigo?}', [ParticipantController::class, 'entrarView'])->name('entrar.view');

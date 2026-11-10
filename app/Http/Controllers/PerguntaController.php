@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Questao;
-use App\Models\LivroBiblico;
 use App\Models\Capitulo;
 use App\Models\Categoria;
+use App\Models\LivroBiblico;
 use App\Models\NivelDificuldade;
-use App\Models\Igreja;
+use App\Models\Questao;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -33,9 +32,18 @@ class PerguntaController extends Controller
             $query->where('dificuldade_id', $request->dificuldade_id);
         }
 
-        $questoes = $query->latest()->paginate(15);
+        if ($request->filled('busca')) {
+            $busca = trim((string) $request->busca);
+            $query->where(function ($q) use ($busca) {
+                $q->where('texto', 'like', "%{$busca}%")
+                    ->orWhere('referencia_biblica', 'like', "%{$busca}%")
+                    ->orWhere('codigo_classico', 'like', "%{$busca}%");
+            });
+        }
 
-        $livros = LivroBiblico::orderBy('nome')->get();
+        $questoes = $query->orderBy('id')->paginate(20)->withQueryString();
+
+        $livros = LivroBiblico::orderBy('ordem')->get();
         $categorias = Categoria::orderBy('nome')->get();
         $dificuldades = NivelDificuldade::orderBy('nivel')->get();
 
@@ -44,7 +52,7 @@ class PerguntaController extends Controller
 
     public function create()
     {
-        $livros = LivroBiblico::orderBy('nome')->get();
+        $livros = LivroBiblico::orderBy('ordem')->get();
         $categorias = Categoria::orderBy('nome')->get();
         $dificuldades = NivelDificuldade::orderBy('nivel')->get();
 
@@ -53,14 +61,26 @@ class PerguntaController extends Controller
 
     public function store(Request $request)
     {
+        $opcoesInput = $request->input('opcoes', []);
+        if (is_string($opcoesInput)) {
+            $decoded = json_decode($opcoesInput, true);
+            $opcoesInput = is_array($decoded) ? $decoded : array_filter(array_map('trim', explode("\n", $opcoesInput)));
+        }
+        if (is_array($opcoesInput)) {
+            $opcoesInput = array_values(array_filter(array_map(fn ($v) => trim((string) $v), $opcoesInput), fn ($v) => $v !== ''));
+        }
+
+        $request->merge(['opcoes' => $opcoesInput]);
+
         $validator = Validator::make($request->all(), [
             'igreja_id' => 'required|exists:igrejas,id',
             'livro_id' => 'required|exists:livros_biblicos,id',
             'capitulo_id' => 'nullable|exists:capitulos,id',
             'versiculo_de' => 'nullable|integer|min:1',
             'versiculo_ate' => 'nullable|integer|min:1|gte:versiculo_de',
+            'referencia_biblica' => 'nullable|string|max:120',
             'texto' => 'required|string|min:5',
-            'opcoes' => 'nullable|array',
+            'opcoes' => 'required|array|min:2',
             'resposta_correta' => 'required|string|min:1',
             'explicacao' => 'nullable|string',
             'contexto' => 'nullable|string',
@@ -75,14 +95,14 @@ class PerguntaController extends Controller
 
         $validated = $validator->validated();
 
-        $validated['aprovada'] = false;
+        $validated['aprovada'] = true;
         $validated['submetida_por'] = auth()->id() ?? 1;
-        $validated['opcoes'] = $request->input('opcoes', []);
+        $validated['opcoes'] = $opcoesInput;
 
         Questao::create($validated);
 
         return redirect()->route('perguntas.index')
-            ->with('success', 'Pergunta submetida com sucesso e aguarda revisão editorial.');
+            ->with('success', 'Pergunta criada com sucesso e adicionada ao banco do Bíblia Show.');
     }
 
     public function show(Questao $questao)
@@ -93,7 +113,7 @@ class PerguntaController extends Controller
 
     public function edit(Questao $questao)
     {
-        $livros = LivroBiblico::orderBy('nome')->get();
+        $livros = LivroBiblico::orderBy('ordem')->get();
         $categorias = Categoria::orderBy('nome')->get();
         $dificuldades = NivelDificuldade::orderBy('nivel')->get();
         $capitulos = Capitulo::where('livro_id', $questao->livro_id)->orderBy('numero')->get();
@@ -103,14 +123,26 @@ class PerguntaController extends Controller
 
     public function update(Request $request, Questao $questao)
     {
+        $opcoesInput = $request->input('opcoes', []);
+        if (is_string($opcoesInput)) {
+            $decoded = json_decode($opcoesInput, true);
+            $opcoesInput = is_array($decoded) ? $decoded : array_filter(array_map('trim', explode("\n", $opcoesInput)));
+        }
+        if (is_array($opcoesInput)) {
+            $opcoesInput = array_values(array_filter(array_map(fn ($v) => trim((string) $v), $opcoesInput), fn ($v) => $v !== ''));
+        }
+
+        $request->merge(['opcoes' => $opcoesInput]);
+
         $validator = Validator::make($request->all(), [
             'igreja_id' => 'required|exists:igrejas,id',
             'livro_id' => 'required|exists:livros_biblicos,id',
             'capitulo_id' => 'nullable|exists:capitulos,id',
             'versiculo_de' => 'nullable|integer|min:1',
             'versiculo_ate' => 'nullable|integer|min:1|gte:versiculo_de',
+            'referencia_biblica' => 'nullable|string|max:120',
             'texto' => 'required|string|min:5',
-            'opcoes' => 'nullable|array',
+            'opcoes' => 'required|array|min:2',
             'resposta_correta' => 'required|string|min:1',
             'explicacao' => 'nullable|string',
             'contexto' => 'nullable|string',
@@ -125,11 +157,13 @@ class PerguntaController extends Controller
         }
 
         $validated = $validator->validated();
-        $validated['opcoes'] = $request->input('opcoes', []);
+        $validated['opcoes'] = $opcoesInput;
+        $validated['referencia_verificada'] = $request->boolean('referencia_verificada');
+        $validated['aprovada'] = $request->boolean('aprovada');
 
         $questao->update($validated);
 
-        return redirect()->route('perguntas.index')
+        return redirect()->route('perguntas.show', $questao->id)
             ->with('success', 'Pergunta atualizada com sucesso.');
     }
 

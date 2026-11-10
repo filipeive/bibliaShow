@@ -13,6 +13,7 @@ class Questao extends Model
     protected $table = 'questoes';
 
     protected $fillable = [
+        'codigo_classico',
         'igreja_id',
         'livro_id',
         'capitulo_id',
@@ -23,6 +24,8 @@ class Questao extends Model
         'resposta_correta',
         'explicacao',
         'contexto',
+        'referencia_biblica',
+        'ajudas',
         'dificuldade_id',
         'categoria_id',
         'referencia_verificada',
@@ -34,11 +37,13 @@ class Questao extends Model
     ];
 
     protected $casts = [
+        'codigo_classico' => 'integer',
         'referencia_verificada' => 'boolean',
         'aprovada' => 'boolean',
         'versiculo_de' => 'integer',
         'versiculo_ate' => 'integer',
         'opcoes' => 'array',
+        'ajudas' => 'array',
         'revisada_em' => 'datetime',
     ];
 

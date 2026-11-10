@@ -35,11 +35,13 @@ class LivrosBiblicosSeeder extends Seeder
             ['abreviacao' => 'Ct', 'nome' => 'Cantares', 'testamento' => 'Antigo', 'codigo_osis' => 'Song'],
             ['abreviacao' => 'Is', 'nome' => 'Isaías', 'testamento' => 'Antigo', 'codigo_osis' => 'Isa'],
             ['abreviacao' => 'Jer', 'nome' => 'Jeremias', 'testamento' => 'Antigo', 'codigo_osis' => 'Jer'],
+            ['abreviacao' => 'Lm', 'nome' => 'Lamentações', 'testamento' => 'Antigo', 'codigo_osis' => 'Lam'],
             ['abreviacao' => 'Ez', 'nome' => 'Ezequiel', 'testamento' => 'Antigo', 'codigo_osis' => 'Ezek'],
             ['abreviacao' => 'Dn', 'nome' => 'Daniel', 'testamento' => 'Antigo', 'codigo_osis' => 'Dan'],
             ['abreviacao' => 'Os', 'nome' => 'Oseias', 'testamento' => 'Antigo', 'codigo_osis' => 'Hos'],
             ['abreviacao' => 'Jl', 'nome' => 'Joel', 'testamento' => 'Antigo', 'codigo_osis' => 'Joel'],
             ['abreviacao' => 'Am', 'nome' => 'Amós', 'testamento' => 'Antigo', 'codigo_osis' => 'Amos'],
+            ['abreviacao' => 'Ob', 'nome' => 'Obadias', 'testamento' => 'Antigo', 'codigo_osis' => 'Obad'],
             ['abreviacao' => 'Jonas', 'nome' => 'Jonas', 'testamento' => 'Antigo', 'codigo_osis' => 'Jonah'],
             ['abreviacao' => 'Mq', 'nome' => 'Miquéias', 'testamento' => 'Antigo', 'codigo_osis' => 'Mic'],
             ['abreviacao' => 'Na', 'nome' => 'Naum', 'testamento' => 'Antigo', 'codigo_osis' => 'Nah'],
@@ -79,7 +81,7 @@ class LivrosBiblicosSeeder extends Seeder
         ];
 
         foreach ($livros as $livro) {
-            LivroBiblico::create($livro);
+            LivroBiblico::updateOrCreate(['codigo_osis' => $livro['codigo_osis']], $livro);
         }
     }
 }

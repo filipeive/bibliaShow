@@ -18,7 +18,7 @@ class NiveisDificuldadeSeeder extends Seeder
         ];
 
         foreach ($niveis as $nivel) {
-            NivelDificuldade::create($nivel);
+            NivelDificuldade::updateOrCreate(['nivel' => $nivel['nivel']], $nivel);
         }
     }
 }

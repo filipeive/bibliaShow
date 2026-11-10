@@ -15,6 +15,7 @@ class Jogo extends Model
         'estado',
         'pergunta_atual_id',
         'pontuacao_total',
+        'dados_motor',
     ];
 
     protected $casts = [

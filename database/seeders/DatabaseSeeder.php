@@ -13,24 +13,27 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        $igreja = Igreja::create([
-            'nome' => 'Igreja Exemplo',
-            'slug' => 'igreja-exemplo',
-        ]);
+        $igreja = Igreja::firstOrCreate(
+            ['slug' => 'igreja-exemplo'],
+            ['nome' => 'Igreja Exemplo']
+        );
 
-        $admin = Usuario::create([
-            'igreja_id' => $igreja->id,
-            'nome' => 'Administrador',
-            'email' => 'admin@igreja.com',
-            'password' => bcrypt('password'),
-            'papel' => 'admin_geral',
-        ]);
+        Usuario::firstOrCreate(
+            ['email' => 'admin@igreja.com'],
+            [
+                'igreja_id' => $igreja->id,
+                'nome' => 'Administrador',
+                'password' => bcrypt('password'),
+                'papel' => 'admin_geral',
+            ]
+        );
 
         $this->call([
             LivrosBiblicosSeeder::class,
             NiveisDificuldadeSeeder::class,
             CategoriasSeeder::class,
             QuestoesExemploSeeder::class,
+            QuestoesClassicoSeeder::class,
         ]);
     }
 }
