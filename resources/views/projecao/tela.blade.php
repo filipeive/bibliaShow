@@ -374,7 +374,8 @@
             } catch (e) {}
         }
 
-        setInterval(sincronizarProjecao, 2000);
+        // Sincronização contínua de alta fidelidade em tempo real (1.2 segundos)
+        setInterval(sincronizarProjecao, 1200);
     </script>
 </body>
 </html>

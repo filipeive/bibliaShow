@@ -32,13 +32,13 @@
         <header class="flex flex-wrap justify-between items-center gap-4 mb-6 bg-slate-900/95 p-5 rounded-3xl shadow-xl border border-amber-500/30">
             <div>
                 <div class="flex flex-wrap items-center gap-2.5">
-                    <span class="px-3 py-1 rounded-full bg-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider">
+                    <span id="badgeFaseTopo" class="px-3 py-1 rounded-full bg-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider">
                         {{ $faseAtual }}ª FASE • VALE {{ $placar['valor_pergunta'] ?? 10 }} PTS
                     </span>
                     <span class="font-mono font-black text-sm bg-blue-950 text-amber-300 px-3 py-1 rounded-xl border border-blue-500/40">
                         SALA: {{ $sala->codigo_acesso }}
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-full {{ $estado === 'pausado' ? 'bg-yellow-500/20 text-yellow-300' : 'bg-emerald-500/20 text-emerald-300' }}">
+                    <span id="badgeEstadoSala" class="text-xs font-bold px-2.5 py-1 rounded-full {{ $estado === 'pausado' ? 'bg-yellow-500/20 text-yellow-300' : 'bg-emerald-500/20 text-emerald-300' }}">
                         {{ ucfirst($estado) }}
                     </span>
                 </div>
@@ -110,19 +110,15 @@
 
                         <div class="flex justify-between items-center mb-5">
                             <div class="flex flex-wrap items-center gap-2">
-                                <span class="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-blue-950 text-amber-300 border border-blue-500/30">
+                                <span id="badgePerguntaNum" class="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-blue-950 text-amber-300 border border-blue-500/30">
                                     Pergunta {{ $numero_pergunta }} de {{ $total_perguntas }}
                                 </span>
-                                @if(!empty($pergunta['livro_nome']))
-                                    <span class="text-xs font-bold px-3 py-1 rounded-full bg-slate-800 text-slate-300">
-                                        Livro: {{ $pergunta['livro_nome'] }}
-                                    </span>
-                                @endif
-                                @if($gabaritoRevelado)
-                                    <span class="text-xs font-black px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                                        Gabarito Visível no Telão
-                                    </span>
-                                @endif
+                                <span id="badgeLivro" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-800 text-slate-300 {{ empty($pergunta['livro_nome']) ? 'hidden' : '' }}">
+                                    Livro: <span id="badgeLivroNome">{{ $pergunta['livro_nome'] ?? '' }}</span>
+                                </span>
+                                <span id="badgeGabaritoVisivel" class="text-xs font-black px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 {{ $gabaritoRevelado ? '' : 'hidden' }}">
+                                    Gabarito Visível no Telão
+                                </span>
                             </div>
                             <div class="text-right">
                                 <p class="text-[10px] font-bold text-slate-400 uppercase">Cronômetro</p>
@@ -133,7 +129,7 @@
                         @if($pergunta)
                             <!-- Enunciado estilo Show do Milhão -->
                             <div class="bg-gradient-to-r from-red-950 via-red-900 to-red-950 border-2 border-amber-400/60 text-white rounded-2xl p-5 mb-5 shadow-lg">
-                                <p class="text-lg sm:text-xl font-black leading-relaxed">
+                                <p id="textoPerguntaEstudio" class="text-lg sm:text-xl font-black leading-relaxed">
                                     {{ $pergunta['texto'] ?? $pergunta->texto }}
                                 </p>
                             </div>
@@ -149,14 +145,14 @@
                                 <p class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">
                                     Alternativas (Gabarito do Apresentador destacado em verde):
                                 </p>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div id="containerAlternativasEstudio" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     @foreach($opcoesArray as $idx => $opcao)
                                         @php
                                             $ehCorreta = mb_strtolower(trim((string) $opcao), 'UTF-8') === mb_strtolower($respostaCorreta, 'UTF-8');
                                             $eliminada = in_array($idx, $opcoesEliminadas);
                                             $letra = $letras[$idx] ?? ($idx + 1);
                                         @endphp
-                                        <div class="p-3.5 rounded-2xl border-2 flex items-center gap-3 {{ $eliminada ? 'opacity-40 border-slate-800 bg-slate-950 line-through' : ($ehCorreta ? 'border-emerald-500 bg-emerald-950/50 text-emerald-100' : 'border-slate-800 bg-slate-950/80 text-slate-200') }}">
+                                        <div id="opcaoEstudio_{{ $idx }}" class="p-3.5 rounded-2xl border-2 flex items-center gap-3 {{ $eliminada ? 'opacity-40 border-slate-800 bg-slate-950 line-through' : ($ehCorreta ? 'border-emerald-500 bg-emerald-950/50 text-emerald-100' : 'border-slate-800 bg-slate-950/80 text-slate-200') }}">
                                             <span class="w-8 h-8 rounded-xl font-black flex items-center justify-center shrink-0 text-sm {{ $ehCorreta ? 'bg-emerald-500 text-slate-950' : 'bg-amber-500 text-slate-950' }}">
                                                 {{ $letra }}
                                             </span>
@@ -187,30 +183,30 @@
                                         Ajudas Clássicas para Telão & Smartphones
                                     </span>
                                     <span class="text-[11px] text-slate-400">
-                                        Dica: <strong>{{ $pergunta['referencia_biblica'] ?? 'Contexto Bíblico' }}</strong>
+                                        Dica: <strong id="referenciaBiblicaAjuda">{{ $pergunta['referencia_biblica'] ?? 'Contexto Bíblico' }}</strong>
                                     </span>
                                 </div>
 
                                 <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
                                     <!-- 1. Revelar Dica Bíblica -->
-                                    <form action="{{ route('apresentador.ajuda', $sala->id) }}" method="POST">
+                                    <form action="{{ route('apresentador.ajuda', $sala->id) }}" method="POST" class="form-ajax-control">
                                         @csrf
                                         <input type="hidden" name="tipo" value="dica">
-                                        <button type="submit"
+                                        <button type="submit" id="btnAjudaDica"
                                                 class="w-full p-2.5 rounded-xl border border-blue-500/40 bg-blue-950/70 hover:bg-blue-900 text-center transition">
                                             <span class="text-xs font-black text-white block">Dica Bíblica</span>
-                                            <span class="text-[10px] text-amber-300">{{ $ajudasMotor['dicas_restantes'] ?? 3 }} restantes</span>
+                                            <span id="txtDicasRestantes" class="text-[10px] text-amber-300">{{ $ajudasMotor['dicas_restantes'] ?? 3 }} restantes</span>
                                         </button>
                                     </form>
 
                                     <!-- 2. Cartas 50/50 -->
-                                    <form action="{{ route('apresentador.ajuda', $sala->id) }}" method="POST">
+                                    <form action="{{ route('apresentador.ajuda', $sala->id) }}" method="POST" class="form-ajax-control">
                                         @csrf
                                         <input type="hidden" name="tipo" value="cartas">
-                                        <button type="submit" {{ !empty($ajudasMotor['cartas_usada']) ? 'disabled' : '' }}
+                                        <button type="submit" id="btnAjudaCartas" {{ !empty($ajudasMotor['cartas_usada']) ? 'disabled' : '' }}
                                                 class="w-full p-2.5 rounded-xl border border-blue-500/40 bg-blue-950/70 hover:bg-blue-900 disabled:opacity-40 text-center transition">
                                             <span class="text-xs font-black text-white block">Cartas 50/50</span>
-                                            <span class="text-[10px] text-amber-300">{{ !empty($ajudasMotor['cartas_usada']) ? 'Usada' : 'Eliminar 2' }}</span>
+                                            <span id="txtCartasStatus" class="text-[10px] text-amber-300">{{ !empty($ajudasMotor['cartas_usada']) ? 'Usada' : 'Eliminar 2' }}</span>
                                         </button>
                                     </form>
 
@@ -219,7 +215,7 @@
                                         @php
                                             $naoSabe = (($idxConv + 1) === (int) ($ajudasQuestao['errado'] ?? 2));
                                         @endphp
-                                        <form action="{{ route('apresentador.ajuda', $sala->id) }}" method="POST">
+                                        <form action="{{ route('apresentador.ajuda', $sala->id) }}" method="POST" class="form-ajax-control">
                                             @csrf
                                             <input type="hidden" name="tipo" value="convidado">
                                             <input type="hidden" name="indice_convidado" value="{{ $idxConv }}">
@@ -234,68 +230,68 @@
                                     @endforeach
                                 </div>
 
-                                @if($dicaBiblicaAtiva || $dicaConvidadoAtiva)
-                                    <div class="mt-3 pt-3 border-t border-slate-800 text-xs space-y-1 text-amber-200">
-                                        @if($dicaBiblicaAtiva)
-                                            <p><strong>Dica exibida no telão:</strong> {{ $dicaBiblicaAtiva }}</p>
-                                        @endif
-                                        @if($dicaConvidadoAtiva)
-                                            <p><strong>{{ $dicaConvidadoAtiva['convidado'] }}:</strong> {{ $dicaConvidadoAtiva['mensagem'] }}</p>
-                                        @endif
-                                    </div>
-                                @endif
+                                <div id="boxDicasAtivasContainer" class="mt-3 pt-3 border-t border-slate-800 text-xs space-y-1 text-amber-200 {{ ($dicaBiblicaAtiva || $dicaConvidadoAtiva) ? '' : 'hidden' }}">
+                                    <p id="boxTextoDicaBiblica" class="{{ $dicaBiblicaAtiva ? '' : 'hidden' }}">
+                                        <strong>Dica exibida no telão:</strong> <span id="conteudoDicaBiblica">{{ $dicaBiblicaAtiva }}</span>
+                                    </p>
+                                    <p id="boxTextoDicaConvidado" class="{{ $dicaConvidadoAtiva ? '' : 'hidden' }}">
+                                        <strong id="nomeConvidadoDica">{{ $dicaConvidadoAtiva['convidado'] ?? '' }}:</strong> <span id="conteudoDicaConvidado">{{ $dicaConvidadoAtiva['mensagem'] ?? '' }}</span>
+                                    </p>
+                                </div>
                             </div>
 
                             <!-- Botões Principais de Controle da Rodada -->
                             <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
                                 <!-- Revelar Gabarito no Telão -->
-                                <form action="{{ route('apresentador.ajuda', $sala->id) }}" method="POST">
+                                <form action="{{ route('apresentador.ajuda', $sala->id) }}" method="POST" class="form-ajax-control">
                                     @csrf
                                     <input type="hidden" name="tipo" value="revelar">
-                                    <button type="submit"
+                                    <button type="submit" id="btnToggleGabarito"
                                             class="w-full h-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 px-3 rounded-xl transition shadow text-xs flex items-center justify-center gap-1.5">
                                         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                         </svg>
-                                        <span>{{ $gabaritoRevelado ? 'Ocultar Gabarito' : 'Revelar no Telão' }}</span>
+                                        <span id="txtBtnGabarito">{{ $gabaritoRevelado ? 'Ocultar Gabarito' : 'Revelar no Telão' }}</span>
                                     </button>
                                 </form>
 
                                 <!-- Pular Pergunta -->
-                                <form action="{{ route('apresentador.ajuda', $sala->id) }}" method="POST">
+                                <form action="{{ route('apresentador.ajuda', $sala->id) }}" method="POST" class="form-ajax-control">
                                     @csrf
                                     <input type="hidden" name="tipo" value="pulo">
-                                    <button type="submit"
+                                    <button type="submit" id="btnPulo"
                                             class="w-full h-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-300 font-bold py-3 px-3 rounded-xl transition text-xs flex items-center justify-center gap-1.5">
-                                        <span>Pular ({{ $ajudasMotor['pulos_restantes'] ?? 3 }})</span>
+                                        <span id="txtBtnPulo">Pular ({{ $ajudasMotor['pulos_restantes'] ?? 3 }})</span>
                                     </button>
                                 </form>
 
-                                @if($estado !== 'pausado')
-                                    <form action="{{ route('apresentador.pausar', $sala->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="w-full h-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 px-3 rounded-xl transition shadow text-xs flex items-center justify-center gap-1.5">
-                                            Pausar
-                                        </button>
-                                    </form>
-                                @else
-                                    <form action="{{ route('apresentador.retomar', $sala->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="w-full h-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3 px-3 rounded-xl transition shadow text-xs flex items-center justify-center gap-1.5">
-                                            Retomar
-                                        </button>
-                                    </form>
-                                @endif
+                                <div id="containerBtnPausarRetomar" class="w-full h-full">
+                                    @if($estado !== 'pausado')
+                                        <form action="{{ route('apresentador.pausar', $sala->id) }}" method="POST" class="form-ajax-control h-full">
+                                            @csrf
+                                            <button type="submit" class="w-full h-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 px-3 rounded-xl transition shadow text-xs flex items-center justify-center gap-1.5">
+                                                Pausar
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form action="{{ route('apresentador.retomar', $sala->id) }}" method="POST" class="form-ajax-control h-full">
+                                            @csrf
+                                            <button type="submit" class="w-full h-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3 px-3 rounded-xl transition shadow text-xs flex items-center justify-center gap-1.5">
+                                                Retomar
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
 
-                                <form action="{{ route('apresentador.proxima', $sala->id) }}" method="POST">
+                                <form action="{{ route('apresentador.proxima', $sala->id) }}" method="POST" class="form-ajax-control">
                                     @csrf
-                                    <button type="submit" class="w-full h-full bg-blue-600 hover:bg-blue-500 text-white font-black py-3 px-3 rounded-xl transition shadow text-xs flex items-center justify-center gap-1.5">
+                                    <button type="submit" id="btnProximaPergunta" class="w-full h-full bg-blue-600 hover:bg-blue-500 text-white font-black py-3 px-3 rounded-xl transition shadow text-xs flex items-center justify-center gap-1.5">
                                         Próxima →
                                     </button>
                                 </form>
 
-                                <form action="{{ route('apresentador.finalizar', $sala->id) }}" method="POST">
+                                <form action="{{ route('apresentador.finalizar', $sala->id) }}" method="POST" class="form-ajax-control">
                                     @csrf
                                     <button type="submit" class="w-full h-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 px-3 rounded-xl transition shadow text-xs flex items-center justify-center gap-1.5">
                                         Encerrar
@@ -354,7 +350,7 @@
                             </svg>
                             Prêmios dos Vencedores (1º e 2º)
                         </h3>
-                        <form action="{{ route('apresentador.premios', $sala->id) }}" method="POST" class="space-y-2.5">
+                        <form action="{{ route('apresentador.premios', $sala->id) }}" method="POST" class="space-y-2.5 form-ajax-control">
                             @csrf
                             <div>
                                 <label class="block text-[10px] font-bold uppercase text-amber-300 mb-1">1º Lugar (Campeão)</label>
@@ -377,7 +373,7 @@
                     <!-- Criar Equipe / Célula na Sala -->
                     <div class="bg-slate-900/95 rounded-3xl shadow-2xl border border-slate-800 p-5">
                         <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider mb-3">Criar Equipe / Célula</h3>
-                        <form action="{{ route('apresentador.equipe.criar', $sala->id) }}" method="POST" class="flex gap-2">
+                        <form action="{{ route('apresentador.equipe.criar', $sala->id) }}" method="POST" class="flex gap-2 form-ajax-control">
                             @csrf
                             <input type="text" name="nome" required placeholder="Ex.: Tribo de Judá"
                                    class="flex-1 px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white outline-none focus:border-amber-500">
@@ -385,15 +381,13 @@
                                 + Equipe
                             </button>
                         </form>
-                        @if($equipes->isNotEmpty())
-                            <div class="flex flex-wrap gap-1.5 mt-3">
-                                @foreach($equipes as $eq)
-                                    <span class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-300">
-                                        {{ $eq->nome }} ({{ $eq->pontuacao_total }} pts)
-                                    </span>
-                                @endforeach
-                            </div>
-                        @endif
+                        <div id="listaEquipesContainer" class="flex flex-wrap gap-1.5 mt-3">
+                            @foreach($equipes as $eq)
+                                <span class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-300">
+                                    {{ $eq->nome }} ({{ $eq->pontuacao_total }} pts)
+                                </span>
+                            @endforeach
+                        </div>
                     </div>
 
                     <!-- QR Code de Entrada -->
@@ -487,6 +481,262 @@
             @endif
         });
 
+        // Interceptador assíncrono para os botões do estúdio
+        const letrasAlfabeto = ['A', 'B', 'C', 'D'];
+        let gabaritoVisivelTelao = {{ $gabaritoRevelado ? 'true' : 'false' }};
+        let estadoSalaAtual = '{{ $estado }}';
+        let respostaCorretaAtual = '{{ addslashes($respostaCorreta ?? '') }}';
+
+        function mostrarToastEstudio(mensagem, sucesso = true) {
+            const toast = document.getElementById('toastEstudio');
+            const content = document.getElementById('toastEstudioContent');
+            const msg = document.getElementById('toastEstudioMsg');
+            if (!toast || !content || !msg) return;
+
+            msg.textContent = mensagem;
+            content.className = sucesso
+                ? 'px-5 py-3 rounded-2xl shadow-2xl text-sm font-bold flex items-center gap-3 border bg-emerald-950/95 border-emerald-500/50 text-emerald-200'
+                : 'px-5 py-3 rounded-2xl shadow-2xl text-sm font-bold flex items-center gap-3 border bg-rose-950/95 border-rose-500/50 text-rose-200';
+
+            toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        document.addEventListener('submit', async (e) => {
+            const form = e.target.closest('.form-ajax-control');
+            if (!form) return;
+            e.preventDefault();
+
+            const btnSubmit = form.querySelector('button[type="submit"]');
+            if (btnSubmit) btnSubmit.disabled = true;
+
+            try {
+                const formData = new FormData(form);
+                const resp = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                });
+
+                const data = await resp.json().catch(() => ({}));
+
+                if (btnSubmit) btnSubmit.disabled = false;
+
+                if (!resp.ok) {
+                    mostrarToastEstudio(data.mensagem || 'Ocorreu um erro na ação.', false);
+                    return;
+                }
+
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                    return;
+                }
+
+                if (data.som_efeito) {
+                    tocarSomEstudio(data.som_efeito);
+                }
+
+                if (data.mensagem) {
+                    mostrarToastEstudio(data.mensagem, true);
+                }
+
+                // 1. Atualizar Próxima Pergunta
+                if (data.pergunta) {
+                    atualizarDOMPerguntaEstudio(data);
+                }
+
+                // 2. Atualizar Estado (Pausado / Em Curso)
+                if (data.estado) {
+                    atualizarDOMEstadoEstudio(data.estado);
+                }
+
+                // 3. Atualizar Ajudas
+                if (data.ajudas) {
+                    atualizarDOMAjudasEstudio(data.ajudas);
+                }
+
+                // 4. Nova Equipe criada
+                if (data.equipe) {
+                    const c = document.getElementById('listaEquipesContainer');
+                    if (c) {
+                        const span = document.createElement('span');
+                        span.className = 'text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-300';
+                        span.textContent = `${data.equipe.nome} (0 pts)`;
+                        c.appendChild(span);
+                    }
+                    form.reset();
+                }
+
+            } catch (err) {
+                if (btnSubmit) btnSubmit.disabled = false;
+                mostrarToastEstudio('Erro de conexão ao executar comando.', false);
+            }
+        });
+
+        function atualizarDOMPerguntaEstudio(data) {
+            const q = data.pergunta;
+            respostaCorretaAtual = (q.resposta_correta || '').trim();
+
+            const enunciado = document.getElementById('textoPerguntaEstudio');
+            if (enunciado) enunciado.textContent = q.texto;
+
+            const badgeNum = document.getElementById('badgePerguntaNum');
+            if (badgeNum) badgeNum.textContent = `Pergunta ${data.numero_pergunta || 1} de ${data.total_perguntas || 24}`;
+
+            const badgeFase = document.getElementById('badgeFaseTopo');
+            if (badgeFase && data.placar_milhao) {
+                badgeFase.textContent = `${data.fase_atual}ª FASE • VALE ${data.placar_milhao.valor_pergunta || 10} PTS`;
+            }
+
+            const badgeLivro = document.getElementById('badgeLivro');
+            const badgeLivroNome = document.getElementById('badgeLivroNome');
+            if (badgeLivro && badgeLivroNome) {
+                if (q.livro_nome) {
+                    badgeLivroNome.textContent = q.livro_nome;
+                    badgeLivro.classList.remove('hidden');
+                } else {
+                    badgeLivro.classList.add('hidden');
+                }
+            }
+
+            // Alternativas
+            const containerAlt = document.getElementById('containerAlternativasEstudio');
+            if (containerAlt && Array.isArray(q.opcoes)) {
+                containerAlt.innerHTML = q.opcoes.map((opcao, idx) => {
+                    const ehCorreta = String(opcao).trim().toLowerCase() === respostaCorretaAtual.toLowerCase();
+                    const letra = letrasAlfabeto[idx] || (idx + 1);
+                    return `
+                        <div id="opcaoEstudio_${idx}" class="p-3.5 rounded-2xl border-2 flex items-center gap-3 ${ehCorreta ? 'border-emerald-500 bg-emerald-950/50 text-emerald-100' : 'border-slate-800 bg-slate-950/80 text-slate-200'}">
+                            <span class="w-8 h-8 rounded-xl font-black flex items-center justify-center shrink-0 text-sm ${ehCorreta ? 'bg-emerald-500 text-slate-950' : 'bg-amber-500 text-slate-950'}">
+                                ${letra}
+                            </span>
+                            <span class="font-bold text-sm flex-1">${opcao}</span>
+                            ${ehCorreta ? '<span class="inline-flex items-center gap-1 text-[11px] font-black text-emerald-300 bg-emerald-500/20 border border-emerald-500/30 px-2 py-0.5 rounded-lg">Correta</span>' : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Resetar caixas de ajuda
+            const refBiblica = document.getElementById('referenciaBiblicaAjuda');
+            if (refBiblica) refBiblica.textContent = q.referencia_biblica || 'Contexto Bíblico';
+
+            const boxAjudas = document.getElementById('boxDicasAtivasContainer');
+            if (boxAjudas) boxAjudas.classList.add('hidden');
+
+            const badgeGab = document.getElementById('badgeGabaritoVisivel');
+            if (badgeGab) badgeGab.classList.add('hidden');
+
+            const txtGab = document.getElementById('txtBtnGabarito');
+            if (txtGab) txtGab.textContent = 'Revelar no Telão';
+            gabaritoVisivelTelao = false;
+        }
+
+        function atualizarDOMEstadoEstudio(estado) {
+            estadoSalaAtual = estado;
+            const badgeEstado = document.getElementById('badgeEstadoSala');
+            if (badgeEstado) {
+                badgeEstado.textContent = estado === 'pausado' ? 'Pausado' : 'Em curso';
+                badgeEstado.className = 'text-xs font-bold px-2.5 py-1 rounded-full ' + (estado === 'pausado' ? 'bg-yellow-500/20 text-yellow-300' : 'bg-emerald-500/20 text-emerald-300');
+            }
+
+            const containerBtn = document.getElementById('containerBtnPausarRetomar');
+            if (containerBtn) {
+                if (estado === 'pausado') {
+                    containerBtn.innerHTML = `
+                        <form action="/apresentador/control/{{ $sala->id }}/retomar" method="POST" class="form-ajax-control h-full">
+                            <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''}">
+                            <button type="submit" class="w-full h-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3 px-3 rounded-xl transition shadow text-xs flex items-center justify-center gap-1.5">
+                                Retomar
+                            </button>
+                        </form>
+                    `;
+                } else {
+                    containerBtn.innerHTML = `
+                        <form action="/apresentador/control/{{ $sala->id }}/pausar" method="POST" class="form-ajax-control h-full">
+                            <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''}">
+                            <button type="submit" class="w-full h-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 px-3 rounded-xl transition shadow text-xs flex items-center justify-center gap-1.5">
+                                Pausar
+                            </button>
+                        </form>
+                    `;
+                }
+            }
+        }
+
+        function atualizarDOMAjudasEstudio(ajudas) {
+            // 1. Revelar gabarito
+            if (ajudas.gabarito_revelado !== undefined) {
+                gabaritoVisivelTelao = !!ajudas.gabarito_revelado;
+                const badgeGab = document.getElementById('badgeGabaritoVisivel');
+                if (badgeGab) {
+                    if (gabaritoVisivelTelao) badgeGab.classList.remove('hidden');
+                    else badgeGab.classList.add('hidden');
+                }
+                const txtGab = document.getElementById('txtBtnGabarito');
+                if (txtGab) {
+                    txtGab.textContent = gabaritoVisivelTelao ? 'Ocultar Gabarito' : 'Revelar no Telão';
+                }
+            }
+
+            // 2. Cartas 50/50 eliminadas
+            if (Array.isArray(ajudas.opcoes_eliminadas)) {
+                ajudas.opcoes_eliminadas.forEach(idx => {
+                    const el = document.getElementById(`opcaoEstudio_${idx}`);
+                    if (el) {
+                        el.className = 'p-3.5 rounded-2xl border-2 flex items-center gap-3 opacity-40 border-slate-800 bg-slate-950 line-through';
+                    }
+                });
+                const btnCartas = document.getElementById('btnAjudaCartas');
+                const txtCartas = document.getElementById('txtCartasStatus');
+                if (btnCartas && ajudas.cartas_usada) {
+                    btnCartas.disabled = true;
+                    if (txtCartas) txtCartas.textContent = 'Usada';
+                }
+            }
+
+            // 3. Dica bíblica
+            if (ajudas.dica_biblica) {
+                const boxAjudas = document.getElementById('boxDicasAtivasContainer');
+                const boxDica = document.getElementById('boxTextoDicaBiblica');
+                const conteudo = document.getElementById('conteudoDicaBiblica');
+                if (boxAjudas && boxDica && conteudo) {
+                    conteudo.textContent = ajudas.dica_biblica;
+                    boxDica.classList.remove('hidden');
+                    boxAjudas.classList.remove('hidden');
+                }
+                const txtDicas = document.getElementById('txtDicasRestantes');
+                if (txtDicas && ajudas.dicas_restantes !== undefined) {
+                    txtDicas.textContent = `${ajudas.dicas_restantes} restantes`;
+                }
+            }
+
+            // 4. Convidado bíblico
+            if (ajudas.dica_convidado) {
+                const boxAjudas = document.getElementById('boxDicasAtivasContainer');
+                const boxConv = document.getElementById('boxTextoDicaConvidado');
+                const nomeConv = document.getElementById('nomeConvidadoDica');
+                const conteudoConv = document.getElementById('conteudoDicaConvidado');
+                if (boxAjudas && boxConv && nomeConv && conteudoConv) {
+                    nomeConv.textContent = ajudas.dica_convidado.convidado + ':';
+                    conteudoConv.textContent = ajudas.dica_convidado.mensagem;
+                    boxConv.classList.remove('hidden');
+                    boxAjudas.classList.remove('hidden');
+                }
+            }
+
+            // 5. Pulos restantes
+            if (ajudas.pulos_restantes !== undefined) {
+                const txtPulo = document.getElementById('txtBtnPulo');
+                if (txtPulo) txtPulo.textContent = `Pular (${ajudas.pulos_restantes})`;
+            }
+        }
+
         async function sincronizarParticipantes() {
             try {
                 const resp = await fetch('/api/salas/{{ $sala->id }}', {
@@ -527,8 +777,15 @@
             } catch (e) {}
         }
 
-        setInterval(sincronizarParticipantes, 2500);
+        // Sincronização em tempo real ágil (1.5 segundos)
+        setInterval(sincronizarParticipantes, 1500);
     </script>
 
+    <!-- Toast de Notificação Estúdio em Tempo Real -->
+    <div id="toastEstudio" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="px-5 py-3 rounded-2xl shadow-2xl text-sm font-bold flex items-center gap-3 border text-white" id="toastEstudioContent">
+            <span id="toastEstudioMsg"></span>
+        </div>
+    </div>
 </body>
 </html>

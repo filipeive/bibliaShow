@@ -192,11 +192,29 @@ class ApresentadorController extends Controller
         $this->salvarEngineNaSala($salaId, $engine);
 
         if (!$resultado['sucesso']) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'sucesso' => false,
+                    'mensagem' => $resultado['mensagem'] ?? 'Não foi possível usar este recurso.',
+                ], 422);
+            }
             return back()->with('error', $resultado['mensagem'] ?? 'Não foi possível usar este recurso.');
         }
 
         if (!empty($resultado['som_efeito'])) {
             session()->flash('som_efeito', $resultado['som_efeito']);
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            $estadoAtualizado = $engine->getState();
+            return response()->json([
+                'sucesso' => true,
+                'mensagem' => $resultado['mensagem'] ?? 'Recurso ativado com sucesso!',
+                'som_efeito' => $resultado['som_efeito'] ?? null,
+                'estado' => $estadoAtualizado['estado'] ?? 'em_curso',
+                'ajudas' => $estadoAtualizado['ajudas'] ?? [],
+                'pergunta' => $estadoAtualizado['pergunta_atual'] ?? null,
+            ]);
         }
 
         return back()->with('success', $resultado['mensagem'] ?? 'Recurso ativado com sucesso!');
@@ -214,6 +232,15 @@ class ApresentadorController extends Controller
             'premio_primeiro_lugar' => $request->input('premio_primeiro_lugar'),
             'premio_segundo_lugar' => $request->input('premio_segundo_lugar'),
         ]);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'sucesso' => true,
+                'mensagem' => 'Prêmios de 1º e 2º lugar atualizados com sucesso!',
+                'premio_primeiro_lugar' => $sala->premio_primeiro_lugar,
+                'premio_segundo_lugar' => $sala->premio_segundo_lugar,
+            ]);
+        }
 
         return back()->with('success', 'Prêmios de 1º e 2º lugar atualizados para a sala!');
     }
@@ -246,6 +273,9 @@ class ApresentadorController extends Controller
     {
         $engine = $this->carregarEngineDaSala($salaId);
         if (!$engine) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['sucesso' => false, 'mensagem' => 'Sessão de jogo não encontrada.'], 404);
+            }
             return back()->with('error', 'Sessão de jogo não encontrada.');
         }
 
@@ -256,6 +286,13 @@ class ApresentadorController extends Controller
         $estado = $engine->getState();
 
         if ($estado['estado'] === 'terminado') {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'sucesso' => true,
+                    'estado' => 'terminado',
+                    'redirect' => route('apresentador.resultado', $salaId),
+                ]);
+            }
             return redirect()->route('apresentador.resultado', $salaId);
         }
 
@@ -275,6 +312,21 @@ class ApresentadorController extends Controller
             $estado['tempo_restante']
         ));
 
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'sucesso' => true,
+                'mensagem' => 'Próxima pergunta iniciada com sucesso!',
+                'som_efeito' => $som,
+                'estado' => $estado['estado'],
+                'fase_atual' => $estado['fase_atual'] ?? 1,
+                'numero_pergunta' => $estado['numero_pergunta'] ?? 1,
+                'total_perguntas' => $estado['total_perguntas'] ?? 24,
+                'placar_milhao' => $estado['placar_milhao'] ?? null,
+                'pergunta' => $estado['pergunta_atual'] ?? null,
+                'ajudas' => $estado['ajudas'] ?? [],
+            ]);
+        }
+
         return back()->with('success', 'Próxima pergunta iniciada no telão e smartphones.');
     }
 
@@ -282,6 +334,9 @@ class ApresentadorController extends Controller
     {
         $engine = $this->carregarEngineDaSala($salaId);
         if (!$engine) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['sucesso' => false, 'mensagem' => 'Sessão de jogo não encontrada.'], 404);
+            }
             return back()->with('error', 'Sessão de jogo não encontrada.');
         }
 
@@ -296,6 +351,14 @@ class ApresentadorController extends Controller
             $estado['tempo_restante']
         ));
 
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'sucesso' => true,
+                'mensagem' => 'Jogo pausado.',
+                'estado' => 'pausado',
+            ]);
+        }
+
         return back()->with('success', 'Jogo pausado.');
     }
 
@@ -303,6 +366,9 @@ class ApresentadorController extends Controller
     {
         $engine = $this->carregarEngineDaSala($salaId);
         if (!$engine) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['sucesso' => false, 'mensagem' => 'Sessão de jogo não encontrada.'], 404);
+            }
             return back()->with('error', 'Sessão de jogo não encontrada.');
         }
 
@@ -316,6 +382,14 @@ class ApresentadorController extends Controller
             $estado['pergunta_atual'] ?? null,
             $estado['tempo_restante']
         ));
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'sucesso' => true,
+                'mensagem' => 'Jogo retomado.',
+                'estado' => 'em_curso',
+            ]);
+        }
 
         return back()->with('success', 'Jogo retomado.');
     }
@@ -335,7 +409,46 @@ class ApresentadorController extends Controller
 
         $this->tentarBroadcast(new JogoEstadoAlterado((int) $salaId, 'terminado'));
 
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'sucesso' => true,
+                'mensagem' => 'Partida finalizada!',
+                'redirect' => route('apresentador.resultado', $salaId),
+            ]);
+        }
+
         return redirect()->route('apresentador.resultado', $salaId);
+    }
+
+    public function eliminarSala(Request $request, $salaId)
+    {
+        $sala = Sala::findOrFail($salaId);
+        $nome = $sala->nome;
+        $codigo = $sala->codigo_acesso;
+
+        session()->forget('game_engine_' . $salaId);
+
+        try {
+            foreach ($sala->jogos as $j) {
+                $j->respostas()->delete();
+                $j->delete();
+            }
+            $sala->participantes()->delete();
+            $sala->equipes()->delete();
+            $sala->delete();
+        } catch (\Throwable $e) {
+            $sala->delete();
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'sucesso' => true,
+                'mensagem' => "Sala «{$nome}» ({$codigo}) excluída com sucesso!",
+                'sala_id' => (int) $salaId,
+            ]);
+        }
+
+        return redirect()->route('apresentador.painel')->with('success', "Sala «{$nome}» ({$codigo}) excluída.");
     }
 
     public function resultado($salaId)

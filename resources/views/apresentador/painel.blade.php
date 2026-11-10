@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Bíblia Show — Painel do Apresentador</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -119,7 +120,7 @@
                         </thead>
                         <tbody class="divide-y divide-slate-800/70">
                             @foreach($salas as $sala)
-                                <tr class="hover:bg-slate-800/40 transition">
+                                <tr id="salaPainelRow_{{ $sala->id }}" class="hover:bg-slate-800/40 transition">
                                     <td class="py-4">
                                         <div class="text-white font-bold">{{ $sala->nome }}</div>
                                         @if($sala->premio_primeiro_lugar || $sala->premio_segundo_lugar)
@@ -170,6 +171,10 @@
                                             </svg>
                                             Smartphone
                                         </a>
+                                        <button type="button" onclick="eliminarSalaPainel({{ $sala->id }}, '{{ addslashes($sala->nome) }}')"
+                                                class="inline-flex items-center gap-1 bg-rose-500/20 hover:bg-rose-500 border border-rose-500/40 text-rose-300 hover:text-white px-3 py-2 rounded-xl text-xs font-bold transition">
+                                            Excluir
+                                        </button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -180,5 +185,66 @@
         </div>
     </div>
 
+    <!-- Toast Apresentador -->
+    <div id="toastPainel" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="px-5 py-3 rounded-2xl shadow-2xl text-sm font-bold flex items-center gap-3 border text-white" id="toastPainelContent">
+            <span id="toastPainelMsg"></span>
+        </div>
+    </div>
+
+    <script>
+        function mostrarToastPainel(mensagem, sucesso = true) {
+            const toast = document.getElementById('toastPainel');
+            const content = document.getElementById('toastPainelContent');
+            const msg = document.getElementById('toastPainelMsg');
+            if (!toast || !content || !msg) return;
+
+            msg.textContent = mensagem;
+            content.className = sucesso
+                ? 'px-5 py-3 rounded-2xl shadow-2xl text-sm font-bold flex items-center gap-3 border bg-emerald-950/95 border-emerald-500/50 text-emerald-200'
+                : 'px-5 py-3 rounded-2xl shadow-2xl text-sm font-bold flex items-center gap-3 border bg-rose-950/95 border-rose-500/50 text-rose-200';
+
+            toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+            }, 3500);
+        }
+
+        async function eliminarSalaPainel(salaId, nomeSala) {
+            if (!confirm(`Deseja excluir a sala «${nomeSala}»? Todos os participantes conectados e dados de jogo serão removidos.`)) {
+                return;
+            }
+
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+            try {
+                const resp = await fetch(`/apresentador/salas/${salaId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token || '',
+                    }
+                });
+
+                const data = await resp.json().catch(() => ({}));
+
+                if (resp.ok && data.sucesso) {
+                    const row = document.getElementById(`salaPainelRow_${salaId}`);
+                    if (row) {
+                        row.style.transition = 'all 0.4s ease';
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(20px)';
+                        setTimeout(() => row.remove(), 400);
+                    }
+                    mostrarToastPainel(data.mensagem || `Sala «${nomeSala}» excluída com sucesso!`, true);
+                } else {
+                    mostrarToastPainel(data.mensagem || 'Não foi possível excluir a sala.', false);
+                }
+            } catch (err) {
+                mostrarToastPainel('Erro de conexão ao excluir sala.', false);
+            }
+        }
+    </script>
 </body>
 </html>

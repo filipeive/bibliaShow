@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Bíblia Show — Painel de Administração</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -156,9 +157,9 @@
                                         <th class="pb-3 text-right">Ações</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-800/70">
+                                <tbody class="divide-y divide-slate-800/70" id="tabelaSalasBody">
                                     @foreach($salasRecentes as $s)
-                                        <tr>
+                                        <tr id="salaRow_{{ $s->id }}" class="hover:bg-slate-800/30 transition">
                                             <td class="py-3.5 font-bold text-white">{{ $s->nome }}</td>
                                             <td class="py-3.5">
                                                 <span class="font-mono font-black text-amber-300 bg-amber-500/15 border border-amber-500/30 px-2.5 py-1 rounded-lg text-xs">
@@ -174,6 +175,10 @@
                                             <td class="py-3.5 text-right space-x-1.5 whitespace-nowrap">
                                                 <a href="{{ route('apresentador.control', $s->id) }}" class="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-extrabold text-xs">Controlar</a>
                                                 <a href="{{ route('projecao.tela', $s->id) }}" target="_blank" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-200 font-bold text-xs">Telão</a>
+                                                <button type="button" onclick="eliminarSalaAdmin({{ $s->id }}, '{{ addslashes($s->nome) }}')"
+                                                        class="px-2.5 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white font-bold text-xs border border-rose-500/40 transition">
+                                                    Excluir
+                                                </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -285,6 +290,67 @@
         </div>
     </div>
 
+    <!-- Toast de Notificação Admin em Tempo Real -->
+    <div id="toastAdmin" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="px-5 py-3 rounded-2xl shadow-2xl text-sm font-bold flex items-center gap-3 border text-white" id="toastAdminContent">
+            <span id="toastAdminMsg"></span>
+        </div>
+    </div>
+
+    <script>
+        function mostrarToastAdmin(mensagem, sucesso = true) {
+            const toast = document.getElementById('toastAdmin');
+            const content = document.getElementById('toastAdminContent');
+            const msg = document.getElementById('toastAdminMsg');
+            if (!toast || !content || !msg) return;
+
+            msg.textContent = mensagem;
+            content.className = sucesso
+                ? 'px-5 py-3 rounded-2xl shadow-2xl text-sm font-bold flex items-center gap-3 border bg-emerald-950/95 border-emerald-500/50 text-emerald-200'
+                : 'px-5 py-3 rounded-2xl shadow-2xl text-sm font-bold flex items-center gap-3 border bg-rose-950/95 border-rose-500/50 text-rose-200';
+
+            toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+            }, 3500);
+        }
+
+        async function eliminarSalaAdmin(salaId, nomeSala) {
+            if (!confirm(`Tem certeza de que deseja eliminar permanentemente a sala «${nomeSala}»? Todos os jogos e participantes desta sala serão removidos.`)) {
+                return;
+            }
+
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+            try {
+                const resp = await fetch(`/admin/salas/${salaId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token || '',
+                    }
+                });
+
+                const data = await resp.json().catch(() => ({}));
+
+                if (resp.ok && data.sucesso) {
+                    const row = document.getElementById(`salaRow_${salaId}`);
+                    if (row) {
+                        row.style.transition = 'all 0.4s ease';
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(20px)';
+                        setTimeout(() => row.remove(), 400);
+                    }
+                    mostrarToastAdmin(data.mensagem || `Sala «${nomeSala}» eliminada com sucesso!`, true);
+                } else {
+                    mostrarToastAdmin(data.mensagem || 'Erro ao eliminar sala.', false);
+                }
+            } catch (err) {
+                mostrarToastAdmin('Falha de conexão ao eliminar a sala.', false);
+            }
+        }
+    </script>
 </body>
 </html>
 

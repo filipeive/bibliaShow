@@ -166,5 +166,38 @@ class AdminController extends Controller
             'Content-Disposition' => 'attachment; filename="biblia-show-questoes.json"',
         ]);
     }
+
+    public function eliminarSala(Request $request, Sala $sala)
+    {
+        $nome = $sala->nome;
+        $codigo = $sala->codigo_acesso;
+
+        // Limpar sessões do motor em cache/sessão
+        session()->forget('game_engine_' . $sala->id);
+
+        // Deletar respostas, participantes e jogos vinculados
+        try {
+            foreach ($sala->jogos as $j) {
+                $j->respostas()->delete();
+                $j->delete();
+            }
+            $sala->participantes()->delete();
+            $sala->equipes()->delete();
+            $sala->delete();
+        } catch (\Throwable $e) {
+            // Em caso de chave estrangeira com soft deletes
+            $sala->delete();
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'sucesso' => true,
+                'mensagem' => "Sala «{$nome}» ({$codigo}) foi eliminada com sucesso!",
+                'sala_id' => $sala->id,
+            ]);
+        }
+
+        return back()->with('success', "Sala «{$nome}» ({$codigo}) eliminada com sucesso.");
+    }
 }
 

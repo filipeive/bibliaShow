@@ -27,6 +27,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::post('/usuarios', [AdminController::class, 'salvarUsuario'])->name('usuarios.salvar');
     Route::post('/reimportar-classico', [AdminController::class, 'reimportarClassico'])->name('reimportar');
     Route::get('/exportar-perguntas', [AdminController::class, 'exportarPerguntas'])->name('exportar');
+    Route::delete('/salas/{sala}', [AdminController::class, 'eliminarSala'])->name('salas.destroy');
+    Route::post('/salas/{sala}/excluir', [AdminController::class, 'eliminarSala'])->name('salas.excluir');
 });
 
 // Enciclopédia Bíblica & Regras Clássicas
@@ -55,6 +57,8 @@ Route::prefix('apresentador')->name('apresentador.')->group(function () {
     Route::post('/control/{sala}/retomar', [ApresentadorController::class, 'retomar'])->name('retomar');
     Route::post('/control/{sala}/finalizar', [ApresentadorController::class, 'finalizar'])->name('finalizar');
     Route::get('/control/{sala}/resultado', [ApresentadorController::class, 'resultado'])->name('resultado');
+    Route::delete('/salas/{sala}', [ApresentadorController::class, 'eliminarSala'])->name('salas.destroy');
+    Route::post('/salas/{sala}/excluir', [ApresentadorController::class, 'eliminarSala'])->name('salas.excluir');
 });
 
 // Projeção para Telão / TV

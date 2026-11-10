@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('sala_id')->constrained()->onDelete('cascade');
             $table->enum('estado', ['aguardando', 'em_curso', 'pausado', 'terminado'])->default('aguardando');
-            $table->foreignId('pergunta_atual_id')->nullable()->constrained('questoes')->nullOnDelete();
+            $table->unsignedBigInteger('pergunta_atual_id')->nullable();
             $table->integer('pontuacao_total')->default(0);
             $table->timestamps();
             $table->softDeletes();

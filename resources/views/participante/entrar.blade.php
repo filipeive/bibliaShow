@@ -277,7 +277,7 @@
             document.getElementById('jogadorPontosDisplay').innerText = estadoSessao.pontuacao;
 
             sincronizarEstadoSala();
-            setInterval(sincronizarEstadoSala, 2000);
+            setInterval(sincronizarEstadoSala, 1200);
         }
 
         async function sincronizarEstadoSala() {
