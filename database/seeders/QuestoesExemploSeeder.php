@@ -22,6 +22,7 @@ class QuestoesExemploSeeder extends Seeder
             [
                 'livro_id' => 1, // Gênesis
                 'texto' => 'Quem foi o primeiro homem criado por Deus?',
+                'opcoes' => ['Adão', 'Noé', 'Abraão', 'Moisés'],
                 'resposta_correta' => 'Adão',
                 'explicacao' => 'Adão foi o primeiro homem, criado por Deus segundo Gênesis 2:7.',
                 'contexto' => 'Criação do mundo e da humanidade no Jardim do Éden.',
@@ -37,8 +38,9 @@ class QuestoesExemploSeeder extends Seeder
             [
                 'livro_id' => 44, // João
                 'texto' => 'Qual é o versículo mais conhecido do Novo Testamento sobre o amor de Deus?',
+                'opcoes' => ['João 3:16', 'Romanos 8:28', 'Salmos 23:1', 'Provérbios 3:5'],
                 'resposta_correta' => 'João 3:16',
-                'explicacao' => '\"Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.\"',
+                'explicacao' => '"Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna."',
                 'contexto' => 'Conversa de Jesus com Nicodemos sobre o nascimento de cima.',
                 'dificuldade_id' => 1,
                 'categoria_id' => 6, // Vida de Jesus

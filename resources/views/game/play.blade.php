@@ -63,21 +63,23 @@
                     <p class="text-xl font-medium text-slate-800 leading-relaxed">{{ $pergunta['texto'] ?? $pergunta->texto }}</p>
                 </div>
 
-                <form action="{{ route('game.answer') }}" method="POST" class="space-y-3">
+                <form action="{{ route('game.answer') }}" method="POST" id="respostaForm" class="space-y-3">
                     @csrf
                     <input type="hidden" name="tempo_resposta" id="tempo_resposta" value="0">
+                    <input type="hidden" name="resposta" id="respostaSelecionada" value="">
 
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-2">Sua resposta:</label>
-                        <input type="text" name="resposta" required
-                               class="w-full px-4 py-3 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-lg"
-                               placeholder="Digite sua resposta aqui..." autofocus>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        @php
+                            $opcoes = $pergunta['opcoes'] ?? [];
+                            $opcoesArray = is_string($opcoes) ? json_decode($opcoes, true) : $opcoes;
+                        @endphp
+                        @foreach($opcoesArray as $indice => $opcao)
+                            <label class="cursor-pointer block border-2 border-slate-200 rounded-xl p-4 hover:border-blue-400 hover:bg-blue-50 transition flex items-center gap-3 group">
+                                <input type="radio" name="resposta" value="{{ $indice }}" class="w-5 h-5 text-blue-600 border-slate-300 focus:ring-blue-500" onchange="document.getElementById('respostaSelecionada').value = this.value; document.getElementById('respostaForm').requestSubmit();">
+                                <span class="text-slate-700 font-medium">{{ $opcao }}</span>
+                            </label>
+                        @endforeach
                     </div>
-
-                    <button type="submit"
-                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg transition shadow-md">
-                        Responder
-                    </button>
                 </form>
             </div>
 
@@ -89,8 +91,7 @@
             <script>
                 let tempo = {{ $tempo_restante }};
                 const timerEl = document.getElementById('timer');
-                const form = document.querySelector('form');
-                const input = form.querySelector('input[name="resposta"]');
+                const form = document.getElementById('respostaForm');
                 const hiddenTempo = form.querySelector('input[name="tempo_resposta"]');
 
                 let timerInterval = setInterval(() => {
@@ -104,12 +105,6 @@
                         form.submit();
                     }
                 }, 1000);
-
-                input.addEventListener('input', () => {
-                    if (input.value.trim()) {
-                        form.requestSubmit();
-                    }
-                });
             </script>
 
         @elseif($estado === 'terminado')

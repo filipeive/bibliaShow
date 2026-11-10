@@ -61,10 +61,19 @@ class GameController extends Controller
         }
 
         $pergunta = $engine->getState()['pergunta_atual'];
+
+        // Converter índice da opção para o texto da resposta (seleção múltipla)
+        $resposta = $request->resposta;
+        $opcoes = $pergunta['opcoes'] ?? [];
+        $opcoesArray = is_string($opcoes) ? json_decode($opcoes, true) : $opcoes;
+        if (is_array($opcoesArray) && isset($opcoesArray[$resposta])) {
+            $resposta = $opcoesArray[$resposta];
+        }
+
         $resultado = $engine->answerQuestion(
             1,
             $pergunta['id'] ?? 0,
-            $request->resposta,
+            $resposta,
             $request->tempo_resposta
         );
 
