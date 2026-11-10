@@ -14,12 +14,36 @@ use Illuminate\Http\Request;
 
 class GameController extends Controller
 {
+    public function definirJogador(Request $request)
+    {
+        $request->validate([
+            'jogador_nome' => 'required|string|max:60',
+            'novo' => 'nullable|boolean',
+        ]);
+
+        $nome = trim($request->input('jogador_nome'));
+        $request->session()->put('jogador_nome', $nome);
+
+        if ($request->boolean('novo')) {
+            $request->session()->forget(['game_engine', 'resultados']);
+        }
+
+        return redirect()->route('game.play');
+    }
+
     public function jogar(Request $request)
     {
+        if ($request->filled('jogador_nome')) {
+            $request->session()->put('jogador_nome', trim((string) $request->input('jogador_nome')));
+        }
+
         $novaPartida = $request->boolean('novo');
         if ($novaPartida) {
             $request->session()->forget(['game_engine', 'resultados']);
         }
+
+        $jogadorNome = (string) $request->session()->get('jogador_nome', $request->user()?->nome ?? '');
+        $precisaIdentificacao = ($jogadorNome === '');
 
         $engine = $this->carregarEngineDaSessao($request);
         $iniciouAgora = false;
@@ -34,7 +58,7 @@ class GameController extends Controller
                 new GameState()
             );
 
-            $engine->start($questoes);
+            $engine->start($questoes, [['id' => 1, 'nome' => $jogadorNome ?: 'Participante']]);
             $this->salvarEngineNaSessao($request, $engine);
             $iniciouAgora = true;
         }
@@ -48,6 +72,9 @@ class GameController extends Controller
         return view('game.play', [
             'estado' => $estado['estado'],
             'pergunta' => $pergunta,
+            'jogador_nome' => $jogadorNome ?: 'Participante',
+            'precisa_identificacao' => $precisaIdentificacao,
+            'ranking_geral' => $this->obterRankingIndividual(),
             'numero_pergunta' => $estado['numero_pergunta'] ?? 1,
             'total_perguntas' => $estado['total_perguntas'] ?? 24,
             'fase_atual' => $estado['fase_atual'] ?? 1,
@@ -117,36 +144,61 @@ class GameController extends Controller
             );
         }
 
-        // Regra 1: 3 erros reiniciam o jogo
-        // Regra 2: 3 tempos esgotados encerram e reiniciam o jogo
-        if (!empty($resultado['reiniciar_por_erros']) || !empty($resultado['reiniciar_por_tempo'])) {
-            $msgReinicio = !empty($resultado['reiniciar_por_erros'])
-                ? 'Você cometeu 3 erros nesta partida! O jogo foi encerrado e reiniciado automaticamente.'
-                : 'O tempo esgotou em 3 perguntas! O jogo foi encerrado e reiniciado automaticamente.';
+        $nomeJogador = (string) $request->session()->get('jogador_nome', $request->user()?->nome ?? 'Participante');
 
-            $request->session()->forget(['game_engine', 'resultados']);
-            $request->session()->flash('aviso_reinicio', $msgReinicio);
-            $request->session()->flash('resultado', $resultado);
+        // Se atingiu 3 erros ou 3 tempos esgotados: encerra a partida com mensagem amigável e leva para /jogar/resultado
+        if (!empty($resultado['reiniciar_por_erros']) || !empty($resultado['reiniciar_por_tempo'])) {
+            $engine->finishGame();
+            $resultadosPartida = $engine->getResults();
+
+            $msgAmigavel = !empty($resultado['reiniciar_por_erros'])
+                ? "Que jornada incrível, {$nomeJogador}! Você alcançou o limite de 3 respostas incorretas nesta partida. Não desanime: cada pergunta é uma oportunidade de aprender mais sobre as Escrituras. Veja abaixo seu resumo e escolha quando quiser jogar novamente!"
+                : "Boa tentativa, {$nomeJogador}! O cronômetro esgotou em 3 perguntas nesta partida. Respire fundo, confira sua pontuação no Ranking abaixo e inicie uma nova tentativa quando estiver pronto!";
+
+            $resultadosPartida['jogador_nome'] = $nomeJogador;
+            $resultadosPartida['perdeu_partida'] = true;
+            $resultadosPartida['motivo_fim'] = !empty($resultado['reiniciar_por_erros']) ? 'limite_erros' : 'tempo_esgotado';
+            $resultadosPartida['mensagem_amigavel'] = $msgAmigavel;
+
+            $this->registrarNoRankingIndividual($nomeJogador, $resultadosPartida);
+
+            $request->session()->put('resultados', $resultadosPartida);
+            $request->session()->forget('game_engine');
 
             if ($request->expectsJson()) {
                 return response()->json(array_merge($resultado, [
-                    'reiniciar' => true,
-                    'mensagem_reinicio' => $msgReinicio,
-                    'redirect_url' => route('game.play', ['novo' => 1]),
+                    'fim_de_jogo' => true,
+                    'perdeu_partida' => true,
+                    'jogador_nome' => $nomeJogador,
+                    'mensagem_amigavel' => $msgAmigavel,
+                    'pontuacao_final' => $resultadosPartida['pontuacao_total'] ?? 0,
+                    'redirect_url' => route('game.result'),
                 ]));
             }
 
-            return redirect()->route('game.play', ['novo' => 1]);
+            return redirect()->route('game.result')->with('ultimo_resultado', $resultado);
         }
 
         $this->salvarEngineNaSessao($request, $engine);
 
         if ($engine->getState()['estado'] === 'terminado') {
-            $request->session()->put('resultados', $engine->getResults());
-            $request->session()->flash('ultimo_resultado', $resultado);
+            $resultadosPartida = $engine->getResults();
+            $resultadosPartida['jogador_nome'] = $nomeJogador;
+            $resultadosPartida['perdeu_partida'] = false;
+            $resultadosPartida['mensagem_amigavel'] = "Parabéns, {$nomeJogador}! Você concluiu todas as etapas desta partida do Bíblia Show!";
+
+            $this->registrarNoRankingIndividual($nomeJogador, $resultadosPartida);
+
+            $request->session()->put('resultados', $resultadosPartida);
+            $request->session()->forget('game_engine');
 
             if ($request->expectsJson()) {
                 return response()->json(array_merge($resultado, [
+                    'fim_de_jogo' => true,
+                    'perdeu_partida' => false,
+                    'jogador_nome' => $nomeJogador,
+                    'mensagem_amigavel' => $resultadosPartida['mensagem_amigavel'],
+                    'pontuacao_final' => $resultadosPartida['pontuacao_total'] ?? 0,
                     'redirect_url' => route('game.result'),
                 ]));
             }
@@ -158,6 +210,7 @@ class GameController extends Controller
 
         if ($request->expectsJson()) {
             return response()->json(array_merge($resultado, [
+                'fim_de_jogo' => false,
                 'redirect_url' => route('game.play'),
             ]));
         }
@@ -216,8 +269,16 @@ class GameController extends Controller
     {
         $engine = $this->carregarEngineDaSessao($request);
         if ($engine) {
+            $nomeJogador = (string) $request->session()->get('jogador_nome', $request->user()?->nome ?? 'Participante');
             $engine->finishGame();
-            $request->session()->put('resultados', $engine->getResults());
+            $resultados = $engine->getResults();
+            $resultados['jogador_nome'] = $nomeJogador;
+            $resultados['perdeu_partida'] = false;
+            $resultados['mensagem_amigavel'] = "Partida encerrada, {$nomeJogador}! Você garantiu sua pontuação atual no Ranking do Bíblia Show.";
+
+            $this->registrarNoRankingIndividual($nomeJogador, $resultados);
+
+            $request->session()->put('resultados', $resultados);
             $request->session()->forget('game_engine');
             return redirect()->route('game.result');
         }
@@ -228,11 +289,13 @@ class GameController extends Controller
     public function resultado(Request $request)
     {
         $resultados = $request->session()->get('resultados');
+        $nomeJogador = (string) $request->session()->get('jogador_nome', $request->user()?->nome ?? 'Participante');
 
         if (!$resultados) {
             $engine = $this->carregarEngineDaSessao($request);
             if ($engine) {
                 $resultados = $engine->getResults();
+                $resultados['jogador_nome'] = $nomeJogador;
             }
         }
 
@@ -242,6 +305,8 @@ class GameController extends Controller
 
         return view('game.result', [
             'resultados' => $resultados,
+            'jogador_nome' => $resultados['jogador_nome'] ?? $nomeJogador,
+            'ranking_geral' => $this->obterRankingIndividual(),
         ]);
     }
 
@@ -253,6 +318,55 @@ class GameController extends Controller
             : [];
 
         return view('game.curiosidades', compact('artigos'));
+    }
+
+    private function obterArquivoRanking(): string
+    {
+        return storage_path('app/ranking_individual.json');
+    }
+
+    private function obterRankingIndividual(): array
+    {
+        $path = $this->obterArquivoRanking();
+        if (!file_exists($path)) {
+            $inicial = [
+                ['nome' => 'Daniel', 'pontuacao' => 2400, 'acertos' => 24, 'data' => 'Clássico'],
+                ['nome' => 'Débora', 'pontuacao' => 1950, 'acertos' => 20, 'data' => 'Clássico'],
+                ['nome' => 'Salomão', 'pontuacao' => 1600, 'acertos' => 17, 'data' => 'Clássico'],
+                ['nome' => 'Ester', 'pontuacao' => 1250, 'acertos' => 14, 'data' => 'Clássico'],
+                ['nome' => 'Timóteo', 'pontuacao' => 900, 'acertos' => 10, 'data' => 'Clássico'],
+            ];
+            @file_put_contents($path, json_encode($inicial, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            return $inicial;
+        }
+
+        $dados = json_decode((string) file_get_contents($path), true);
+        return is_array($dados) ? $dados : [];
+    }
+
+    private function registrarNoRankingIndividual(string $nome, array $resultados): void
+    {
+        $nomeLimpo = trim($nome) ?: 'Participante';
+        $pontos = (int) ($resultados['pontuacao_total'] ?? 0);
+        $acertos = (int) ($resultados['total_acertos'] ?? 0);
+
+        $ranking = $this->obterRankingIndividual();
+        $ranking[] = [
+            'nome' => $nomeLimpo,
+            'pontuacao' => $pontos,
+            'acertos' => $acertos,
+            'data' => now()->format('d/m/Y H:i'),
+        ];
+
+        usort($ranking, function ($a, $b) {
+            if (($b['pontuacao'] ?? 0) !== ($a['pontuacao'] ?? 0)) {
+                return ($b['pontuacao'] ?? 0) <=> ($a['pontuacao'] ?? 0);
+            }
+            return ($b['acertos'] ?? 0) <=> ($a['acertos'] ?? 0);
+        });
+
+        $ranking = array_slice($ranking, 0, 20);
+        @file_put_contents($this->obterArquivoRanking(), json_encode($ranking, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     }
 
     private function selecionarQuestoesPartida(Request $request): array
@@ -277,7 +391,6 @@ class GameController extends Controller
             }
         }
 
-        // Seleção progressiva clássica das 4 Fases (6 de cada nível 1..4)
         $colecao = collect();
         foreach ([1, 2, 3, 4] as $nivel) {
             $porNivel = Questao::aprovadas()

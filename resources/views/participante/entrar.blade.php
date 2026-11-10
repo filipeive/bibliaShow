@@ -478,9 +478,14 @@
                     throw new Error(data.error || 'Não foi possível enviar a resposta.');
                 }
 
-                // 2. Após breve suspense (500ms), revelar verde/vermelho nas opções!
+                // 2. Após pausa dramática (1.2s), revelar verde/vermelho nas opções e tocar som se ativo nas Definições!
                 setTimeout(() => {
-                    new Audio(data.acertou ? '/audio/classico/certa1.wav' : '/audio/classico/errou1.wav').play().catch(() => {});
+                    const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : (localStorage.getItem('biblia_show_som') !== 'off');
+                    if (ativo) {
+                        const fx = new Audio(data.acertou ? '/audio/classico/certa1.wav' : '/audio/classico/errou1.wav');
+                        fx.volume = typeof obterVolumeGlobal === 'function' ? obterVolumeGlobal() : 0.85;
+                        fx.play().catch(() => {});
+                    }
 
                     revelarCoresOpcaoMobile(indiceOpcao, data.indice_correto, !!data.acertou);
 
@@ -502,7 +507,7 @@
                         <div class="text-[11px] mt-2 text-amber-300 font-semibold">Aguardando o apresentador avançar para a próxima pergunta...</div>
                     `;
                     fb.classList.remove('hidden');
-                }, 500);
+                }, 1200);
             } catch (err) {
                 estadoSessao.jaRespondeuAtual = false;
                 estadoSessao.reveladoNaPerguntaAtual = false;

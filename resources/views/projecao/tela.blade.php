@@ -59,7 +59,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
                     </svg>
-                    <span id="txtAudioProj">Ativar Som do Telão</span>
+                    <span id="txtAudioProj">Som do Telão: Ativo</span>
                 </button>
                 <div class="bg-amber-500/15 border border-amber-400/40 px-5 py-2 rounded-2xl text-center">
                     <p class="text-[10px] font-black uppercase tracking-wider text-amber-300">Código da Sala</p>
@@ -196,11 +196,22 @@
         let gabaritoEstavaRevelado = {{ $gabaritoRevelado ? 'true' : 'false' }};
         let dicaEstavaAtiva = {{ $dicaBiblica ? 'true' : 'false' }};
         let convidadoEstavaAtivo = {{ $dicaConvidado ? 'true' : 'false' }};
-        let somAtivo = false;
+        if (localStorage.getItem('biblia_show_som') === null) {
+            localStorage.setItem('biblia_show_som', 'on');
+        }
+        let somAtivo = localStorage.getItem('biblia_show_som') !== 'off';
 
         const trilhaSuspense = new Audio('/audio/classico/suspense.wav');
         trilhaSuspense.loop = true;
         trilhaSuspense.volume = 0.3;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const txt = document.getElementById('txtAudioProj');
+            if (txt) txt.textContent = somAtivo ? 'Som do Telão: Ativo' : 'Som do Telão: Desativado';
+            if (somAtivo && estadoAtual === 'em_curso') {
+                trilhaSuspense.play().catch(() => {});
+            }
+        });
 
         const qrEl = document.getElementById('qrcodeProj');
         if (qrEl && typeof QRCode !== 'undefined') {
@@ -216,14 +227,15 @@
 
         function alternarAudioProjecao() {
             somAtivo = !somAtivo;
+            localStorage.setItem('biblia_show_som', somAtivo ? 'on' : 'off');
             const txt = document.getElementById('txtAudioProj');
             if (somAtivo) {
-                if (txt) txt.textContent = 'Silenciar Telão';
+                if (txt) txt.textContent = 'Som do Telão: Ativo';
                 if (estadoAtual === 'em_curso') {
                     trilhaSuspense.play().catch(() => {});
                 }
             } else {
-                if (txt) txt.textContent = 'Ativar Som do Telão';
+                if (txt) txt.textContent = 'Som do Telão: Desativado';
                 trilhaSuspense.pause();
             }
         }

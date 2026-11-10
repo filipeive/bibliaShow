@@ -23,64 +23,48 @@
             background: linear-gradient(90deg, rgba(180, 83, 9, 0.25) 0%, rgba(30, 41, 59, 0.95) 100%);
         }
         .opcao-bloqueada {
-            background: linear-gradient(90deg, rgba(217, 119, 6, 0.35) 0%, rgba(120, 53, 15, 0.5) 100%) !important;
+            background: linear-gradient(90deg, rgba(217, 119, 6, 0.4) 0%, rgba(120, 53, 15, 0.55) 100%) !important;
             border-color: #fbbf24 !important;
-            box-shadow: 0 0 25px rgba(251, 191, 36, 0.25);
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.3);
         }
         .opcao-correta-reveal {
-            background: linear-gradient(90deg, rgba(5, 150, 105, 0.92) 0%, rgba(6, 95, 70, 0.95) 100%) !important;
+            background: linear-gradient(90deg, rgba(5, 150, 105, 0.95) 0%, rgba(6, 95, 70, 0.98) 100%) !important;
             border-color: #34d399 !important;
-            box-shadow: 0 0 30px rgba(16, 185, 129, 0.45);
+            box-shadow: 0 0 32px rgba(16, 185, 129, 0.5);
         }
         .opcao-errada-reveal {
-            background: linear-gradient(90deg, rgba(225, 29, 72, 0.92) 0%, rgba(136, 19, 55, 0.95) 100%) !important;
+            background: linear-gradient(90deg, rgba(225, 29, 72, 0.95) 0%, rgba(136, 19, 55, 0.98) 100%) !important;
             border-color: #fb7185 !important;
-            box-shadow: 0 0 30px rgba(244, 63, 94, 0.45);
+            box-shadow: 0 0 32px rgba(244, 63, 94, 0.5);
         }
     </style>
 </head>
 <body class="milhao-bg text-slate-100 min-h-screen">
 
-    <!-- Top Navigation Bar -->
-    <nav class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur sticky top-0 z-40">
-        <div class="max-w-5xl mx-auto px-4 h-16 flex justify-between items-center">
-            <a href="/" class="flex items-center gap-3 group">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20 text-slate-950 font-black text-base">
-                    B
+    @include('partials.navbar', ['dark' => true])
+
+    <div class="max-w-5xl mx-auto px-4 py-6 sm:py-8">
+
+        <!-- Barra de Controle da Partida Individual (Jogador, Fase, Reiniciar, Parar) -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl px-4 py-3 mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center font-black text-sm">
+                    {{ mb_strtoupper(mb_substr($jogador_nome ?? 'P', 0, 1)) }}
                 </div>
                 <div>
-                    <span class="font-extrabold text-lg text-white tracking-tight">Bíblia Show</span>
-                    <span class="hidden sm:inline-flex items-center gap-1 ml-2 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
-                        Fase {{ $fase_atual ?? 1 }} de 4
-                    </span>
+                    <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Participante no Palco</p>
+                    <div class="flex items-center gap-2">
+                        <span class="font-black text-white text-sm sm:text-base">{{ $jogador_nome ?? 'Participante' }}</span>
+                        <button type="button" onclick="abrirModalNomeJogador()" class="text-[11px] font-bold text-amber-400 hover:underline">
+                            (Trocar nome)
+                        </button>
+                    </div>
                 </div>
-            </a>
+            </div>
 
-            <div class="flex items-center gap-2 sm:gap-3">
-                <!-- Controle de Áudio Original -->
-                <button type="button" id="btnToggleSom" onclick="alternarSom()"
-                        class="inline-flex items-center gap-2 text-xs sm:text-sm bg-slate-800/90 hover:bg-slate-700 text-amber-300 px-3.5 py-2 rounded-xl font-semibold border border-slate-700 transition"
-                        title="Ativar/Desativar sons originais do Bíblia Show">
-                    <svg id="iconSomOn" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"/>
-                    </svg>
-                    <svg id="iconSomOff" class="w-4 h-4 hidden text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/>
-                    </svg>
-                    <span id="labelSom" class="hidden sm:inline">Sons Ativos</span>
-                </button>
-
-                <a href="{{ route('curiosidades') }}"
-                   class="hidden md:inline-flex items-center gap-1.5 text-xs sm:text-sm bg-slate-800/90 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl font-medium border border-slate-700 transition">
-                    <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                    </svg>
-                    <span>Enciclopédia & Regras</span>
-                </a>
-
+            <div class="flex items-center gap-2">
                 <a href="{{ route('game.play', ['novo' => 1]) }}"
-                   class="inline-flex items-center gap-1.5 text-xs sm:text-sm bg-slate-800/90 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl font-medium border border-slate-700 transition">
+                   class="inline-flex items-center gap-1.5 text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl font-bold border border-slate-700 transition">
                     <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                     </svg>
@@ -90,22 +74,18 @@
                 <form action="{{ route('game.finish') }}" method="POST" class="inline">
                     @csrf
                     <button type="submit"
-                            class="inline-flex items-center gap-1.5 text-xs sm:text-sm bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 px-3.5 py-2 rounded-xl font-semibold transition">
+                            class="inline-flex items-center gap-1.5 text-xs bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 px-3.5 py-2 rounded-xl font-bold transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <rect x="6" y="6" width="12" height="12" rx="2"/>
                         </svg>
-                        <span>Parar</span>
+                        <span>Parar e Ver Resultado</span>
                     </button>
                 </form>
             </div>
         </div>
-    </nav>
-
-    <div class="max-w-5xl mx-auto px-4 py-6 sm:py-8">
 
         @php
             $resultado = session('resultado');
-            $avisoReinicio = session('aviso_reinicio');
             $ajudaFeedback = session('ajuda_feedback');
             $opcoesEliminadas = $ajudas['opcoes_eliminadas'] ?? [];
             $dicaConvidado = $ajudas['dica_convidado'] ?? null;
@@ -131,21 +111,6 @@
             $novaFaseSom = $resultado['nova_fase'] ?? null;
         @endphp
 
-        <!-- Alerta de Reinício por 3 Erros ou 3 Tempos Esgotados -->
-        @if($avisoReinicio)
-            <div class="mb-6 rounded-2xl p-4 sm:p-5 bg-rose-950/90 border-2 border-rose-500 text-rose-100 shadow-2xl flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-rose-500 text-white flex items-center justify-center shrink-0">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                    </svg>
-                </div>
-                <div>
-                    <p class="font-black text-base sm:text-lg text-white">Partida Reiniciada!</p>
-                    <p class="text-sm text-rose-200">{{ $avisoReinicio }}</p>
-                </div>
-            </div>
-        @endif
-
         <!-- Feedback de Recurso de Ajuda -->
         @if($ajudaFeedback && !empty($ajudaFeedback['mensagem']))
             <div class="mb-5 rounded-xl p-3.5 bg-amber-500/15 border border-amber-500/40 text-amber-200 text-sm flex items-center gap-2.5">
@@ -167,7 +132,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Limite de Erros (3 reinicia)</p>
+                            <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Vidas (Máx. 3 Erros)</p>
                             <p class="text-xs font-bold text-slate-200">Erros cometidos: <strong id="errosContador" class="text-rose-400">{{ $erros_count ?? 0 }}</strong> / {{ $max_erros ?? 3 }}</p>
                         </div>
                     </div>
@@ -186,7 +151,7 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Tentativas de Tempo (3 reinicia)</p>
+                            <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Tentativas de Tempo (Máx. 3)</p>
                             <p class="text-xs font-bold text-slate-200">Tempos esgotados: <strong id="temposContador" class="text-amber-400">{{ $tempos_esgotados_count ?? 0 }}</strong> / {{ $max_tempos_esgotados ?? 3 }}</p>
                         </div>
                     </div>
@@ -200,7 +165,6 @@
 
             <!-- Painel Superior Estilo Show do Milhão: ERRAR | PARAR | ACERTAR + Temporizador -->
             <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
-                <!-- Caixa 1: ERRAR -->
                 <div class="bg-rose-950/40 border border-rose-500/30 rounded-2xl p-3.5 text-center">
                     <p class="text-[10px] font-extrabold uppercase tracking-widest text-rose-400">Errar</p>
                     <p class="text-lg sm:text-xl font-black text-rose-200 mt-0.5">
@@ -208,7 +172,6 @@
                     </p>
                 </div>
 
-                <!-- Caixa 2: PARAR -->
                 <div class="bg-amber-500/15 border border-amber-500/40 rounded-2xl p-3.5 text-center">
                     <p class="text-[10px] font-extrabold uppercase tracking-widest text-amber-300">Parar (Atual)</p>
                     <p class="text-lg sm:text-xl font-black text-amber-400 mt-0.5">
@@ -216,7 +179,6 @@
                     </p>
                 </div>
 
-                <!-- Caixa 3: ACERTAR -->
                 <div class="bg-emerald-950/40 border border-emerald-500/40 rounded-2xl p-3.5 text-center">
                     <p class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-400">Acertar</p>
                     <p class="text-lg sm:text-xl font-black text-emerald-300 mt-0.5">
@@ -224,7 +186,6 @@
                     </p>
                 </div>
 
-                <!-- Caixa 4: FASE E PERGUNTA -->
                 <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3.5 flex flex-col justify-center">
                     <div class="flex items-center justify-between">
                         <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Fase {{ $fase_atual ?? 1 }}</span>
@@ -235,7 +196,6 @@
                     </p>
                 </div>
 
-                <!-- Caixa 5: CRONÔMETRO 60s -->
                 <div class="col-span-2 lg:col-span-1 bg-slate-900/90 border border-slate-700/80 rounded-2xl p-3.5 flex items-center justify-between">
                     <div>
                         <p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Tempo</p>
@@ -392,7 +352,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-                    <!-- 1. Dica Bíblica (Referência) -->
+                    <!-- 1. Dica Bíblica -->
                     <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between mb-2">
@@ -420,7 +380,7 @@
                         </form>
                     </div>
 
-                    <!-- 2. Personagens Bíblicos (3 Convidados) -->
+                    <!-- 2. Personagens Bíblicos -->
                     <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between mb-2">
@@ -518,7 +478,34 @@
                 </div>
             </div>
 
-            <!-- Modal Clássico: "Você tem certeza?" (Estilo Show do Milhão) -->
+            <!-- Modal 1: Identificação Clássica do Jogador ao Iniciar -->
+            <div id="modalNomeJogador" class="fixed inset-0 z-50 {{ !empty($precisa_identificacao) ? 'flex' : 'hidden' }} items-center justify-center bg-slate-950/90 backdrop-blur-md p-4">
+                <div class="bg-slate-900 border-2 border-amber-400 rounded-3xl max-w-md w-full p-6 sm:p-8 text-center shadow-2xl">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                        </svg>
+                    </div>
+                    <p class="text-xs font-black uppercase tracking-widest text-amber-400 mb-1">Bíblia Show Clássico</p>
+                    <h3 class="text-2xl font-black text-white mb-2">Qual é o seu nome?</h3>
+                    <p class="text-xs sm:text-sm text-slate-300 mb-5">
+                        Seu nome aparecerá no palco e será registrado no <strong>Ranking Geral do Bíblia Show</strong> ao final da partida!
+                    </p>
+                    <form action="{{ route('game.player') }}" method="POST" class="space-y-4">
+                        @csrf
+                        <input type="text" name="jogador_nome" required maxlength="60"
+                               value="{{ ($jogador_nome ?? '') !== 'Participante' ? ($jogador_nome ?? '') : '' }}"
+                               placeholder="Digite seu nome ou apelido..."
+                               class="w-full px-4 py-3.5 rounded-xl bg-slate-950 border border-amber-500/40 text-white font-bold text-center text-base focus:ring-2 focus:ring-amber-400 outline-none">
+                        <button type="submit"
+                                class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm uppercase tracking-wider shadow-lg transition">
+                            Começar Partida! →
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal 2: "Você tem certeza?" (Estilo Show do Milhão) -->
             <div id="modalCerteza" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
                 <div class="bg-slate-900 border-2 border-amber-400 rounded-3xl max-w-md w-full p-6 sm:p-8 text-center shadow-2xl">
                     <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center mx-auto mb-4">
@@ -544,68 +531,102 @@
                 </div>
             </div>
 
+            <!-- Modal 3: Mensagem Amigável de Fim de Jogo (antes de ir para /jogar/resultado) -->
+            <div id="modalFimAmigavel" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/90 backdrop-blur-md p-4">
+                <div class="bg-slate-900 border-2 border-amber-400 rounded-3xl max-w-lg w-full p-6 sm:p-8 text-center shadow-2xl">
+                    <div class="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-9 h-9" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
+                        </svg>
+                    </div>
+                    <p class="text-xs font-black uppercase tracking-widest text-amber-400 mb-1">Fim da Jornada nesta Partida</p>
+                    <h3 class="text-2xl font-black text-white mb-3">Valeu pela participação, {{ $jogador_nome ?? 'Participante' }}!</h3>
+                    <p id="textoMensagemAmigavel" class="text-sm sm:text-base text-slate-300 leading-relaxed mb-6"></p>
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 mb-6">
+                        <p class="text-xs uppercase font-bold text-slate-400">Sua Pontuação Registrada no Ranking</p>
+                        <p id="pontosModalFim" class="text-3xl font-black text-amber-400 mt-1">{{ $pontuacao }} pts</p>
+                    </div>
+                    <a id="btnIrParaResultado" href="{{ route('game.result') }}"
+                       class="block w-full py-4 px-6 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm uppercase tracking-wider shadow-xl transition">
+                        Ver Meu Resultado e Ranking Geral →
+                    </a>
+                </div>
+            </div>
+
             <script>
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
-                let somAtivo = localStorage.getItem('biblia_show_som') !== 'off';
+                let precisaIdentificar = {{ !empty($precisa_identificacao) ? 'true' : 'false' }};
+
                 const audioSuspense = new Audio('/audio/classico/suspense.wav');
                 audioSuspense.loop = true;
-                audioSuspense.volume = 0.22;
 
                 const audioHover = new Audio('/audio/classico/hover.wav');
-                audioHover.volume = 0.4;
-
                 const audioTecla = new Audio('/audio/classico/tecla.wav');
-                audioTecla.volume = 0.6;
 
-                function atualizarIconeSom() {
-                    const onEl = document.getElementById('iconSomOn');
-                    const offEl = document.getElementById('iconSomOff');
-                    const lbl = document.getElementById('labelSom');
-                    if (somAtivo) {
-                        onEl?.classList.remove('hidden');
-                        offEl?.classList.add('hidden');
-                        if (lbl) lbl.textContent = 'Sons Ativos';
-                    } else {
-                        onEl?.classList.add('hidden');
-                        offEl?.classList.remove('hidden');
-                        if (lbl) lbl.textContent = 'Sem Som';
-                        audioSuspense.pause();
-                    }
+                function aplicarVolume(audioObj, fator = 1) {
+                    const base = typeof obterVolumeGlobal === 'function' ? obterVolumeGlobal() : 0.85;
+                    audioObj.volume = Math.max(0, Math.min(1, base * fator));
                 }
 
-                function alternarSom() {
-                    somAtivo = !somAtivo;
-                    localStorage.setItem('biblia_show_som', somAtivo ? 'on' : 'off');
-                    atualizarIconeSom();
-                    if (somAtivo) {
+                window.addEventListener('biblia-som-alterado', (ev) => {
+                    if (!ev.detail.ativo) {
+                        audioSuspense.pause();
+                    } else if (!enviado && !precisaIdentificar) {
+                        aplicarVolume(audioSuspense, 0.28);
                         audioSuspense.play().catch(() => {});
                     }
-                }
+                });
 
-                function tocarEfeito(nome) {
-                    if (!somAtivo || !nome) return;
-                    const fx = new Audio(`/audio/classico/${nome}.wav`);
-                    fx.volume = 0.85;
-                    fx.play().catch(() => {});
+                function tocarEfeitoComPromise(nome) {
+                    return new Promise((resolve) => {
+                        const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : (localStorage.getItem('biblia_show_som') !== 'off');
+                        if (!ativo || !nome) {
+                            setTimeout(resolve, 1600);
+                            return;
+                        }
+                        const fx = new Audio(`/audio/classico/${nome}.wav`);
+                        aplicarVolume(fx, 1.0);
+                        let finalizado = false;
+                        const concluir = () => {
+                            if (!finalizado) {
+                                finalizado = true;
+                                resolve();
+                            }
+                        };
+                        fx.addEventListener('ended', concluir);
+                        fx.addEventListener('error', concluir);
+                        setTimeout(concluir, 4500);
+                        fx.play().catch(concluir);
+                    });
                 }
 
                 function tocarHover() {
-                    if (!somAtivo || enviado) return;
+                    const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : true;
+                    if (!ativo || enviado) return;
+                    aplicarVolume(audioHover, 0.45);
                     audioHover.currentTime = 0;
                     audioHover.play().catch(() => {});
                 }
 
-                atualizarIconeSom();
+                function abrirModalNomeJogador() {
+                    const m = document.getElementById('modalNomeJogador');
+                    if (m) {
+                        m.classList.remove('hidden');
+                        m.classList.add('flex');
+                    }
+                }
 
                 window.addEventListener('DOMContentLoaded', () => {
+                    const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : true;
                     @if($somAutomatico)
-                        tocarEfeito('{{ $somAutomatico }}');
+                        if (ativo) tocarEfeitoComPromise('{{ $somAutomatico }}');
                     @endif
                     @if($novaFaseSom)
-                        setTimeout(() => tocarEfeito('fase{{ $novaFaseSom }}'), 1400);
+                        if (ativo) setTimeout(() => tocarEfeitoComPromise('fase{{ $novaFaseSom }}'), 1500);
                     @endif
-                    if (somAtivo) {
+                    if (ativo && !precisaIdentificar) {
                         setTimeout(() => {
+                            aplicarVolume(audioSuspense, 0.28);
                             audioSuspense.play().catch(() => {});
                         }, 900);
                     }
@@ -616,7 +637,9 @@
 
                 function pedirConfirmacao(indice, letra, texto) {
                     if (enviado) return;
-                    if (somAtivo) {
+                    const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : true;
+                    if (ativo) {
+                        aplicarVolume(audioTecla, 0.7);
                         audioTecla.currentTime = 0;
                         audioTecla.play().catch(() => {});
                     }
@@ -629,7 +652,9 @@
 
                 function fecharConfirmacao() {
                     if (enviado) return;
-                    if (somAtivo) {
+                    const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : true;
+                    if (ativo) {
+                        aplicarVolume(audioTecla, 0.7);
                         audioTecla.currentTime = 0;
                         audioTecla.play().catch(() => {});
                     }
@@ -647,8 +672,8 @@
                             btn.classList.add('opcao-bloqueada');
                             const tag = document.getElementById(`statusTag_${indiceEscolhido}`);
                             if (tag) {
-                                tag.textContent = 'BLOQUEADA';
-                                tag.className = 'shrink-0 text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950';
+                                tag.textContent = 'OPÇÃO BLOQUEADA...';
+                                tag.className = 'shrink-0 text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950 animate-pulse';
                             }
                         } else {
                             btn.classList.add('opacity-50');
@@ -699,9 +724,11 @@
                     modal.classList.add('hidden');
                     modal.classList.remove('flex');
 
-                    // 1. Bloquear imediatamente a opção escolhida
+                    // 1. Bloqueia a opção escolhida
                     bloquearOpcoes(indiceEscolhido);
-                    if (somAtivo) {
+                    const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : true;
+                    if (ativo) {
+                        aplicarVolume(audioTecla, 0.7);
                         audioTecla.currentTime = 0;
                         audioTecla.play().catch(() => {});
                     }
@@ -744,12 +771,8 @@
 
                         const data = await resp.json();
 
-                        // Pequena pausa de suspense (550ms) com a opção bloqueada antes de revelar verde/vermelho
-                        setTimeout(() => {
-                            if (data.som_efeito) {
-                                tocarEfeito(data.som_efeito);
-                            }
-
+                        // Pausa dramática (1.3s) com a opção bloqueada antes de vir o resultado
+                        setTimeout(async () => {
                             revelarCoresOpcoes(indiceEscolhido, data.indice_correto, !!data.acertou);
 
                             if (typeof data.erros_count !== 'undefined') {
@@ -766,18 +789,14 @@
                                 const isCerta = !!data.acertou;
                                 painel.className = 'mt-6 rounded-2xl p-4 sm:p-5 border flex flex-wrap items-center justify-between gap-4 ' +
                                     (isCerta
-                                        ? 'bg-emerald-950/80 border-emerald-400/60 text-emerald-100'
-                                        : 'bg-rose-950/80 border-rose-400/60 text-rose-100');
+                                        ? 'bg-emerald-950/85 border-emerald-400/60 text-emerald-100'
+                                        : 'bg-rose-950/85 border-rose-400/60 text-rose-100');
 
                                 let tituloMsg = isCerta
                                     ? `Certa Resposta! (+${data.pontos || 0} pontos)`
                                     : (data.tempo_esgotado
                                         ? `Tempo Esgotado! (${data.tempos_esgotados_count || 1}/3 tentativas de tempo)`
                                         : `Resposta Incorreta! (${data.erros_count || 1}/3 erros permitidos)`);
-
-                                if (data.reiniciar && data.mensagem_reinicio) {
-                                    tituloMsg = data.mensagem_reinicio;
-                                }
 
                                 painel.innerHTML = `
                                     <div>
@@ -787,16 +806,38 @@
                                     </div>
                                     <a href="${data.redirect_url || '{{ route('game.play') }}'}"
                                        class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg transition shrink-0">
-                                        ${data.reiniciar ? 'Reiniciando Partida...' : 'Próxima Pergunta →'}
+                                        ${data.fim_de_jogo ? 'Ver Resultado Final →' : 'Próxima Pergunta →'}
                                     </a>
                                 `;
                                 painel.classList.remove('hidden');
                             }
 
+                            // Aguarda o áudio de acerto/erro tocar completamente antes de avançar!
+                            await tocarEfeitoComPromise(data.som_efeito);
+
+                            // Se o usuário perdeu (3 erros ou 3 tempos esgotados), exibe a mensagem amigável e leva para /jogar/resultado
+                            if (data.perdeu_partida) {
+                                const modalFim = document.getElementById('modalFimAmigavel');
+                                const txtMsg = document.getElementById('textoMensagemAmigavel');
+                                const ptsFim = document.getElementById('pontosModalFim');
+                                const btnRes = document.getElementById('btnIrParaResultado');
+
+                                if (txtMsg && data.mensagem_amigavel) txtMsg.textContent = data.mensagem_amigavel;
+                                if (ptsFim && typeof data.pontuacao_final !== 'undefined') ptsFim.textContent = `${data.pontuacao_final} pts`;
+                                if (btnRes && data.redirect_url) btnRes.href = data.redirect_url;
+
+                                if (modalFim) {
+                                    modalFim.classList.remove('hidden');
+                                    modalFim.classList.add('flex');
+                                }
+                                return;
+                            }
+
+                            // Pausa extra de leitura (1.8s após o fim do áudio) antes de ir para a próxima pergunta
                             setTimeout(() => {
                                 window.location.href = data.redirect_url || "{{ route('game.play') }}";
-                            }, 2400);
-                        }, 550);
+                            }, 1800);
+                        }, 1300);
                     } catch (e) {
                         document.getElementById('respostaSelecionada').value = indiceEscolhido ?? '';
                         document.getElementById('tempoEsgotadoInput').value = indiceEscolhido === null ? '1' : '0';
@@ -804,13 +845,14 @@
                     }
                 }
 
-                // Temporizador de 60 segundos
+                // Temporizador de 60 segundos (aguarda caso o modal de nome esteja aberto)
                 let tempo = {{ max(1, (int) $tempo_restante) }};
                 const tempoInicial = tempo;
                 const timerEl = document.getElementById('timer');
                 const hiddenTempo = document.getElementById('tempo_resposta');
 
                 let timerInterval = setInterval(() => {
+                    if (precisaIdentificar) return;
                     tempo--;
                     if (timerEl) timerEl.textContent = Math.max(0, tempo);
                     if (hiddenTempo) hiddenTempo.value = Math.max(0, tempoInicial - tempo);

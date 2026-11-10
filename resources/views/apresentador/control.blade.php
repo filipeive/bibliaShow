@@ -447,11 +447,15 @@
 
         const audioSuspense = new Audio('/audio/classico/suspense.wav');
         audioSuspense.loop = true;
-        audioSuspense.volume = 0.35;
+        audioSuspense.volume = 0.3;
         let suspenseTocando = false;
 
         function tocarSomEstudio(nome) {
-            new Audio(`/audio/classico/${nome}.wav`).play().catch(() => {});
+            const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : (localStorage.getItem('biblia_show_som') !== 'off');
+            if (!ativo) return;
+            const fx = new Audio(`/audio/classico/${nome}.wav`);
+            fx.volume = typeof obterVolumeGlobal === 'function' ? obterVolumeGlobal() : 0.85;
+            fx.play().catch(() => {});
         }
 
         function alternarSuspenseEstudio() {
@@ -461,17 +465,27 @@
                 suspenseTocando = false;
                 if (txt) txt.textContent = 'Suspense';
             } else {
+                audioSuspense.volume = (typeof obterVolumeGlobal === 'function' ? obterVolumeGlobal() : 0.85) * 0.35;
                 audioSuspense.play().catch(() => {});
                 suspenseTocando = true;
                 if (txt) txt.textContent = 'Parar Suspense';
             }
         }
 
-        @if(session('som_efeito'))
-            window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('biblia-som-alterado', (ev) => {
+            if (!ev.detail.ativo && suspenseTocando) {
+                audioSuspense.pause();
+                suspenseTocando = false;
+                const txt = document.getElementById('txtSuspenseEstudio');
+                if (txt) txt.textContent = 'Suspense';
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            @if(session('som_efeito'))
                 tocarSomEstudio('{{ session('som_efeito') }}');
-            });
-        @endif
+            @endif
+        });
 
         async function sincronizarParticipantes() {
             try {

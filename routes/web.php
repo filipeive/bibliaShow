@@ -20,8 +20,8 @@ Route::get('/registro', [AuthController::class, 'showRegister'])->name('register
 Route::post('/registro', [AuthController::class, 'register'])->name('register.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Painel de Administração
-Route::prefix('admin')->name('admin.')->group(function () {
+// Painel de Administração (Protegido por Autenticação)
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::post('/igrejas', [AdminController::class, 'criarIgreja'])->name('igrejas.criar');
     Route::post('/usuarios', [AdminController::class, 'salvarUsuario'])->name('usuarios.salvar');
@@ -35,6 +35,7 @@ Route::get('/curiosidades', [GameController::class, 'curiosidades'])->name('curi
 // Modo Individual Clássico (Show do Milhão Bíblico)
 Route::prefix('jogar')->name('game.')->group(function () {
     Route::get('/', [GameController::class, 'jogar'])->name('play');
+    Route::post('/jogador', [GameController::class, 'definirJogador'])->name('player');
     Route::post('/responder', [GameController::class, 'responder'])->name('answer');
     Route::post('/ajuda', [GameController::class, 'usarAjuda'])->name('lifeline');
     Route::post('/encerrar', [GameController::class, 'encerrar'])->name('finish');
