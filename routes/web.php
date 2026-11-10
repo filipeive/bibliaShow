@@ -47,6 +47,7 @@ Route::prefix('apresentador')->name('apresentador.')->group(function () {
     Route::post('/criar', [ApresentadorController::class, 'criarSala'])->name('criar');
     Route::get('/control/{sala}', [ApresentadorController::class, 'control'])->name('control');
     Route::post('/control/{sala}/ajuda', [ApresentadorController::class, 'usarAjuda'])->name('ajuda');
+    Route::post('/control/{sala}/premios', [ApresentadorController::class, 'atualizarPremios'])->name('premios');
     Route::post('/control/{sala}/equipes', [ApresentadorController::class, 'criarEquipe'])->name('equipe.criar');
     Route::post('/control/{sala}/proxima', [ApresentadorController::class, 'proximaPergunta'])->name('proxima');
     Route::post('/control/{sala}/pausar', [ApresentadorController::class, 'pausar'])->name('pausar');

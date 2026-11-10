@@ -46,20 +46,20 @@
 
                     <!-- Botões Principais + Player da Trilha de Abertura -->
                     <div class="flex flex-wrap items-center gap-3.5 pt-2">
-                        <a href="{{ route('game.play', ['novo' => 1]) }}"
-                           class="inline-flex items-center gap-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 px-7 py-4 rounded-2xl font-black text-base shadow-xl shadow-amber-500/20 transition transform hover:-translate-y-0.5">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                        <button type="button" onclick="abrirModalJogarAgora()"
+                                class="inline-flex items-center gap-2.5 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 px-7 py-4 rounded-2xl font-black text-base shadow-xl shadow-amber-500/25 ring-2 ring-amber-300/50 transition transform hover:-translate-y-0.5">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
                             </svg>
-                            Jogar Modo Individual
-                        </a>
+                            Jogar Agora
+                        </button>
 
-                        <a href="{{ route('apresentador.painel') }}"
+                        <a href="{{ route('game.play', ['novo' => 1]) }}"
                            class="inline-flex items-center gap-2 bg-slate-900/90 hover:bg-slate-800 border-2 border-amber-500/50 text-amber-300 px-6 py-4 rounded-2xl font-extrabold text-base transition">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
                             </svg>
-                            Criar Sala para Igreja
+                            Jogo Individual
                         </a>
 
                         <button type="button" onclick="tocarAbertura()" id="btnTemaAbertura"

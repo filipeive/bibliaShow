@@ -81,6 +81,8 @@ class ParticipantController extends Controller
                 'nome' => $sala->nome,
                 'codigo_acesso' => $sala->codigo_acesso,
                 'status' => $sala->status,
+                'premio_primeiro_lugar' => $sala->premio_primeiro_lugar,
+                'premio_segundo_lugar' => $sala->premio_segundo_lugar,
             ],
             'participante' => [
                 'id' => $participante->id,
@@ -192,6 +194,8 @@ class ParticipantController extends Controller
                 'nome' => $sala->nome,
                 'codigo_acesso' => $sala->codigo_acesso,
                 'status' => $sala->status,
+                'premio_primeiro_lugar' => $sala->premio_primeiro_lugar,
+                'premio_segundo_lugar' => $sala->premio_segundo_lugar,
             ],
             'estado' => $estadoJogo,
             'numero_pergunta' => $numeroPergunta,
@@ -255,6 +259,13 @@ class ParticipantController extends Controller
         }
 
         $acertou = mb_strtolower(trim($respostaTexto), 'UTF-8') === mb_strtolower(trim($questao->resposta_correta), 'UTF-8');
+        $indiceCorreto = null;
+        foreach ($opcoes as $idx => $opTexto) {
+            if (mb_strtolower(trim((string) $opTexto), 'UTF-8') === mb_strtolower(trim((string) $questao->resposta_correta), 'UTF-8')) {
+                $indiceCorreto = (int) $idx;
+                break;
+            }
+        }
         $tempo = (int) $validated['tempo_resposta'];
 
         // Pontuação clássica por fase (10, 20, 30 ou 50 pontos)
@@ -320,6 +331,7 @@ class ParticipantController extends Controller
             'pontos' => $pontos,
             'resposta_dada' => $respostaTexto,
             'resposta_correta' => $questao->resposta_correta,
+            'indice_correto' => $indiceCorreto,
             'referencia_biblica' => $questao->referencia_biblica,
             'explicacao' => $questao->explicacao,
             'participante' => [

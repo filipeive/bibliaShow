@@ -39,6 +39,8 @@ class ApresentadorController extends Controller
             'nome' => 'required|string|max:255',
             'quantidade_perguntas' => 'nullable|integer|min:4|max:50',
             'dificuldade_id' => 'nullable|integer',
+            'premio_primeiro_lugar' => 'nullable|string|max:255',
+            'premio_segundo_lugar' => 'nullable|string|max:255',
         ]);
 
         $igrejaId = $request->user()?->igreja_id ?? Igreja::value('id') ?? 1;
@@ -50,6 +52,8 @@ class ApresentadorController extends Controller
             'nome' => $request->nome,
             'apresentador_id' => $apresentadorId,
             'status' => 'em_curso',
+            'premio_primeiro_lugar' => $request->input('premio_primeiro_lugar'),
+            'premio_segundo_lugar' => $request->input('premio_segundo_lugar'),
         ]);
 
         $qtd = (int) ($request->input('quantidade_perguntas') ?: 24);
@@ -196,6 +200,22 @@ class ApresentadorController extends Controller
         }
 
         return back()->with('success', $resultado['mensagem'] ?? 'Recurso ativado com sucesso!');
+    }
+
+    public function atualizarPremios(Request $request, $salaId)
+    {
+        $request->validate([
+            'premio_primeiro_lugar' => 'nullable|string|max:255',
+            'premio_segundo_lugar' => 'nullable|string|max:255',
+        ]);
+
+        $sala = Sala::findOrFail($salaId);
+        $sala->update([
+            'premio_primeiro_lugar' => $request->input('premio_primeiro_lugar'),
+            'premio_segundo_lugar' => $request->input('premio_segundo_lugar'),
+        ]);
+
+        return back()->with('success', 'Prêmios de 1º e 2º lugar atualizados para a sala!');
     }
 
     public function criarEquipe(Request $request, $salaId)

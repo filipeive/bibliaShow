@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Bíblia Show — Jogar</title>
     <link rel="icon" href="/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -18,8 +19,23 @@
         .milhao-option {
             background: linear-gradient(90deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
         }
-        .milhao-option:hover {
+        .milhao-option:hover:not(:disabled) {
             background: linear-gradient(90deg, rgba(180, 83, 9, 0.25) 0%, rgba(30, 41, 59, 0.95) 100%);
+        }
+        .opcao-bloqueada {
+            background: linear-gradient(90deg, rgba(217, 119, 6, 0.35) 0%, rgba(120, 53, 15, 0.5) 100%) !important;
+            border-color: #fbbf24 !important;
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.25);
+        }
+        .opcao-correta-reveal {
+            background: linear-gradient(90deg, rgba(5, 150, 105, 0.92) 0%, rgba(6, 95, 70, 0.95) 100%) !important;
+            border-color: #34d399 !important;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.45);
+        }
+        .opcao-errada-reveal {
+            background: linear-gradient(90deg, rgba(225, 29, 72, 0.92) 0%, rgba(136, 19, 55, 0.95) 100%) !important;
+            border-color: #fb7185 !important;
+            box-shadow: 0 0 30px rgba(244, 63, 94, 0.45);
         }
     </style>
 </head>
@@ -35,7 +51,7 @@
                 <div>
                     <span class="font-extrabold text-lg text-white tracking-tight">Bíblia Show</span>
                     <span class="hidden sm:inline-flex items-center gap-1 ml-2 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
-                         Fase {{ $fase_atual ?? 1 }} de 4
+                        Fase {{ $fase_atual ?? 1 }} de 4
                     </span>
                 </div>
             </a>
@@ -89,6 +105,7 @@
 
         @php
             $resultado = session('resultado');
+            $avisoReinicio = session('aviso_reinicio');
             $ajudaFeedback = session('ajuda_feedback');
             $opcoesEliminadas = $ajudas['opcoes_eliminadas'] ?? [];
             $dicaConvidado = $ajudas['dica_convidado'] ?? null;
@@ -105,70 +122,26 @@
             }
             $convidadosBiblicos = $ajudasPergunta['convidados'] ?? ['Paulo', 'Pedro', 'Moisés'];
 
-            // Determinar som automático de transição/feedback
             $somAutomatico = null;
             if (!empty($ajudaFeedback['som_efeito'])) {
                 $somAutomatico = $ajudaFeedback['som_efeito'];
-            } elseif (!empty($resultado['som_efeito'])) {
-                $somAutomatico = $resultado['som_efeito'];
             } elseif (!empty($iniciou_agora)) {
                 $somAutomatico = 'fase1';
             }
             $novaFaseSom = $resultado['nova_fase'] ?? null;
         @endphp
 
-        <!-- Feedback da Pergunta Anterior -->
-        @if($resultado)
-            @php
-                $acertou = $resultado['acertou'] ?? false;
-                $pontosGanhos = $resultado['pontos'] ?? 0;
-                $respostaCorreta = $resultado['resposta_correta'] ?? '';
-            @endphp
-            <div class="mb-6 rounded-2xl p-4 sm:p-5 border {{ $acertou ? 'bg-emerald-950/70 border-emerald-500/40 text-emerald-100' : 'bg-rose-950/70 border-rose-500/40 text-rose-100' }} shadow-xl">
-                <div class="flex items-start gap-3.5">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 {{ $acertou ? 'bg-emerald-500 text-slate-950' : 'bg-rose-500 text-white' }}">
-                        @if($acertou)
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                            </svg>
-                        @else
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                        @endif
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex flex-wrap items-center justify-between gap-2">
-                            <p class="font-extrabold text-base sm:text-lg">
-                                {{ $acertou ? 'Certa Resposta!' : 'Resposta Incorreta!' }}
-                            </p>
-                            @if($acertou)
-                                <span class="text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                                    +{{ $pontosGanhos }} pontos
-                                </span>
-                            @endif
-                        </div>
-                        @if(!$acertou)
-                            <p class="text-sm mt-1 text-rose-200">
-                                A alternativa correta era: <strong class="text-white underline">{{ $respostaCorreta }}</strong>
-                            </p>
-                        @endif
-                        @if(!empty($resultado['explicacao']) || !empty($resultado['referencia_biblica']))
-                            <div class="mt-2.5 pt-2.5 border-t border-white/10 text-xs sm:text-sm text-slate-200 flex flex-wrap gap-3 items-center">
-                                @if(!empty($resultado['referencia_biblica']))
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                        </svg>
-                                        <span>{{ $resultado['referencia_biblica'] }}</span>
-                                    </span>
-                                @endif
-                                @if(!empty($resultado['explicacao']))
-                                    <span>{{ $resultado['explicacao'] }}</span>
-                                @endif
-                            </div>
-                        @endif
-                    </div>
+        <!-- Alerta de Reinício por 3 Erros ou 3 Tempos Esgotados -->
+        @if($avisoReinicio)
+            <div class="mb-6 rounded-2xl p-4 sm:p-5 bg-rose-950/90 border-2 border-rose-500 text-rose-100 shadow-2xl flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-rose-500 text-white flex items-center justify-center shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-black text-base sm:text-lg text-white">Partida Reiniciada!</p>
+                    <p class="text-sm text-rose-200">{{ $avisoReinicio }}</p>
                 </div>
             </div>
         @endif
@@ -184,6 +157,47 @@
         @endif
 
         @if($estado === 'em_curso' && $pergunta)
+            <!-- Barra de Vidas (Máx 3 Erros) e Tentativas de Tempo (Máx 3 Tempos Esgotados) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                <div class="bg-slate-900/90 border border-slate-800 rounded-2xl px-4 py-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Limite de Erros (3 reinicia)</p>
+                            <p class="text-xs font-bold text-slate-200">Erros cometidos: <strong id="errosContador" class="text-rose-400">{{ $erros_count ?? 0 }}</strong> / {{ $max_erros ?? 3 }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1" id="coracoesVidas">
+                        @for($i = 1; $i <= ($max_erros ?? 3); $i++)
+                            <span class="w-3 h-3 rounded-full {{ $i <= ($erros_restantes ?? 3) ? 'bg-rose-500 shadow-sm shadow-rose-500/50' : 'bg-slate-800 border border-slate-700' }}"></span>
+                        @endfor
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/90 border border-slate-800 rounded-2xl px-4 py-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Tentativas de Tempo (3 reinicia)</p>
+                            <p class="text-xs font-bold text-slate-200">Tempos esgotados: <strong id="temposContador" class="text-amber-400">{{ $tempos_esgotados_count ?? 0 }}</strong> / {{ $max_tempos_esgotados ?? 3 }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        @for($i = 1; $i <= ($max_tempos_esgotados ?? 3); $i++)
+                            <span class="w-3 h-3 rounded-full {{ $i <= ($tempos_esgotados_restantes ?? 3) ? 'bg-amber-400 shadow-sm shadow-amber-400/50' : 'bg-slate-800 border border-slate-700' }}"></span>
+                        @endfor
+                    </div>
+                </div>
+            </div>
+
             <!-- Painel Superior Estilo Show do Milhão: ERRAR | PARAR | ACERTAR + Temporizador -->
             <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
                 <!-- Caixa 1: ERRAR -->
@@ -206,7 +220,7 @@
                 <div class="bg-emerald-950/40 border border-emerald-500/40 rounded-2xl p-3.5 text-center">
                     <p class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-400">Acertar</p>
                     <p class="text-lg sm:text-xl font-black text-emerald-300 mt-0.5">
-                        {{ ($pontuacao + 100) }} <span class="text-xs font-normal text-emerald-400/80">pts</span>
+                        {{ $placar_milhao['acertar'] ?? ($pontuacao + 10) }} <span class="text-xs font-normal text-emerald-400/80">pts</span>
                     </p>
                 </div>
 
@@ -318,6 +332,7 @@
                     @csrf
                     <input type="hidden" name="tempo_resposta" id="tempo_resposta" value="0">
                     <input type="hidden" name="resposta" id="respostaSelecionada" value="">
+                    <input type="hidden" name="tempo_esgotado" id="tempoEsgotadoInput" value="0">
 
                     @php
                         $opcoes = $pergunta['opcoes'] ?? [];
@@ -325,7 +340,7 @@
                         $letras = ['A', 'B', 'C', 'D'];
                     @endphp
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5" id="gridAlternativas">
                         @foreach($opcoesArray as $indice => $opcao)
                             @php
                                 $eliminada = in_array((int) $indice, $opcoesEliminadas, true);
@@ -340,20 +355,28 @@
                                 </div>
                             @else
                                 <button type="button"
+                                        id="btnOpcao_{{ $indice }}"
+                                        data-indice="{{ $indice }}"
                                         onmouseenter="tocarHover()"
                                         onclick="pedirConfirmacao('{{ $indice }}', '{{ $letra }}', @js($opcao))"
-                                        class="milhao-option text-left w-full border-2 border-slate-700 hover:border-amber-400 rounded-2xl p-4 transition flex items-center gap-4 group shadow-md">
-                                    <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black text-base flex items-center justify-center shrink-0 shadow group-hover:scale-105 transition">
-                                        {{ $letra }}
-                                    </span>
-                                    <span class="text-slate-100 group-hover:text-white font-bold text-base sm:text-lg leading-snug">
-                                        {{ $opcao }}
-                                    </span>
+                                        class="btn-alternativa milhao-option text-left w-full border-2 border-slate-700 hover:border-amber-400 rounded-2xl p-4 transition flex items-center justify-between gap-4 group shadow-md">
+                                    <div class="flex items-center gap-4 min-w-0">
+                                        <span id="badgeLetra_{{ $indice }}" class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black text-base flex items-center justify-center shrink-0 shadow group-hover:scale-105 transition">
+                                            {{ $letra }}
+                                        </span>
+                                        <span class="text-slate-100 group-hover:text-white font-bold text-base sm:text-lg leading-snug">
+                                            {{ $opcao }}
+                                        </span>
+                                    </div>
+                                    <span id="statusTag_{{ $indice }}" class="hidden shrink-0 text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg"></span>
                                 </button>
                             @endif
                         @endforeach
                     </div>
                 </form>
+
+                <!-- Barra de Resultado Instantâneo após Bloqueio -->
+                <div id="painelResultadoInstantaneo" class="hidden mt-6 rounded-2xl p-4 sm:p-5 border transition-all"></div>
             </div>
 
             <!-- Painel de Recursos de Ajuda (Dicas, Convidados Bíblicos, Cartas, Pular) -->
@@ -522,7 +545,7 @@
             </div>
 
             <script>
-                // Gerenciador de Áudio Clássico Bíblia Show
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
                 let somAtivo = localStorage.getItem('biblia_show_som') !== 'off';
                 const audioSuspense = new Audio('/audio/classico/suspense.wav');
                 audioSuspense.loop = true;
@@ -567,7 +590,7 @@
                 }
 
                 function tocarHover() {
-                    if (!somAtivo) return;
+                    if (!somAtivo || enviado) return;
                     audioHover.currentTime = 0;
                     audioHover.play().catch(() => {});
                 }
@@ -588,7 +611,6 @@
                     }
                 });
 
-                // Confirmação "Você tem certeza?"
                 let indicePendente = null;
                 let enviado = false;
 
@@ -606,6 +628,7 @@
                 }
 
                 function fecharConfirmacao() {
+                    if (enviado) return;
                     if (somAtivo) {
                         audioTecla.currentTime = 0;
                         audioTecla.play().catch(() => {});
@@ -616,20 +639,175 @@
                     modal.classList.remove('flex');
                 }
 
-                function confirmarRespostaFinal() {
+                function bloquearOpcoes(indiceEscolhido) {
+                    document.querySelectorAll('.btn-alternativa').forEach(btn => {
+                        btn.disabled = true;
+                        btn.classList.add('cursor-not-allowed');
+                        if (String(btn.dataset.indice) === String(indiceEscolhido)) {
+                            btn.classList.add('opcao-bloqueada');
+                            const tag = document.getElementById(`statusTag_${indiceEscolhido}`);
+                            if (tag) {
+                                tag.textContent = 'BLOQUEADA';
+                                tag.className = 'shrink-0 text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950';
+                            }
+                        } else {
+                            btn.classList.add('opacity-50');
+                        }
+                    });
+                }
+
+                function revelarCoresOpcoes(indiceEscolhido, indiceCorreto, acertou) {
+                    document.querySelectorAll('.btn-alternativa').forEach(btn => {
+                        const idx = String(btn.dataset.indice);
+                        btn.classList.remove('opcao-bloqueada', 'opacity-50');
+
+                        const tag = document.getElementById(`statusTag_${idx}`);
+                        const badge = document.getElementById(`badgeLetra_${idx}`);
+
+                        if (idx === String(indiceCorreto)) {
+                            btn.classList.add('opcao-correta-reveal');
+                            if (badge) {
+                                badge.className = 'w-10 h-10 rounded-xl bg-white text-emerald-700 font-black text-base flex items-center justify-center shrink-0 shadow';
+                            }
+                            if (tag) {
+                                tag.textContent = acertou ? 'CERTA RESPOSTA!' : 'CORRETA';
+                                tag.className = 'shrink-0 text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-white text-emerald-800 shadow';
+                            }
+                        } else if (indiceEscolhido !== null && idx === String(indiceEscolhido) && !acertou) {
+                            btn.classList.add('opcao-errada-reveal');
+                            if (badge) {
+                                badge.className = 'w-10 h-10 rounded-xl bg-white text-rose-700 font-black text-base flex items-center justify-center shrink-0 shadow';
+                            }
+                            if (tag) {
+                                tag.textContent = 'VOCÊ ERROU';
+                                tag.className = 'shrink-0 text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-white text-rose-800 shadow';
+                            }
+                        } else {
+                            btn.classList.add('opacity-35');
+                        }
+                    });
+                }
+
+                async function confirmarRespostaFinal() {
                     if (enviado || indicePendente === null) return;
                     enviado = true;
+                    clearInterval(timerInterval);
                     audioSuspense.pause();
-                    document.getElementById('respostaSelecionada').value = indicePendente;
-                    document.getElementById('tempo_resposta').value = Math.max(0, tempoInicial - tempo);
-                    document.getElementById('respostaForm').submit();
+
+                    const indiceEscolhido = indicePendente;
+                    const modal = document.getElementById('modalCerteza');
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+
+                    // 1. Bloquear imediatamente a opção escolhida
+                    bloquearOpcoes(indiceEscolhido);
+                    if (somAtivo) {
+                        audioTecla.currentTime = 0;
+                        audioTecla.play().catch(() => {});
+                    }
+
+                    const tempoGasto = Math.max(0, tempoInicial - tempo);
+                    await enviarRespostaAjax({
+                        resposta: String(indiceEscolhido),
+                        tempo_resposta: tempoGasto,
+                        tempo_esgotado: 0
+                    }, indiceEscolhido);
+                }
+
+                async function acionarTempoEsgotado() {
+                    if (enviado) return;
+                    enviado = true;
+                    clearInterval(timerInterval);
+                    audioSuspense.pause();
+                    fecharConfirmacao();
+
+                    bloquearOpcoes(null);
+
+                    await enviarRespostaAjax({
+                        resposta: '',
+                        tempo_resposta: 60,
+                        tempo_esgotado: 1
+                    }, null);
+                }
+
+                async function enviarRespostaAjax(payload, indiceEscolhido) {
+                    try {
+                        const resp = await fetch("{{ route('game.answer') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const data = await resp.json();
+
+                        // Pequena pausa de suspense (550ms) com a opção bloqueada antes de revelar verde/vermelho
+                        setTimeout(() => {
+                            if (data.som_efeito) {
+                                tocarEfeito(data.som_efeito);
+                            }
+
+                            revelarCoresOpcoes(indiceEscolhido, data.indice_correto, !!data.acertou);
+
+                            if (typeof data.erros_count !== 'undefined') {
+                                const errEl = document.getElementById('errosContador');
+                                if (errEl) errEl.textContent = data.erros_count;
+                            }
+                            if (typeof data.tempos_esgotados_count !== 'undefined') {
+                                const tmpEl = document.getElementById('temposContador');
+                                if (tmpEl) tmpEl.textContent = data.tempos_esgotados_count;
+                            }
+
+                            const painel = document.getElementById('painelResultadoInstantaneo');
+                            if (painel) {
+                                const isCerta = !!data.acertou;
+                                painel.className = 'mt-6 rounded-2xl p-4 sm:p-5 border flex flex-wrap items-center justify-between gap-4 ' +
+                                    (isCerta
+                                        ? 'bg-emerald-950/80 border-emerald-400/60 text-emerald-100'
+                                        : 'bg-rose-950/80 border-rose-400/60 text-rose-100');
+
+                                let tituloMsg = isCerta
+                                    ? `Certa Resposta! (+${data.pontos || 0} pontos)`
+                                    : (data.tempo_esgotado
+                                        ? `Tempo Esgotado! (${data.tempos_esgotados_count || 1}/3 tentativas de tempo)`
+                                        : `Resposta Incorreta! (${data.erros_count || 1}/3 erros permitidos)`);
+
+                                if (data.reiniciar && data.mensagem_reinicio) {
+                                    tituloMsg = data.mensagem_reinicio;
+                                }
+
+                                painel.innerHTML = `
+                                    <div>
+                                        <p class="font-black text-base sm:text-lg text-white">${tituloMsg}</p>
+                                        ${!isCerta && data.resposta_correta ? `<p class="text-xs sm:text-sm mt-0.5">Alternativa correta: <strong class="text-emerald-300 underline">${data.resposta_correta}</strong></p>` : ''}
+                                        ${data.referencia_biblica ? `<p class="text-xs text-amber-300 font-bold mt-1">Referência: ${data.referencia_biblica}</p>` : ''}
+                                    </div>
+                                    <a href="${data.redirect_url || '{{ route('game.play') }}'}"
+                                       class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg transition shrink-0">
+                                        ${data.reiniciar ? 'Reiniciando Partida...' : 'Próxima Pergunta →'}
+                                    </a>
+                                `;
+                                painel.classList.remove('hidden');
+                            }
+
+                            setTimeout(() => {
+                                window.location.href = data.redirect_url || "{{ route('game.play') }}";
+                            }, 2400);
+                        }, 550);
+                    } catch (e) {
+                        document.getElementById('respostaSelecionada').value = indiceEscolhido ?? '';
+                        document.getElementById('tempoEsgotadoInput').value = indiceEscolhido === null ? '1' : '0';
+                        document.getElementById('respostaForm').submit();
+                    }
                 }
 
                 // Temporizador de 60 segundos
                 let tempo = {{ max(1, (int) $tempo_restante) }};
                 const tempoInicial = tempo;
                 const timerEl = document.getElementById('timer');
-                const form = document.getElementById('respostaForm');
                 const hiddenTempo = document.getElementById('tempo_resposta');
 
                 let timerInterval = setInterval(() => {
@@ -638,11 +816,7 @@
                     if (hiddenTempo) hiddenTempo.value = Math.max(0, tempoInicial - tempo);
 
                     if (tempo <= 0 && !enviado) {
-                        enviado = true;
-                        clearInterval(timerInterval);
-                        audioSuspense.pause();
-                        hiddenTempo.value = tempoInicial;
-                        form.submit();
+                        acionarTempoEsgotado();
                     }
                 }, 1000);
             </script>

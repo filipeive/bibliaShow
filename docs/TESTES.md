@@ -1,87 +1,49 @@
 # Testes e Critérios de Aceitação — Bíblia Show 2.0
 
-## Estratégia de testes
+## Estratégia de Testes
 
-- PHPUnit para testes unitários e de funcionalidade.
-- Testes de browser (Dusk/Cypress) para fluxos de apresentador/projeção e multijogador.
-- Testes de isolamento multi-tenant (igreja A não vê dados da igreja B).
+- **PHPUnit (`tests/Unit/GameEngineTest.php`)**: Valida todas as regras de negócio do `GameEngine` isoladamente da camada HTTP.
+- **Testes de Fluxo HTTP e API**: Validam rotas públicas, autenticação (`/login`, `/registro`), painel administrativo (`/admin`), estúdio do apresentador (`/apresentador`), telão (`/projecao/{sala}`) e API de smartphones (`/api/salas/*`).
 
-## Critérios de aceitação por módulo
+## Critérios de Aceitação por Módulo
 
-### Motor de jogo (G)
+### 1. Motor de Jogo Clássico (`GameEngine`)
 
-| Critério | Teste verificável |
+| Critério | Teste Verificável |
 |----------|-------------------|
-| Partida completa sem interface | Teste unitário `GameEngineTest` — verde |
-| Seleção aleatória sem repetição | Verificar que não há questões repetidas na partida |
-| Pontuação correta | Simular respostas e verificar pontuação esperada |
-| Estado da partida | Aguardando → em curso → pausado → terminado |
+| Partida completa e transição de estados | `test_inicia_partida_e_retorna_estado_em_curso` |
+| Resposta correta e cálculo de pontos | `test_resposta_correta_retorna_acertou_e_pontos` |
+| Resposta incorreta zera pontos da rodada | `test_resposta_incorreta_retorna_sem_pontos` |
+| Seleção sem repetição de perguntas | `test_selecao_nao_repete_perguntas` |
+| Ajuda das Cartas (50/50) elimina 2 incorretas | `test_ajuda_cartas_elimina_duas_opcoes_incorretas` |
+| Ajuda dos Convidados Bíblicos (2 acertam, 1 não sabe) | `test_ajuda_convidados_biblicos_respeita_convidado_errado` |
+| Pular pergunta substitui questão e decrementa pulos | `test_usar_pulo_substitui_pergunta_e_decrementa_pulos` |
+| Dica Bíblica retorna referência e decrementa dicas | `test_usar_dica_biblica_retorna_referencia_e_decrementa_dicas` |
 
-### Modo individual offline (G, E)
+### 2. Salas Ao Vivo, Apresentador, Telão e Smartphones
 
-| Critério | Teste verificável |
+| Critério | Teste Verificável |
 |----------|-------------------|
-| Jogar sem conta | Acessar `/jogar` sem autenticação |
-| Sem internet | Funciona com SQLite local |
-| Persistência de sessão | Fechar e reabrir navegador, continuar partida |
+| Criação de sala com 4 fases progressivas | `POST /apresentador` gera sala com código de 6 caracteres |
+| Acionamento de ajudas pelo apresentador | `POST /apresentador/control/{sala}/ajuda` (`dica`, `convidado`, `cartas`, `pulo`, `revelar`) |
+| Sincronização no Telão e Smartphones | `GET /api/salas/{sala}` retorna `fase_atual`, `placar_milhao` e `ajudas` em tempo real |
+| Pontuação por fase nas salas | Resposta correta soma `10`, `20`, `30` ou `50` pts conforme a fase |
 
-### Criação de perguntas (D)
+### 3. Autenticação e Painel Administrativo (`/admin`)
 
-| Critério | Teste verificável |
+| Critério | Teste Verificável |
 |----------|-------------------|
-| Pergunta válida salva | POST `/perguntas` → código 302/201, registro no banco |
-| Referência inválida rejeitada | Capítulo inexistente → erro 422 de validação |
+| Login e Cadastro | `GET/POST /login`, `GET/POST /registro`, `POST /logout` |
+| Painel de Controle | `GET /admin` exibe KPIs, salas, igrejas, usuários e distribuição por fases |
+| Exportação do Acervo | `GET /admin/exportar-perguntas?formato=csv` e `formato=json` |
+| Reimportação `cadastro.dbf` | `POST /admin/reimportar-classico` sincroniza as 660 questões |
 
-### Fluxo editorial (D)
-
-| Critério | Teste verificável |
-|----------|-------------------|
-| Pergunta pendente não jogável | Colaborador submete → não selecionável pelo motor |
-| Após aprovação fica jogável | Editor aprova → selecionável |
-
-### Multijogador em tempo real (A, P1)
-
-| Critério | Teste verificável |
-|----------|-------------------|
-| Isolamento por sala | Dois clientes em salas distintas não veem dados uns dos outros |
-| Ranking atualizado | Resposta envia evento WebSocket e ranking é atualizado |
-
-### Apresentador / Projeção (B)
-
-| Critério | Teste verificável |
-|----------|-------------------|
-| Projeção sem controles admin | `/projecao/{sala}` não mostra seletores de controlo |
-| Apresentador com controles | `/apresentador/{sala}` mostra navegação, temporizador, pontuações |
-
-### Aprendizagem (F)
-
-| Critério | Teste verificável |
-|----------|-------------------|
-| Resposta correta após responder | Presença do campo resposta correta na resposta |
-| Referência bíblica | Presença do campo referência |
-| Explicação contextual | Presença do campo explicação |
-
-### Isolamento multi-tenant (E)
-
-| Critério | Teste verificável |
-|----------|-------------------|
-| Igreja A não vê Igreja B | Autenticar como admin Igreja A → listar questões → nenhuma de Igreja B |
-
-### Desempenho (8.2)
-
-| Critério | Teste verificável |
-|----------|-------------------|
-| Primeira carga < 3s (3G simulado) | Lighthouse ou medição de tempo de carregamento |
-
-## Como executar
+## Como Executar
 
 ```bash
-# Todos os testes
+# Todos os testes automatizados
 php artisan test
 
-# Testes unitários apenas
+# Apenas testes unitários do motor de jogo
 php artisan test --testsuite=Unit
-
-# Testes de funcionalidade
-php artisan test --testsuite=Feature
 ```

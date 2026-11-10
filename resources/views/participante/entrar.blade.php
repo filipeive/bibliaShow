@@ -11,6 +11,18 @@
         body { font-family: 'Inter', sans-serif; }
         .milhao-bg { background: radial-gradient(circle at top, #172554 0%, #0f172a 55%, #020617 100%); }
         .question-banner { background: linear-gradient(180deg, #991b1b 0%, #7f1d1d 100%); border: 2px solid #fbbf24; }
+        .opcao-bloqueada {
+            background: linear-gradient(90deg, rgba(217, 119, 6, 0.4) 0%, rgba(120, 53, 15, 0.55) 100%) !important;
+            border-color: #fbbf24 !important;
+        }
+        .opcao-correta-reveal {
+            background: linear-gradient(90deg, rgba(5, 150, 105, 0.92) 0%, rgba(6, 95, 70, 0.95) 100%) !important;
+            border-color: #34d399 !important;
+        }
+        .opcao-errada-reveal {
+            background: linear-gradient(90deg, rgba(225, 29, 72, 0.92) 0%, rgba(136, 19, 55, 0.95) 100%) !important;
+            border-color: #fb7185 !important;
+        }
     </style>
 </head>
 <body class="milhao-bg text-slate-100 min-h-screen">
@@ -40,6 +52,18 @@
                     {{ $sala ? $sala->nome : 'Digite o código exibido no projetor da igreja para jogar' }}
                 </p>
             </div>
+
+            @if($sala && ($sala->premio_primeiro_lugar || $sala->premio_segundo_lugar))
+                <div class="mb-5 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-1">
+                    <p class="text-[11px] font-black uppercase tracking-wider text-amber-400">Prêmios desta Sala:</p>
+                    @if($sala->premio_primeiro_lugar)
+                        <p class="text-xs text-white font-bold"><strong class="text-amber-300">1º Lugar:</strong> {{ $sala->premio_primeiro_lugar }}</p>
+                    @endif
+                    @if($sala->premio_segundo_lugar)
+                        <p class="text-xs text-slate-300 font-semibold"><strong class="text-slate-200">2º Lugar:</strong> {{ $sala->premio_segundo_lugar }}</p>
+                    @endif
+                </div>
+            @endif
 
             <form id="entrarForm" class="space-y-4">
                 <div>
@@ -85,6 +109,15 @@
                 <div class="text-right">
                     <p class="text-[11px] text-slate-400 uppercase font-bold">Seus Pontos</p>
                     <p class="text-2xl font-black text-amber-400"><span id="jogadorPontosDisplay">0</span> <span class="text-xs font-normal text-slate-400">pts</span></p>
+                </div>
+            </div>
+
+            <!-- Prêmios da Sala em disputa -->
+            <div id="boxPremiosSala" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <span class="font-black uppercase tracking-wider text-amber-400">Prêmios em Disputa:</span>
+                <div class="flex flex-wrap gap-3">
+                    <span id="premio1Display" class="font-bold text-white"></span>
+                    <span id="premio2Display" class="font-semibold text-slate-300"></span>
                 </div>
             </div>
 
@@ -164,6 +197,7 @@
             pontuacao: 0,
             questaoAtualId: null,
             jaRespondeuAtual: false,
+            reveladoNaPerguntaAtual: false,
             inicioPerguntaTimestamp: Date.now(),
             opcoesEliminadas: [],
         };
@@ -255,6 +289,12 @@
                 if (!resp.ok) return;
                 const data = await resp.json();
 
+                if (data.sala && (data.sala.premio_primeiro_lugar || data.sala.premio_segundo_lugar)) {
+                    document.getElementById('boxPremiosSala').classList.remove('hidden');
+                    document.getElementById('premio1Display').innerHTML = data.sala.premio_primeiro_lugar ? `1º: <strong class="text-amber-300">${data.sala.premio_primeiro_lugar}</strong>` : '';
+                    document.getElementById('premio2Display').innerHTML = data.sala.premio_segundo_lugar ? `2º: <strong>${data.sala.premio_segundo_lugar}</strong>` : '';
+                }
+
                 atualizarRanking(data.ranking || []);
 
                 if (data.estado === 'terminado') {
@@ -299,13 +339,13 @@
                 if (estadoSessao.questaoAtualId !== q.id) {
                     estadoSessao.questaoAtualId = q.id;
                     estadoSessao.jaRespondeuAtual = !!data.ja_respondeu;
+                    estadoSessao.reveladoNaPerguntaAtual = false;
                     estadoSessao.inicioPerguntaTimestamp = Date.now();
                     document.getElementById('feedbackResposta').classList.add('hidden');
                     fecharModalCerteza();
                     renderizarPergunta(q, estadoSessao.jaRespondeuAtual);
-                } else if ((data.ja_respondeu && !estadoSessao.jaRespondeuAtual) || mudouEliminadas) {
-                    if (data.ja_respondeu) estadoSessao.jaRespondeuAtual = true;
-                    renderizarPergunta(q, estadoSessao.jaRespondeuAtual);
+                } else if (mudouEliminadas && !estadoSessao.jaRespondeuAtual) {
+                    renderizarPergunta(q, false);
                 }
             } catch (e) {}
         }
@@ -314,7 +354,7 @@
             document.getElementById('textoPerguntaViva').innerText = q.texto;
             const container = document.getElementById('opcoesBotoes');
 
-            if (bloqueado) {
+            if (bloqueado && !estadoSessao.reveladoNaPerguntaAtual) {
                 container.innerHTML = `
                     <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 text-center text-sm text-slate-300">
                         Resposta registrada! Aguarde o apresentador chamar a próxima pergunta.
@@ -328,13 +368,18 @@
                 const isEliminada = eliminadas.includes(idx);
                 return `
                     <button type="button"
+                            id="btnOpcaoMobile_${idx}"
+                            data-indice="${idx}"
                             ${isEliminada ? 'disabled' : ''}
                             onclick="confirmarOpcao(${idx}, '${String(opcao).replace(/'/g, "\\'")}')"
-                            class="w-full text-left p-4 rounded-2xl border-2 transition flex items-center gap-3.5 ${isEliminada ? 'opacity-30 border-slate-800 bg-slate-950 line-through' : 'border-blue-500/40 bg-blue-950/70 hover:border-amber-400 active:scale-[0.99]'}">
-                        <span class="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 font-black flex items-center justify-center shrink-0 text-sm">
-                            ${letras[idx] || (idx + 1)}
-                        </span>
-                        <span class="font-bold text-white text-sm sm:text-base">${opcao}</span>
+                            class="btn-opcao-mobile w-full text-left p-4 rounded-2xl border-2 transition flex items-center justify-between gap-3.5 ${isEliminada ? 'opacity-30 border-slate-800 bg-slate-950 line-through' : 'border-blue-500/40 bg-blue-950/70 hover:border-amber-400 active:scale-[0.99]'}">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <span id="badgeMobile_${idx}" class="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 font-black flex items-center justify-center shrink-0 text-sm">
+                                ${letras[idx] || (idx + 1)}
+                            </span>
+                            <span class="font-bold text-white text-sm sm:text-base">${opcao}</span>
+                        </div>
+                        <span id="tagMobile_${idx}" class="hidden shrink-0 text-[10px] font-black uppercase px-2 py-0.5 rounded"></span>
                     </button>
                 `;
             }).join('');
@@ -347,8 +392,9 @@
             document.getElementById('textoOpcaoConfirmar').innerText = `${letras[idx] || (idx + 1)}) ${textoOpcao}`;
             document.getElementById('modalCerteza').classList.remove('hidden');
             document.getElementById('btnConfirmarFinal').onclick = () => {
+                const escolhido = indicePendenteConfirmacao;
                 fecharModalCerteza();
-                enviarResposta(indicePendenteConfirmacao);
+                enviarResposta(escolhido);
             };
         }
 
@@ -357,13 +403,59 @@
             indicePendenteConfirmacao = null;
         }
 
+        function bloquearOpcaoMobile(indiceEscolhido) {
+            document.querySelectorAll('.btn-opcao-mobile').forEach(btn => {
+                btn.disabled = true;
+                const idx = String(btn.dataset.indice);
+                const tag = document.getElementById(`tagMobile_${idx}`);
+                if (idx === String(indiceEscolhido)) {
+                    btn.classList.add('opcao-bloqueada');
+                    if (tag) {
+                        tag.textContent = 'BLOQUEADA';
+                        tag.className = 'shrink-0 text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-400 text-slate-950';
+                    }
+                } else {
+                    btn.classList.add('opacity-50');
+                }
+            });
+        }
+
+        function revelarCoresOpcaoMobile(indiceEscolhido, indiceCorreto, acertou) {
+            document.querySelectorAll('.btn-opcao-mobile').forEach(btn => {
+                const idx = String(btn.dataset.indice);
+                btn.classList.remove('opcao-bloqueada', 'opacity-50');
+                const tag = document.getElementById(`tagMobile_${idx}`);
+                const badge = document.getElementById(`badgeMobile_${idx}`);
+
+                if (idx === String(indiceCorreto)) {
+                    btn.classList.add('opcao-correta-reveal');
+                    if (badge) badge.className = 'w-8 h-8 rounded-xl bg-white text-emerald-700 font-black flex items-center justify-center shrink-0 text-sm';
+                    if (tag) {
+                        tag.textContent = acertou ? 'CERTA!' : 'CORRETA';
+                        tag.className = 'shrink-0 text-[10px] font-black uppercase px-2 py-0.5 rounded bg-white text-emerald-800';
+                    }
+                } else if (idx === String(indiceEscolhido) && !acertou) {
+                    btn.classList.add('opcao-errada-reveal');
+                    if (badge) badge.className = 'w-8 h-8 rounded-xl bg-white text-rose-700 font-black flex items-center justify-center shrink-0 text-sm';
+                    if (tag) {
+                        tag.textContent = 'ERROU';
+                        tag.className = 'shrink-0 text-[10px] font-black uppercase px-2 py-0.5 rounded bg-white text-rose-800';
+                    }
+                } else {
+                    btn.classList.add('opacity-35');
+                }
+            });
+        }
+
         async function enviarResposta(indiceOpcao) {
             if (estadoSessao.jaRespondeuAtual || !estadoSessao.questaoAtualId) return;
             estadoSessao.jaRespondeuAtual = true;
+            estadoSessao.reveladoNaPerguntaAtual = true;
 
             const tempoSegundos = Math.max(1, Math.min(60, Math.round((Date.now() - estadoSessao.inicioPerguntaTimestamp) / 1000)));
-            const container = document.getElementById('opcoesBotoes');
-            container.innerHTML = `<div class="p-4 rounded-xl bg-slate-950 text-center text-sm text-amber-300 font-bold">Enviando resposta...</div>`;
+
+            // 1. Bloquear imediatamente a opção escolhida
+            bloquearOpcaoMobile(indiceOpcao);
 
             try {
                 const resp = await fetch(`/api/salas/${estadoSessao.salaId}/responder`, {
@@ -386,34 +478,34 @@
                     throw new Error(data.error || 'Não foi possível enviar a resposta.');
                 }
 
-                new Audio(data.acertou ? '/audio/classico/certa1.wav' : '/audio/classico/errou1.wav').play().catch(() => {});
+                // 2. Após breve suspense (500ms), revelar verde/vermelho nas opções!
+                setTimeout(() => {
+                    new Audio(data.acertou ? '/audio/classico/certa1.wav' : '/audio/classico/errou1.wav').play().catch(() => {});
 
-                estadoSessao.pontuacao = data.participante?.pontuacao_total ?? estadoSessao.pontuacao;
-                document.getElementById('jogadorPontosDisplay').innerText = estadoSessao.pontuacao;
-                sessionStorage.setItem('biblia_show_participante', JSON.stringify(estadoSessao));
+                    revelarCoresOpcaoMobile(indiceOpcao, data.indice_correto, !!data.acertou);
 
-                const fb = document.getElementById('feedbackResposta');
-                fb.className = 'rounded-2xl p-4 border ' + (data.acertou
-                    ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-100'
-                    : 'bg-rose-950/80 border-rose-500/40 text-rose-100');
+                    estadoSessao.pontuacao = data.participante?.pontuacao_total ?? estadoSessao.pontuacao;
+                    document.getElementById('jogadorPontosDisplay').innerText = estadoSessao.pontuacao;
+                    sessionStorage.setItem('biblia_show_participante', JSON.stringify(estadoSessao));
 
-                fb.innerHTML = `
-                    <div class="font-black text-base mb-1">
-                        ${data.acertou ? `Certa Resposta! (+${data.pontos} pts)` : `Que pena, você errou!`}
-                    </div>
-                    ${!data.acertou ? `<div class="text-xs text-rose-200">Correta: <strong>${data.resposta_correta}</strong></div>` : ''}
-                    ${data.referencia_biblica || data.explicacao ? `<div class="text-xs mt-1.5 text-slate-300">${data.referencia_biblica ? '[' + data.referencia_biblica + '] ' : ''}${data.explicacao || ''}</div>` : ''}
-                `;
-                fb.classList.remove('hidden');
+                    const fb = document.getElementById('feedbackResposta');
+                    fb.className = 'rounded-2xl p-4 border ' + (data.acertou
+                        ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-100'
+                        : 'bg-rose-950/80 border-rose-500/40 text-rose-100');
 
-                container.innerHTML = `
-                    <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 text-center text-xs text-slate-400">
-                        Aguardando o apresentador avançar para a próxima pergunta...
-                    </div>
-                `;
-                sincronizarEstadoSala();
+                    fb.innerHTML = `
+                        <div class="font-black text-base mb-1">
+                            ${data.acertou ? `Certa Resposta! (+${data.pontos} pts)` : `Que pena, você errou!`}
+                        </div>
+                        ${!data.acertou ? `<div class="text-xs text-rose-200">Correta: <strong class="text-emerald-300 underline">${data.resposta_correta}</strong></div>` : ''}
+                        ${data.referencia_biblica || data.explicacao ? `<div class="text-xs mt-1.5 text-slate-300">${data.referencia_biblica ? '[' + data.referencia_biblica + '] ' : ''}${data.explicacao || ''}</div>` : ''}
+                        <div class="text-[11px] mt-2 text-amber-300 font-semibold">Aguardando o apresentador avançar para a próxima pergunta...</div>
+                    `;
+                    fb.classList.remove('hidden');
+                }, 500);
             } catch (err) {
                 estadoSessao.jaRespondeuAtual = false;
+                estadoSessao.reveladoNaPerguntaAtual = false;
                 alert(err.message);
             }
         }

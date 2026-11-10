@@ -46,32 +46,53 @@
                 </svg>
                 Criar Nova Sala de Apresentação Ao Vivo
             </h2>
-            <form action="{{ route('apresentador.criar') }}" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <form action="{{ route('apresentador.criar') }}" method="POST" class="space-y-4">
                 @csrf
-                <div class="md:col-span-2">
-                    <label for="nome" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                        Nome da Sala / Culto / Evento
-                    </label>
-                    <input type="text" id="nome" name="nome" required
-                           placeholder="Ex.: Culto de Jovens, Gincana EBD, Célula Betel..."
-                           class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white focus:ring-2 focus:ring-amber-500 outline-none text-sm">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-2">
+                        <label for="nome" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                            Nome da Sala / Culto / Evento
+                        </label>
+                        <input type="text" id="nome" name="nome" required
+                               placeholder="Ex.: Culto de Jovens, Gincana EBD, Célula Betel..."
+                               class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white focus:ring-2 focus:ring-amber-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label for="quantidade_perguntas" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                            Formato da Partida
+                        </label>
+                        <select id="quantidade_perguntas" name="quantidade_perguntas"
+                                class="w-full px-3.5 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white focus:ring-2 focus:ring-amber-500 outline-none text-sm">
+                            <option value="12">12 Perguntas (3 por Fase)</option>
+                            <option value="16">16 Perguntas (4 por Fase)</option>
+                            <option value="24" selected>24 Perguntas (4 Fases Clássicas)</option>
+                        </select>
+                    </div>
                 </div>
-                <div>
-                    <label for="quantidade_perguntas" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                        Formato da Partida
-                    </label>
-                    <select id="quantidade_perguntas" name="quantidade_perguntas"
-                            class="w-full px-3.5 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white focus:ring-2 focus:ring-amber-500 outline-none text-sm">
-                        <option value="12">12 Perguntas (3 por Fase)</option>
-                        <option value="16">16 Perguntas (4 por Fase)</option>
-                        <option value="24" selected>24 Perguntas (4 Fases Clássicas)</option>
-                    </select>
-                </div>
-                <div>
-                    <button type="submit"
-                            class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 px-6 rounded-xl shadow-lg shadow-amber-500/20 transition text-sm">
-                        Criar e Abrir Estúdio →
-                    </button>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                    <div>
+                        <label for="premio_primeiro_lugar" class="block text-xs font-bold uppercase tracking-wider text-amber-400 mb-1.5">
+                            Prêmio para o 1º Lugar (Opcional)
+                        </label>
+                        <input type="text" id="premio_primeiro_lugar" name="premio_primeiro_lugar"
+                               placeholder="Ex.: Bíblia de Estudo + Troféu Ouro"
+                               class="w-full px-4 py-3 rounded-xl border border-amber-500/40 bg-slate-950 text-white focus:ring-2 focus:ring-amber-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label for="premio_segundo_lugar" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                            Prêmio para o 2º Lugar (Opcional)
+                        </label>
+                        <input type="text" id="premio_segundo_lugar" name="premio_segundo_lugar"
+                               placeholder="Ex.: Livro Devocional + Medalha Prata"
+                               class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white focus:ring-2 focus:ring-amber-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <button type="submit"
+                                class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 px-6 rounded-xl shadow-lg shadow-amber-500/20 transition text-sm">
+                            Criar e Abrir Estúdio →
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -99,7 +120,19 @@
                         <tbody class="divide-y divide-slate-800/70">
                             @foreach($salas as $sala)
                                 <tr class="hover:bg-slate-800/40 transition">
-                                    <td class="py-4 text-white font-bold">{{ $sala->nome }}</td>
+                                    <td class="py-4">
+                                        <div class="text-white font-bold">{{ $sala->nome }}</div>
+                                        @if($sala->premio_primeiro_lugar || $sala->premio_segundo_lugar)
+                                            <div class="text-xs text-amber-300/90 mt-0.5">
+                                                @if($sala->premio_primeiro_lugar)
+                                                    <span>1º: {{ $sala->premio_primeiro_lugar }}</span>
+                                                @endif
+                                                @if($sala->premio_segundo_lugar)
+                                                    <span class="ml-2 text-slate-400">• 2º: {{ $sala->premio_segundo_lugar }}</span>
+                                                @endif
+                                            </div>
+                                        @endif
+                                    </td>
                                     <td class="py-4">
                                         <span class="font-mono font-black text-amber-300 bg-amber-500/15 border border-amber-500/30 px-3 py-1 rounded-lg text-sm">
                                             {{ $sala->codigo_acesso }}

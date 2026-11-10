@@ -55,6 +55,12 @@ class GameController extends Controller
             'sequencia_acertos' => $estado['sequencia_acertos'] ?? 0,
             'pontuacao' => $estado['pontuacao'],
             'tempo_restante' => $estado['tempo_restante'],
+            'erros_count' => $estado['erros_count'] ?? 0,
+            'max_erros' => $estado['max_erros'] ?? 3,
+            'erros_restantes' => $estado['erros_restantes'] ?? 3,
+            'tempos_esgotados_count' => $estado['tempos_esgotados_count'] ?? 0,
+            'max_tempos_esgotados' => $estado['max_tempos_esgotados'] ?? 3,
+            'tempos_esgotados_restantes' => $estado['tempos_esgotados_restantes'] ?? 3,
             'ajudas' => $estado['ajudas'] ?? [],
             'categorias' => $categorias,
             'niveis' => $niveis,
@@ -67,42 +73,96 @@ class GameController extends Controller
         $request->validate([
             'resposta' => 'nullable|string',
             'tempo_resposta' => 'required|integer|min:0',
+            'tempo_esgotado' => 'nullable|boolean',
         ]);
 
         $engine = $this->carregarEngineDaSessao($request);
 
         if (!$engine) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'redirect_url' => route('game.play', ['novo' => 1]),
+                    'error' => 'Sessão expirada.',
+                ]);
+            }
             return redirect()->route('game.play', ['novo' => 1])
                 ->with('error', 'Sessão de jogo expirada. Uma nova partida foi iniciada.');
         }
 
         $pergunta = $engine->getState()['pergunta_atual'];
         if (!$pergunta) {
+            if ($request->expectsJson()) {
+                return response()->json(['redirect_url' => route('game.play', ['novo' => 1])]);
+            }
             return redirect()->route('game.play', ['novo' => 1]);
         }
 
-        $resposta = (string) ($request->resposta ?? '');
-        $opcoes = $pergunta['opcoes'] ?? [];
-        $opcoesArray = is_string($opcoes) ? json_decode($opcoes, true) : $opcoes;
-        if ($resposta !== '' && is_array($opcoesArray) && isset($opcoesArray[$resposta])) {
-            $resposta = (string) $opcoesArray[$resposta];
+        $foiTempoEsgotado = $request->boolean('tempo_esgotado') || ($request->input('resposta') === null || $request->input('resposta') === '');
+
+        if ($foiTempoEsgotado) {
+            $resultado = $engine->registrarTempoEsgotado(1);
+        } else {
+            $resposta = (string) ($request->resposta ?? '');
+            $opcoes = $pergunta['opcoes'] ?? [];
+            $opcoesArray = is_string($opcoes) ? json_decode($opcoes, true) : $opcoes;
+            if ($resposta !== '' && is_array($opcoesArray) && isset($opcoesArray[$resposta])) {
+                $resposta = (string) $opcoesArray[$resposta];
+            }
+
+            $resultado = $engine->answerQuestion(
+                1,
+                $pergunta['id'] ?? 0,
+                $resposta,
+                (int) $request->tempo_resposta
+            );
         }
 
-        $resultado = $engine->answerQuestion(
-            1,
-            $pergunta['id'] ?? 0,
-            $resposta,
-            (int) $request->tempo_resposta
-        );
+        // Regra 1: 3 erros reiniciam o jogo
+        // Regra 2: 3 tempos esgotados encerram e reiniciam o jogo
+        if (!empty($resultado['reiniciar_por_erros']) || !empty($resultado['reiniciar_por_tempo'])) {
+            $msgReinicio = !empty($resultado['reiniciar_por_erros'])
+                ? 'Você cometeu 3 erros nesta partida! O jogo foi encerrado e reiniciado automaticamente.'
+                : 'O tempo esgotou em 3 perguntas! O jogo foi encerrado e reiniciado automaticamente.';
+
+            $request->session()->forget(['game_engine', 'resultados']);
+            $request->session()->flash('aviso_reinicio', $msgReinicio);
+            $request->session()->flash('resultado', $resultado);
+
+            if ($request->expectsJson()) {
+                return response()->json(array_merge($resultado, [
+                    'reiniciar' => true,
+                    'mensagem_reinicio' => $msgReinicio,
+                    'redirect_url' => route('game.play', ['novo' => 1]),
+                ]));
+            }
+
+            return redirect()->route('game.play', ['novo' => 1]);
+        }
 
         $this->salvarEngineNaSessao($request, $engine);
 
         if ($engine->getState()['estado'] === 'terminado') {
             $request->session()->put('resultados', $engine->getResults());
-            return redirect()->route('game.result')->with('ultimo_resultado', $resultado);
+            $request->session()->flash('ultimo_resultado', $resultado);
+
+            if ($request->expectsJson()) {
+                return response()->json(array_merge($resultado, [
+                    'redirect_url' => route('game.result'),
+                ]));
+            }
+
+            return redirect()->route('game.result');
         }
 
-        return redirect()->route('game.play')->with('resultado', $resultado);
+        $request->session()->flash('resultado', $resultado);
+
+        if ($request->expectsJson()) {
+            return response()->json(array_merge($resultado, [
+                'redirect_url' => route('game.play'),
+            ]));
+        }
+
+        return redirect()->route('game.play');
     }
 
     public function usarAjuda(Request $request)

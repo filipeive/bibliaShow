@@ -16,6 +16,8 @@ class Sala extends Model
         'nome',
         'apresentador_id',
         'status',
+        'premio_primeiro_lugar',
+        'premio_segundo_lugar',
     ];
 
     public function igreja()

@@ -214,4 +214,69 @@ class GameEngineTest extends TestCase
         $this->assertStringContainsString('Gênesis 1:1', $res['dica_biblica']);
         $this->assertEquals(2, $res['dicas_restantes']);
     }
+
+    public function test_tres_erros_sinalizam_reinicio_de_partida(): void
+    {
+        $engine = new GameEngine(
+            new RandomSelector(),
+            new StandardScoring(),
+            new CountdownTimer(),
+            new GameState()
+        );
+
+        $perguntas = [
+            ['id' => 1, 'texto' => 'Q1', 'resposta_correta' => 'A'],
+            ['id' => 2, 'texto' => 'Q2', 'resposta_correta' => 'A'],
+            ['id' => 3, 'texto' => 'Q3', 'resposta_correta' => 'A'],
+            ['id' => 4, 'texto' => 'Q4', 'resposta_correta' => 'A'],
+        ];
+
+        $engine->start($perguntas, []);
+
+        $r1 = $engine->answerQuestion(1, 1, 'Errada', 5);
+        $this->assertFalse($r1['reiniciar_por_erros']);
+        $this->assertEquals(1, $r1['erros_count']);
+
+        $r2 = $engine->answerQuestion(1, 2, 'Errada', 5);
+        $this->assertFalse($r2['reiniciar_por_erros']);
+        $this->assertEquals(2, $r2['erros_count']);
+
+        $r3 = $engine->answerQuestion(1, 3, 'Errada', 5);
+        $this->assertTrue($r3['reiniciar_por_erros']);
+        $this->assertEquals(3, $r3['erros_count']);
+    }
+
+    public function test_tempo_esgotado_passa_proxima_pergunta_e_tres_tempos_esgotados_reiniciam(): void
+    {
+        $engine = new GameEngine(
+            new RandomSelector(),
+            new StandardScoring(),
+            new CountdownTimer(),
+            new GameState()
+        );
+
+        $perguntas = [
+            ['id' => 10, 'texto' => 'Q1', 'resposta_correta' => 'A'],
+            ['id' => 20, 'texto' => 'Q2', 'resposta_correta' => 'A'],
+            ['id' => 30, 'texto' => 'Q3', 'resposta_correta' => 'A'],
+            ['id' => 40, 'texto' => 'Q4', 'resposta_correta' => 'A'],
+        ];
+
+        $engine->start($perguntas, []);
+
+        $t1 = $engine->registrarTempoEsgotado(1);
+        $this->assertTrue($t1['tempo_esgotado']);
+        $this->assertFalse($t1['reiniciar_por_tempo']);
+        $this->assertEquals(1, $t1['tempos_esgotados_count']);
+        $this->assertEquals(2, $engine->getState()['numero_pergunta']);
+
+        $t2 = $engine->registrarTempoEsgotado(1);
+        $this->assertFalse($t2['reiniciar_por_tempo']);
+        $this->assertEquals(2, $t2['tempos_esgotados_count']);
+        $this->assertEquals(3, $engine->getState()['numero_pergunta']);
+
+        $t3 = $engine->registrarTempoEsgotado(1);
+        $this->assertTrue($t3['reiniciar_por_tempo']);
+        $this->assertEquals(3, $t3['tempos_esgotados_count']);
+    }
 }

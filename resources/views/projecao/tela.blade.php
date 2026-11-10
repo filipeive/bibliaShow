@@ -37,6 +37,20 @@
                     </span>
                 </div>
                 <h1 class="text-2xl sm:text-4xl font-black text-white">{{ $sala->nome }}</h1>
+                @if($sala->premio_primeiro_lugar || $sala->premio_segundo_lugar)
+                    <div class="flex flex-wrap items-center gap-3 mt-1.5 text-xs">
+                        @if($sala->premio_primeiro_lugar)
+                            <span class="px-2.5 py-0.5 rounded-lg bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold">
+                                1º Lugar: {{ $sala->premio_primeiro_lugar }}
+                            </span>
+                        @endif
+                        @if($sala->premio_segundo_lugar)
+                            <span class="px-2.5 py-0.5 rounded-lg bg-white/10 border border-white/20 text-slate-200 font-bold">
+                                2º Lugar: {{ $sala->premio_segundo_lugar }}
+                            </span>
+                        @endif
+                    </div>
+                @endif
             </div>
 
             <div class="flex items-center gap-4">

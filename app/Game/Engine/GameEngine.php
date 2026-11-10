@@ -30,6 +30,10 @@ class GameEngine
     private ?string $dicaBiblicaAtual = null;
     private bool $convidadoConsultadoNaPergunta = false;
     private bool $gabaritoReveladoAtual = false;
+    private int $errosCount = 0;
+    private int $maxErros = 3;
+    private int $temposEsgotadosCount = 0;
+    private int $maxTemposEsgotados = 3;
 
     public function __construct(
         QuestionSelectorInterface $selector,
@@ -58,6 +62,8 @@ class GameEngine
         $this->dicaBiblicaAtual = null;
         $this->convidadoConsultadoNaPergunta = false;
         $this->gabaritoReveladoAtual = false;
+        $this->errosCount = 0;
+        $this->temposEsgotadosCount = 0;
         $this->state->setEstado('em_curso');
         $this->state->setPontuacao(0);
 
@@ -127,12 +133,38 @@ class GameEngine
         ];
     }
 
+    private function encontrarIndiceCorreto($question): ?int
+    {
+        if (!$question) {
+            return null;
+        }
+
+        $respostaCorreta = $question['resposta_correta'] ?? $question->resposta_correta ?? '';
+        $opcoes = $question['opcoes'] ?? $question->opcoes ?? [];
+        if (is_string($opcoes)) {
+            $opcoes = json_decode($opcoes, true) ?: [];
+        }
+
+        if (!is_array($opcoes)) {
+            return null;
+        }
+
+        foreach ($opcoes as $idx => $op) {
+            if (mb_strtolower(trim((string) $op), 'UTF-8') === mb_strtolower(trim((string) $respostaCorreta), 'UTF-8')) {
+                return (int) $idx;
+            }
+        }
+
+        return null;
+    }
+
     public function answerQuestion(int $participantId, int $questionId, string $answer, int $responseTime): array
     {
         $question = $this->state->getPerguntaAtual();
         $faseAntes = $this->calcularFaseAtual();
 
         $respostaCorreta = $question['resposta_correta'] ?? $question->resposta_correta ?? '';
+        $indiceCorreto = $this->encontrarIndiceCorreto($question);
         $correct = mb_strtolower(trim($answer), 'UTF-8') === mb_strtolower(trim($respostaCorreta), 'UTF-8');
 
         $sequence = $this->calcularSequenciaAtual();
@@ -141,6 +173,10 @@ class GameEngine
         $explicacao = $question['explicacao'] ?? $question->explicacao ?? '';
         $referenciaBiblica = $question['referencia_biblica'] ?? $question->referencia_biblica ?? '';
         $textoPergunta = $question['texto'] ?? $question->texto ?? '';
+
+        if (!$correct) {
+            $this->errosCount++;
+        }
 
         $this->answers[] = [
             'participante_id' => $participantId,
@@ -152,6 +188,7 @@ class GameEngine
             'referencia_biblica' => $referenciaBiblica,
             'explicacao' => $explicacao,
             'acertou' => $correct,
+            'tempo_esgotado' => false,
             'pontos' => $points,
             'tempo_resposta' => $responseTime,
         ];
@@ -162,20 +199,86 @@ class GameEngine
 
         $this->dispatchEvent(new QuestionAnswered($participantId, $questionId, $correct, $points, $responseTime));
 
+        $reiniciarPorErros = $this->errosCount >= $this->maxErros;
+
         $this->startNextQuestion();
         $faseDepois = $this->calcularFaseAtual();
 
         return [
             'acertou' => $correct,
+            'tempo_esgotado' => false,
             'pontos' => $points,
             'fase_anterior' => $faseAntes,
             'nova_fase' => ($this->state->getEstado() === 'em_curso' && $faseDepois > $faseAntes) ? $faseDepois : null,
             'som_efeito' => $correct ? ('certa' . rand(1, 3)) : ('errou' . rand(1, 3)),
             'resposta_dada' => $answer,
             'resposta_correta' => $respostaCorreta,
+            'indice_correto' => $indiceCorreto,
             'explicacao' => $explicacao,
             'referencia_biblica' => $referenciaBiblica,
             'referencia' => $textoPergunta,
+            'erros_count' => $this->errosCount,
+            'erros_restantes' => max(0, $this->maxErros - $this->errosCount),
+            'tempos_esgotados_count' => $this->temposEsgotadosCount,
+            'tempos_esgotados_restantes' => max(0, $this->maxTemposEsgotados - $this->temposEsgotadosCount),
+            'reiniciar_por_erros' => $reiniciarPorErros,
+            'reiniciar_por_tempo' => false,
+        ];
+    }
+
+    public function registrarTempoEsgotado(int $participantId = 1): array
+    {
+        $question = $this->state->getPerguntaAtual();
+        $faseAntes = $this->calcularFaseAtual();
+
+        $questionId = $question['id'] ?? $question->id ?? 0;
+        $respostaCorreta = $question['resposta_correta'] ?? $question->resposta_correta ?? '';
+        $indiceCorreto = $this->encontrarIndiceCorreto($question);
+        $explicacao = $question['explicacao'] ?? $question->explicacao ?? '';
+        $referenciaBiblica = $question['referencia_biblica'] ?? $question->referencia_biblica ?? '';
+        $textoPergunta = $question['texto'] ?? $question->texto ?? '';
+
+        $this->temposEsgotadosCount++;
+
+        $this->answers[] = [
+            'participante_id' => $participantId,
+            'questao_id' => $questionId,
+            'fase' => $faseAntes,
+            'pergunta_texto' => $textoPergunta,
+            'resposta_dada' => '(Tempo Esgotado)',
+            'resposta_correta' => $respostaCorreta,
+            'referencia_biblica' => $referenciaBiblica,
+            'explicacao' => $explicacao,
+            'acertou' => false,
+            'tempo_esgotado' => true,
+            'pontos' => 0,
+            'tempo_resposta' => 60,
+        ];
+
+        $reiniciarPorTempo = $this->temposEsgotadosCount >= $this->maxTemposEsgotados;
+
+        $this->startNextQuestion();
+        $faseDepois = $this->calcularFaseAtual();
+
+        return [
+            'acertou' => false,
+            'tempo_esgotado' => true,
+            'pontos' => 0,
+            'fase_anterior' => $faseAntes,
+            'nova_fase' => ($this->state->getEstado() === 'em_curso' && $faseDepois > $faseAntes) ? $faseDepois : null,
+            'som_efeito' => 'errou1',
+            'resposta_dada' => '(Tempo Esgotado)',
+            'resposta_correta' => $respostaCorreta,
+            'indice_correto' => $indiceCorreto,
+            'explicacao' => $explicacao,
+            'referencia_biblica' => $referenciaBiblica,
+            'referencia' => $textoPergunta,
+            'erros_count' => $this->errosCount,
+            'erros_restantes' => max(0, $this->maxErros - $this->errosCount),
+            'tempos_esgotados_count' => $this->temposEsgotadosCount,
+            'tempos_esgotados_restantes' => max(0, $this->maxTemposEsgotados - $this->temposEsgotadosCount),
+            'reiniciar_por_erros' => false,
+            'reiniciar_por_tempo' => $reiniciarPorTempo,
         ];
     }
 
@@ -452,6 +555,12 @@ class GameEngine
             'ranking' => $this->state->getRanking(),
             'tempo_restante' => $this->timer->tempoRestante(),
             'tempo_esgotado' => $this->timer->esgotado(),
+            'erros_count' => $this->errosCount,
+            'max_erros' => $this->maxErros,
+            'erros_restantes' => max(0, $this->maxErros - $this->errosCount),
+            'tempos_esgotados_count' => $this->temposEsgotadosCount,
+            'max_tempos_esgotados' => $this->maxTemposEsgotados,
+            'tempos_esgotados_restantes' => max(0, $this->maxTemposEsgotados - $this->temposEsgotadosCount),
             'ajudas' => [
                 'pulos_restantes' => $this->pulosRestantes,
                 'dicas_restantes' => $this->dicasRestantes,
@@ -474,6 +583,8 @@ class GameEngine
             'estado' => $this->state->getEstado(),
             'pontuacao_total' => $this->state->getPontuacao(),
             'total_acertos' => $acertos,
+            'total_erros' => $this->errosCount,
+            'total_tempos_esgotados' => $this->temposEsgotadosCount,
             'total_respondidas' => count($this->answers),
             'respostas' => $this->answers,
             'historico_perguntas' => $this->state->getHistoricoPerguntas(),

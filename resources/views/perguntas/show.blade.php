@@ -9,6 +9,7 @@
     <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-900">
+    @include('partials.navbar')
 
     <div class="max-w-4xl mx-auto px-4 py-8">
         <header class="flex items-center justify-between mb-8">
