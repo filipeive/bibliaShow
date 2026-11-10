@@ -18,22 +18,29 @@
             <p class="text-slate-600">Modo Individual - Offline</p>
         </header>
 
-        @if(session('resultado'))
-            <div class="bg-{{ session('resultado.acertou') ? 'green' : 'red' }}-50 border-{{ session('resultado.acertou') ? 'green' : 'red' }}-200 p-4 rounded-lg mb-6">
+        @php
+            $resultado = session('resultado');
+            $acertou = $resultado['acertou'] ?? false;
+            $pontos = $resultado['pontos'] ?? 0;
+            $respostaCorreta = $resultado['resposta_correta'] ?? '';
+        @endphp
+
+        @if($resultado)
+            <div class="bg-{{ $acertou ? 'green' : 'red' }}-50 border-{{ $acertou ? 'green' : 'red' }}-200 p-4 rounded-lg mb-6">
                 <div class="flex items-center gap-3">
-                    <span class="text-2xl">{{ session('resultado.acertou') ? '✓' : '✗' }}</span>
+                    <span class="text-2xl">{{ $acertou ? '✓' : '✗' }}</span>
                     <div>
-                        <p class="font-semibold text-{{ session('resultado.acertou') ? 'green' : 'red' }}-800">
-                            {{ session('resultado.acertou') ? 'Correto!' : 'Errado!' }}
+                        <p class="font-semibold text-{{ $acertou ? 'green' : 'red' }}-800">
+                            {{ $acertou ? 'Correto!' : 'Errado!' }}
                         </p>
                         <p class="text-sm text-slate-600 mt-1">
-                            {{ session('resultado.acertou') ? '+{{ session('resultado.pontos') }} pontos' : 'Resposta correta: ' . session('resultado.resposta_correta') }}
+                            {{ $acertou ? '+ ' . $pontos . ' pontos' : 'Resposta correta: ' . $respostaCorreta }}
                         </p>
                     </div>
                 </div>
-                @if(session('resultado.explicacao'))
+                @if($resultado['explicacao'] ?? null)
                     <div class="mt-3 p-3 bg-slate-100 rounded text-sm text-slate-700">
-                        <strong>Explicação:</strong> {{ session('resultado.explicacao') }}
+                        <strong>Explicação:</strong> {{ $resultado['explicacao'] }}
                     </div>
                 @endif
             </div>
