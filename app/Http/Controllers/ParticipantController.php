@@ -6,7 +6,6 @@ use App\Events\ParticipanteEntrou;
 use App\Events\RankingAtualizado;
 use App\Events\RespostaEnviada;
 use App\Game\Engine\GameEngine;
-use App\Game\Engine\Scoring\StandardScoring;
 use App\Models\Equipe;
 use App\Models\Jogo;
 use App\Models\Participante;
@@ -119,8 +118,16 @@ class ParticipantController extends Controller
         $estadoJogo = $sala->status === 'terminada' ? 'terminado' : ($jogo?->estado ?? 'aguardando');
         $perguntaPublica = null;
         $numeroPergunta = 1;
-        $totalPerguntas = 12;
-        $tempoRestante = 30;
+        $totalPerguntas = 24;
+        $faseAtual = 1;
+        $placarMilhao = ['errar' => 0, 'parar' => 0, 'acertar' => 10, 'valor_pergunta' => 10, 'fase' => 1];
+        $ajudasAtivas = [
+            'opcoes_eliminadas' => [],
+            'dica_biblica' => null,
+            'dica_convidado' => null,
+            'gabarito_revelado' => false,
+        ];
+        $tempoRestante = 60;
 
         if ($jogo && $jogo->dados_motor) {
             $engine = @unserialize($jogo->dados_motor);
@@ -128,8 +135,19 @@ class ParticipantController extends Controller
                 $st = $engine->getState();
                 $estadoJogo = $st['estado'];
                 $numeroPergunta = $st['numero_pergunta'] ?? 1;
-                $totalPerguntas = $st['total_perguntas'] ?? 12;
-                $tempoRestante = $st['tempo_restante'] ?? 30;
+                $totalPerguntas = $st['total_perguntas'] ?? 24;
+                $faseAtual = $st['fase_atual'] ?? 1;
+                $placarMilhao = $st['placar_milhao'] ?? $placarMilhao;
+                $tempoRestante = $st['tempo_restante'] ?? 60;
+                $ajudasMotor = $st['ajudas'] ?? [];
+
+                $gabaritoRevelado = !empty($ajudasMotor['gabarito_revelado']);
+                $ajudasAtivas = [
+                    'opcoes_eliminadas' => $ajudasMotor['opcoes_eliminadas'] ?? [],
+                    'dica_biblica' => $ajudasMotor['dica_biblica'] ?? null,
+                    'dica_convidado' => $ajudasMotor['dica_convidado'] ?? null,
+                    'gabarito_revelado' => $gabaritoRevelado,
+                ];
 
                 if (!empty($st['pergunta_atual'])) {
                     $q = $st['pergunta_atual'];
@@ -143,9 +161,11 @@ class ParticipantController extends Controller
                         'texto' => $q['texto'] ?? '',
                         'opcoes' => $opcoes,
                         'livro_nome' => $q['livro_nome'] ?? null,
-                        'dificuldade_nome' => $q['dificuldade_nome'] ?? 'Iniciante',
-                        'dificuldade_nivel' => $q['dificuldade_nivel'] ?? 1,
+                        'dificuldade_nome' => $q['dificuldade_nome'] ?? '1ª Fase',
+                        'dificuldade_nivel' => $q['dificuldade_nivel'] ?? $faseAtual,
                         'categoria_nome' => $q['categoria_nome'] ?? null,
+                        'resposta_correta' => $gabaritoRevelado ? ($q['resposta_correta'] ?? null) : null,
+                        'referencia_biblica' => $gabaritoRevelado ? ($q['referencia_biblica'] ?? null) : null,
                     ];
                 }
             }
@@ -176,6 +196,9 @@ class ParticipantController extends Controller
             'estado' => $estadoJogo,
             'numero_pergunta' => $numeroPergunta,
             'total_perguntas' => $totalPerguntas,
+            'fase_atual' => $faseAtual,
+            'placar_milhao' => $placarMilhao,
+            'ajudas' => $ajudasAtivas,
             'tempo_restante' => $tempoRestante,
             'pergunta_atual' => $perguntaPublica,
             'ja_respondeu' => $jaRespondeu,
@@ -223,7 +246,7 @@ class ParticipantController extends Controller
             return response()->json(['error' => 'Você já respondeu esta pergunta!'], 409);
         }
 
-        $questao = Questao::findOrFail($validated['questao_id']);
+        $questao = Questao::with('dificuldade')->findOrFail($validated['questao_id']);
         $opcoes = is_array($questao->opcoes) ? $questao->opcoes : (json_decode((string) $questao->opcoes, true) ?: []);
 
         $respostaTexto = trim($validated['resposta']);
@@ -234,8 +257,15 @@ class ParticipantController extends Controller
         $acertou = mb_strtolower(trim($respostaTexto), 'UTF-8') === mb_strtolower(trim($questao->resposta_correta), 'UTF-8');
         $tempo = (int) $validated['tempo_resposta'];
 
-        $scoring = new StandardScoring();
-        $pontos = $scoring->calcularPontos($acertou, $tempo, 30, 0);
+        // Pontuação clássica por fase (10, 20, 30 ou 50 pontos)
+        $nivel = $questao->dificuldade?->nivel ?? 1;
+        $pontosBaseFase = match ((int) $nivel) {
+            1 => 10,
+            2 => 20,
+            3 => 30,
+            default => 50,
+        };
+        $pontos = $acertou ? $pontosBaseFase : 0;
 
         Resposta::create([
             'jogo_id' => $jogo->id,

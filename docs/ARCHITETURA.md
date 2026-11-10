@@ -1,47 +1,24 @@
-# Arquitetura — Bíblia Show 2.0
+# Arquitetura — Bíblia Show 2.1
 
-Resumo executivo da arquitetura do produto. Detalhe completo em `ARCHITETURA.md` na raiz.
+Resumo executivo da arquitetura do produto **Bíblia Show 2.1 (Clássico Recriado)**.
 
-## Estado atual
+## Estado Atual (100% Implementado)
 
-MVP em desenvolvimento — P0 completo, P1 parcialmente implementado:
-- ✅ Motor de jogo modular (`App\Game\Engine`)
-- ✅ Modo individual offline sem conta
-- ✅ Modo apresentador (controle de navegação, pausa/retomar, finalizar)
-- ✅ Ecrã de projeção independente (sem controles administrativos)
-- ✅ Resposta correta + explicação após cada pergunta
-- ✅ Multijogador em tempo real (P1) — salas, código de acesso, WebSocket/Reverb
-- ⬜ Criação manual de perguntas (P1)
-- ⬜ Importação Excel/CSV (P1)
+- ✅ **Motor de Jogo Clássico Show do Milhão** (`App\Game\Engine\GameEngine`): 4 Fases (10, 20, 30 e 50 pts), cronômetro de 60s, placar `ERRAR | PARAR | ACERTAR`, 3 Dicas Bíblicas, 3 Convidados Bíblicos, Cartas 50/50, 3 Pulos e revelação de gabarito.
+- ✅ **Acervo Original Restaurado**: 1.000 perguntas importadas de `database/data/cadastro.dbf` (`QuestoesClassicoSeeder`), 66 livros bíblicos, 25 trilhas e locuções originais em `.wav` (`public/audio/classico/`) e 10 artigos ilustrados da Enciclopédia Bíblica (`public/data/enciclopedia.json`).
+- ✅ **Modo Individual Offline** (`/jogar`): funciona sem necessidade de conta ou internet.
+- ✅ **Estúdio do Apresentador & Salas Ao Vivo** (`/apresentador`, `/apresentador/control/{sala}`): criação de salas, código de 6 caracteres, QR Code, criação de equipes, acionamento de ajudas clássicas e revelação do gabarito para o telão.
+- ✅ **Telão de Projeção** (`/projecao/{sala}`): interface de transmissão sincronizada com áudio clássico, dicas, convidados, corte 50/50 e ranking em tempo real.
+- ✅ **Smartphone do Participante** (`/entrar/{codigo}`): entrada rápida sem conta, confirmação *"Você tem certeza?"* e feedback bíblico imediato.
+- ✅ **Autenticação & Painel de Administração** (`/login`, `/registro`, `/admin`): gestão global de questões, aprovação editorial, igrejas, usuários, reimportação 1-clique do clássico e exportação CSV/JSON.
 
-## Stack
+## Stack Tecnológico
 
 | Camada | Tecnologia | Status |
 |--------|-----------|--------|
 | Backend | Laravel 13 + PHP 8.4 | Implementado |
-| Frontend | Blade + Tailwind CSS | Implementado |
-| Banco de dados | SQLite | Implementado |
-| Tempo real | Laravel Reverb (WebSockets) | Configurado — eventos e canais privados `game.{salaId}` |
-| Cache / Sessões | File / Redis (opcional) | Implementado |
-| Mobile futuro | Capacitor (Android) | P2 |
-| Documentação API | OpenAPI | P1 (docs/API.md) |
-| Autenticação | Sanctum | P1 |
-
-## Módulos principais
-
-- **Motor de jogo** (`App\Game\Engine`): modular, independente da UI, gere seleção de perguntas, pontuação, temporizadores, estados e resultados. Implementado com 7 testes unitários.
-- **Multijogador**: implementado (salas, código de acesso, WebSocket/Reverb, eventos, ranking em tempo real).
-- **Apresentador / Projeção**: duas interfaces independentes implementadas (controle administrativo vs ecrã público).
-- **Biblioteca de conteúdos**: modelos e migrações criados (livros, capítulos, categorias, dificuldade, questões). Sem UI de gestão ainda.
-- **Gestão de perguntas**: planeado para P1 (criação manual, import/export, fluxo editorial).
-- **Perfis**: 6 perfis definidos no modelo `Usuario` com isolamento lógico por `igreja_id`.
-
-## Prioridades
-
-- **P0**: MVP indispensável (motor, offline, apresentador/projeção, aprendizagem) — parcialmente implementado.
-- **P1**: primeira evolução (multijogador, import/export, audit log, submissão de colaboradores).
-- **P2**: futuro (Android Capacitor, desktop, multi-tenant físico, inglês).
-
-## Testes
-
-7 testes unitários passando, 10 asserções (`tests/Unit/GameEngineTest.php`).
+| Frontend | Blade + Tailwind CSS + SVG Icons | Implementado |
+| Banco de Dados | SQLite (padrão) / MySQL / PostgreSQL | Implementado |
+| Tempo Real | Laravel Reverb + Polling JSON (`/api/salas/{id}`) | Implementado |
+| Áudio Clássico | HTML5 Audio (`public/audio/classico/*.wav`) | Implementado |
+| Autenticação | Session Auth (`App\Models\Usuario`) | Implementado |

@@ -1,69 +1,32 @@
-# Modelo de Dados — Bíblia Show 2.0
+# Modelo de Dados — Bíblia Show 2.1
 
-## Tabelas principais
+## Tabelas Principais
 
-### igrejas
-Multi-tenant lógico. Cada utilizador e dados pertencem a uma igreja.
+### `igrejas`
+Multi-tenant lógico para congregações e células.
+- `id`, `nome`, `slug`, `plano`, `configuracoes` (JSON), `created_at`, `updated_at`
 
-- id, nome, slug, plano, configuracoes (json), created_at, updated_at
+### `usuarios`
+- `id`, `igreja_id`, `nome`, `email`, `password`, `papel` (`admin_geral`, `admin_igreja`, `apresentador`, `editor`, `participante`, `convidado`), `remember_token`, `created_at`, `updated_at`, `deleted_at`
 
-### usuarios
-- id, igreja_id, nome, email, password, papel (admin_geral, admin_igreja, apresentador, editor, participante, convidado), created_at, updated_at
+### `livros_biblicos`
+Todos os 66 livros da Bíblia Sagrada (39 do Antigo Testamento e 27 do Novo Testamento).
+- `id`, `abreviacao`, `nome`, `testamento` (`AT` / `NT`), `codigo_osis`, `ordem`
 
-### livros_biblicos
-- id, abreviacao, nome, testamento, codigo_osis
+### `capitulos`
+- `id`, `livro_id`, `numero`
 
-### capitulos
-- id, livro_id, numero
+### `niveis_dificuldade`
+Representa as 4 Fases do clássico Bíblia Show (1ª Fase: 10 pts, 2ª Fase: 20 pts, 3ª Fase: 30 pts, 4ª Fase: 50 pts).
+- `id`, `nome`, `nivel`, `pontos_base`, `tempo_segundos`
 
-### categorias
-- id, nome, slug, descricao
+### `questoes`
+Armazena as 1.000+ perguntas bíblicas, incluindo metadados originais do clássico (`cadastro.dbf`).
+- `id`, `igreja_id`, `codigo_classico`, `livro_id`, `capitulo_id`, `versiculo_de`, `versiculo_ate`, `referencia_biblica`, `texto`, `opcoes` (JSON array com 4 alternativas), `resposta_correta`, `ajudas` (JSON com `convidados`, `errado`, `comentario_ajuda`), `explicacao`, `contexto`, `dificuldade_id`, `categoria_id`, `referencia_verificada`, `aprovada`
 
-### niveis_dificuldade
-- id, nome, nivel (1-5)
-
-### questoes
-- id, livro_id, capitulo_id, versiculo_de, versiculo_ate, texto, explicacao, contexto, dificuldade_id, categoria_id, referencia_verificada, aprovada, submetida_por, revisada_por, revisada_em, notas, created_at, updated_at, deleted_at
-
-### questoes_historico
-- id, questao_id, campo_alterado, valor_antigo, valor_novo, alterado_por, alterado_em
-
-### questoes_submetidas
-- id, dados_questao (json), submetida_por, status (pendente, aprovada, rejeitada), revisada_por, revisada_em, notas
-
-### salas
-- id, igreja_id, codigo_acesso, nome, apresentador_id, status (aguardando, em_curso, pausada, terminada), created_at, updated_at
-
-### equipas
-- id, sala_id, nome, cor, created_at
-
-### participantes
-- id, sala_id, equipa_id, nome, conectado, created_at
-
-### jogos
-- id, sala_id, estado (aguardando, em_curso, pausado, terminado), pergunta_atual_id, pontuacao_total, created_at, updated_at
-
-### respostas
-- id, jogo_id, questao_id, participante_id, resposta, correta, tempo_resposta, pontos_ganhos, created_at
-
-### colecoes
-- id, igreja_id, nome, descricao, tipo_evento, publico_alvo, created_at
-
-### colecao_questoes
-- colecao_id, questao_id, ordem
-
-### planos_aprendizagem
-- id, igreja_id, nome, descricao, publico_alvo, duracao_dias, created_at
-
-### plano_aprendizagem_passos
-- plano_id, dia, questoes (json)
-
-## Relacionamentos
-
-- Igreja 1:N Usuarios, Questoes, Salas, Colecoes, PlanosAprendizagem
-- Usuario 1:N Questoes (submetidas/revisadas), Salas (apresentador)
-- Livro 1:N Capitulos, Questoes
-- Capitulo 1:N Questoes
-- Questao 1:N QuestoesHistorico, QuestoesSubmetidas, Respostas
-- Sala 1:N Equipes, Participantes, Jogos
-- Jogo 1:N Respostas
+### `salas`, `equipes`, `participantes`, `jogos` e `respostas`
+- `salas`: `id`, `igreja_id`, `codigo_acesso` (6 caracteres), `nome`, `apresentador_id`, `status`
+- `equipes`: `id`, `sala_id`, `nome`, `cor`, `pontuacao_total`
+- `participantes`: `id`, `sala_id`, `equipe_id`, `nome`, `codigo_acesso`, `conectado`, `pontuacao_total`
+- `jogos`: `id`, `sala_id`, `estado`, `pergunta_atual_id`, `pontuacao_total`, `dados_motor` (estado serializado do `GameEngine`)
+- `respostas`: `id`, `jogo_id`, `questao_id`, `participante_id`, `equipe_id`, `resposta`, `correta`, `tempo_resposta`, `pontos_ganhos`

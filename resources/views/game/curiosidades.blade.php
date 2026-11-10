@@ -13,15 +13,15 @@
 </head>
 <body class="milhao-bg text-slate-100 min-h-screen">
 
-    <div class="max-w-5xl mx-auto px-4 py-8">
+    @include('partials.navbar', ['dark' => true])
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
         <!-- Navegação Superior -->
         <header class="flex flex-wrap items-center justify-between gap-4 mb-8">
-            <a href="/" class="inline-flex items-center gap-2 text-slate-400 hover:text-amber-400 font-semibold text-sm transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                </svg>
-                Voltar ao Início
-            </a>
+            <div>
+                <span class="text-xs font-black uppercase tracking-widest text-amber-400">Acervo Cultural & Regras</span>
+                <h1 class="text-2xl sm:text-3xl font-black text-white">Enciclopédia Bíblica & Regras Clássicas</h1>
+            </div>
 
             <div class="flex items-center gap-3">
                 <button type="button" onclick="tocarAudioRegras()" id="btnOuvirRegras"
@@ -169,3 +169,4 @@
     </script>
 </body>
 </html>
+

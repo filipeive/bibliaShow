@@ -10,6 +10,8 @@
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-900">
 
+    @include('partials.navbar', ['dark' => true])
+
     <div class="max-w-6xl mx-auto px-4 py-8">
         <header class="flex flex-wrap justify-between items-center gap-4 mb-8">
             <div>

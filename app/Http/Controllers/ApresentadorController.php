@@ -13,6 +13,7 @@ use App\Game\Engine\Timers\CountdownTimer;
 use App\Models\Equipe;
 use App\Models\Igreja;
 use App\Models\Jogo;
+use App\Models\NivelDificuldade;
 use App\Models\Questao;
 use App\Models\Sala;
 use App\Models\Usuario;
@@ -26,7 +27,7 @@ class ApresentadorController extends Controller
         $salas = Sala::where('status', '!=', 'terminada')
             ->withCount('participantes')
             ->orderByDesc('updated_at')
-            ->limit(10)
+            ->limit(15)
             ->get();
 
         return view('apresentador.painel', compact('salas'));
@@ -36,7 +37,7 @@ class ApresentadorController extends Controller
     {
         $request->validate([
             'nome' => 'required|string|max:255',
-            'quantidade_perguntas' => 'nullable|integer|min:5|max:50',
+            'quantidade_perguntas' => 'nullable|integer|min:4|max:50',
             'dificuldade_id' => 'nullable|integer',
         ]);
 
@@ -51,18 +52,8 @@ class ApresentadorController extends Controller
             'status' => 'em_curso',
         ]);
 
-        $qtd = (int) ($request->input('quantidade_perguntas') ?: 12);
-
-        $query = Questao::aprovadas()->with(['livro', 'dificuldade', 'categoria']);
-        if ($request->filled('dificuldade_id')) {
-            $query->where('dificuldade_id', $request->integer('dificuldade_id'));
-        }
-
-        $questoes = $query->inRandomOrder()
-            ->limit($qtd)
-            ->get()
-            ->map(fn (Questao $q) => $this->formatarQuestao($q))
-            ->toArray();
+        $qtd = (int) ($request->input('quantidade_perguntas') ?: 24);
+        $questoes = $this->selecionarQuestoesSala($qtd, $request->input('dificuldade_id'));
 
         $engine = new GameEngine(
             new RandomSelector(),
@@ -91,13 +82,7 @@ class ApresentadorController extends Controller
         $engine = $this->carregarEngineDaSala($salaId);
 
         if (!$engine) {
-            $questoes = Questao::aprovadas()
-                ->with(['livro', 'dificuldade', 'categoria'])
-                ->inRandomOrder()
-                ->limit(12)
-                ->get()
-                ->map(fn (Questao $q) => $this->formatarQuestao($q))
-                ->toArray();
+            $questoes = $this->selecionarQuestoesSala(24);
 
             $engine = new GameEngine(
                 new RandomSelector(),
@@ -113,7 +98,7 @@ class ApresentadorController extends Controller
             $this->tentarBroadcast(new PerguntaIniciada(
                 (int) $salaId,
                 $estadoInicial['pergunta_atual'] ?? [],
-                30
+                60
             ));
         }
 
@@ -145,7 +130,10 @@ class ApresentadorController extends Controller
             'estado' => $estadoMotor['estado'],
             'pergunta' => $estadoMotor['pergunta_atual'],
             'numero_pergunta' => $estadoMotor['numero_pergunta'] ?? 1,
-            'total_perguntas' => $estadoMotor['total_perguntas'] ?? 12,
+            'total_perguntas' => $estadoMotor['total_perguntas'] ?? 24,
+            'fase_atual' => $estadoMotor['fase_atual'] ?? 1,
+            'placar_milhao' => $estadoMotor['placar_milhao'] ?? ['errar' => 0, 'parar' => 0, 'acertar' => 10, 'valor_pergunta' => 10, 'fase' => 1],
+            'ajudas_motor' => $estadoMotor['ajudas'] ?? [],
             'pontuacao' => $pontuacaoTotalSala,
             'tempo_restante' => $estadoMotor['tempo_restante'],
             'tempo_esgotado' => $estadoMotor['tempo_esgotado'],
@@ -153,6 +141,61 @@ class ApresentadorController extends Controller
             'equipes' => $equipes,
             'ranking' => $ranking,
         ]);
+    }
+
+    public function usarAjuda(Request $request, $salaId)
+    {
+        $request->validate([
+            'tipo' => 'required|in:dica,convidado,cartas,pulo,revelar',
+            'indice_convidado' => 'nullable|integer|min:0|max:2',
+        ]);
+
+        $engine = $this->carregarEngineDaSala($salaId);
+        if (!$engine) {
+            return back()->with('error', 'Sessão de jogo não encontrada.');
+        }
+
+        $tipo = $request->input('tipo');
+        $resultado = ['sucesso' => false, 'mensagem' => 'Ação inválida.'];
+
+        if ($tipo === 'dica') {
+            $resultado = $engine->usarDica();
+        } elseif ($tipo === 'convidado') {
+            $resultado = $engine->consultarConvidado((int) $request->input('indice_convidado', 0));
+        } elseif ($tipo === 'cartas') {
+            $resultado = $engine->usarCartas();
+        } elseif ($tipo === 'revelar') {
+            $resultado = $engine->revelarGabarito();
+        } elseif ($tipo === 'pulo') {
+            $estadoAtual = $engine->getState();
+            $idsUsados = collect($engine->getResults()['historico_perguntas'] ?? [])->pluck('id')->filter()->all();
+            $faseAtual = $estadoAtual['fase_atual'] ?? 1;
+            $nivelModel = NivelDificuldade::where('nivel', $faseAtual)->first();
+
+            $query = Questao::aprovadas()
+                ->with(['livro', 'dificuldade', 'categoria'])
+                ->whereNotIn('id', $idsUsados);
+
+            if ($nivelModel) {
+                $query->where('dificuldade_id', $nivelModel->id);
+            }
+
+            $novaQuestao = $query->inRandomOrder()->first();
+            $reserva = $novaQuestao ? $this->formatarQuestao($novaQuestao) : null;
+            $resultado = $engine->usarPulo($reserva);
+        }
+
+        $this->salvarEngineNaSala($salaId, $engine);
+
+        if (!$resultado['sucesso']) {
+            return back()->with('error', $resultado['mensagem'] ?? 'Não foi possível usar este recurso.');
+        }
+
+        if (!empty($resultado['som_efeito'])) {
+            session()->flash('som_efeito', $resultado['som_efeito']);
+        }
+
+        return back()->with('success', $resultado['mensagem'] ?? 'Recurso ativado com sucesso!');
     }
 
     public function criarEquipe(Request $request, $salaId)
@@ -172,7 +215,11 @@ class ApresentadorController extends Controller
 
         $this->tentarBroadcast(new RankingAtualizado((int) $salaId, []));
 
-        return response()->json(['success' => true, 'equipe' => $equipe]);
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'equipe' => $equipe]);
+        }
+
+        return back()->with('success', "Equipe «{$equipe->nome}» criada!");
     }
 
     public function proximaPergunta(Request $request, $salaId)
@@ -182,6 +229,7 @@ class ApresentadorController extends Controller
             return back()->with('error', 'Sessão de jogo não encontrada.');
         }
 
+        $faseAntes = $engine->getState()['fase_atual'] ?? 1;
         $engine->startNextQuestion();
         $this->salvarEngineNaSala($salaId, $engine);
 
@@ -191,10 +239,14 @@ class ApresentadorController extends Controller
             return redirect()->route('apresentador.resultado', $salaId);
         }
 
+        $faseDepois = $estado['fase_atual'] ?? 1;
+        $som = $faseDepois > $faseAntes ? ('fase' . min(4, $faseDepois)) : 'inicio';
+        session()->flash('som_efeito', $som);
+
         $this->tentarBroadcast(new PerguntaIniciada(
             (int) $salaId,
             $estado['pergunta_atual'] ?? [],
-            30
+            60
         ));
         $this->tentarBroadcast(new JogoEstadoAlterado(
             (int) $salaId,
@@ -203,7 +255,7 @@ class ApresentadorController extends Controller
             $estado['tempo_restante']
         ));
 
-        return back()->with('success', 'Próxima pergunta iniciada.');
+        return back()->with('success', 'Próxima pergunta iniciada no telão e smartphones.');
     }
 
     public function pausar(Request $request, $salaId)
@@ -286,11 +338,61 @@ class ApresentadorController extends Controller
         ));
     }
 
+    private function selecionarQuestoesSala(int $qtd = 24, $dificuldadeId = null): array
+    {
+        if ($dificuldadeId) {
+            return Questao::aprovadas()
+                ->with(['livro', 'dificuldade', 'categoria'])
+                ->where('dificuldade_id', (int) $dificuldadeId)
+                ->inRandomOrder()
+                ->limit($qtd)
+                ->get()
+                ->map(fn (Questao $q) => $this->formatarQuestao($q))
+                ->toArray();
+        }
+
+        $porFase = max(1, (int) ceil($qtd / 4));
+        $selecionadas = [];
+
+        for ($nivel = 1; $nivel <= 4; $nivel++) {
+            $nivelModel = NivelDificuldade::where('nivel', $nivel)->first();
+            if (!$nivelModel) {
+                continue;
+            }
+
+            $lote = Questao::aprovadas()
+                ->with(['livro', 'dificuldade', 'categoria'])
+                ->where('dificuldade_id', $nivelModel->id)
+                ->inRandomOrder()
+                ->limit($porFase)
+                ->get()
+                ->map(fn (Questao $q) => $this->formatarQuestao($q))
+                ->toArray();
+
+            $selecionadas = array_merge($selecionadas, $lote);
+        }
+
+        if (count($selecionadas) < $qtd) {
+            $idsExistentes = array_column($selecionadas, 'id');
+            $extras = Questao::aprovadas()
+                ->with(['livro', 'dificuldade', 'categoria'])
+                ->whereNotIn('id', $idsExistentes)
+                ->inRandomOrder()
+                ->limit($qtd - count($selecionadas))
+                ->get()
+                ->map(fn (Questao $q) => $this->formatarQuestao($q))
+                ->toArray();
+            $selecionadas = array_merge($selecionadas, $extras);
+        }
+
+        return array_slice($selecionadas, 0, $qtd);
+    }
+
     private function formatarQuestao(Questao $q): array
     {
         $arr = $q->toArray();
         $arr['livro_nome'] = $q->livro?->nome;
-        $arr['dificuldade_nome'] = $q->dificuldade?->nome ?? 'Iniciante';
+        $arr['dificuldade_nome'] = $q->dificuldade?->nome ?? '1ª Fase';
         $arr['dificuldade_nivel'] = $q->dificuldade?->nivel ?? 1;
         $arr['categoria_nome'] = $q->categoria?->nome;
 
@@ -351,7 +453,7 @@ class ApresentadorController extends Controller
         try {
             broadcast($evento);
         } catch (\Throwable $e) {
-            // Ignora falha caso servidor Reverb não esteja ativo (fallback via polling continua ativo)
+            // Ignora falha caso servidor Reverb não esteja ativo
         }
     }
 }

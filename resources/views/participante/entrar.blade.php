@@ -6,58 +6,66 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Participar ao Vivo — Bíblia Show</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Inter', sans-serif; }</style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .milhao-bg { background: radial-gradient(circle at top, #172554 0%, #0f172a 55%, #020617 100%); }
+        .question-banner { background: linear-gradient(180deg, #991b1b 0%, #7f1d1d 100%); border: 2px solid #fbbf24; }
+    </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen">
+<body class="milhao-bg text-slate-100 min-h-screen">
 
-    <div class="max-w-lg mx-auto px-4 py-6 sm:py-10">
+    @include('partials.navbar', ['dark' => true])
 
-        <!-- Cabeçalho -->
-        <header class="flex items-center justify-between mb-6">
-            <a href="/" class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center text-slate-950 font-extrabold text-sm">B</div>
-                <span class="font-bold text-lg text-white">Bíblia Show</span>
-            </a>
-            <span id="badgeSala" class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 {{ $sala ? '' : 'hidden' }}">
-                Sala: <span id="codigoSalaTexto">{{ $sala?->codigo_acesso }}</span>
+    <div class="max-w-lg mx-auto px-4 py-6 sm:py-8">
+
+        <!-- Badge da Sala Ativa -->
+        <div class="flex items-center justify-between mb-4">
+            <span class="text-xs font-black uppercase tracking-wider text-amber-400">Arena Multiplayer</span>
+            <span id="badgeSala" class="text-xs font-mono font-black px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 {{ $sala ? '' : 'hidden' }}">
+                SALA: <span id="codigoSalaTexto">{{ $sala?->codigo_acesso }}</span>
             </span>
-        </header>
+        </div>
 
         <!-- ETAPA 1: Formulário de Entrada na Sala -->
-        <div id="etapaEntrada" class="bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 sm:p-8">
+        <div id="etapaEntrada" class="bg-slate-900/95 border border-slate-700/80 rounded-3xl shadow-2xl p-6 sm:p-8">
             <div class="text-center mb-6">
-                <h1 class="text-2xl font-extrabold text-white">Entrar na Sala</h1>
+                <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center mx-auto mb-3 text-amber-400">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-black text-white">Entrar na Sala Ao Vivo</h1>
                 <p class="text-slate-400 text-sm mt-1">
-                    {{ $sala ? $sala->nome : 'Digite o código exibido no projetor para participar' }}
+                    {{ $sala ? $sala->nome : 'Digite o código exibido no projetor da igreja para jogar' }}
                 </p>
             </div>
 
             <form id="entrarForm" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Código da Sala (6 letras/números)</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Código da Sala (6 caracteres)</label>
                     <input type="text" id="inputCodigo" name="codigo_acesso" required maxlength="6"
                            value="{{ $sala?->codigo_acesso ?? $codigo ?? '' }}"
                            placeholder="Ex.: AB12CD"
-                           class="w-full px-4 py-3 rounded-xl border border-slate-600 bg-slate-900 text-amber-400 font-mono font-bold uppercase text-lg tracking-widest focus:ring-2 focus:ring-amber-500 outline-none">
+                           class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-amber-400 font-mono font-black uppercase text-lg tracking-widest focus:ring-2 focus:ring-amber-500 outline-none">
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Seu Nome</label>
                     <input type="text" id="inputNome" name="nome" required
                            placeholder="Digite seu nome"
-                           class="w-full px-4 py-3 rounded-xl border border-slate-600 bg-slate-900 text-white focus:ring-2 focus:ring-amber-500 outline-none">
+                           class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white focus:ring-2 focus:ring-amber-500 outline-none">
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Equipe / Célula (Opcional)</label>
                     <input type="text" id="inputEquipe" name="equipe_nome"
                            placeholder="Nome da sua equipe ou célula"
-                           class="w-full px-4 py-3 rounded-xl border border-slate-600 bg-slate-900 text-white focus:ring-2 focus:ring-amber-500 outline-none">
+                           class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white focus:ring-2 focus:ring-amber-500 outline-none">
                 </div>
 
                 <button type="submit" id="btnEntrar"
-                        class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold py-4 rounded-xl transition shadow-lg text-base">
+                        class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-4 rounded-xl transition shadow-lg text-base">
                     Entrar e Jogar →
                 </button>
             </form>
@@ -66,17 +74,17 @@
         </div>
 
         <!-- ETAPA 2: Tela de Jogo ao Vivo no Smartphone -->
-        <div id="etapaJogo" class="hidden space-y-5">
+        <div id="etapaJogo" class="hidden space-y-4">
             <!-- Barra do Jogador -->
-            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex items-center justify-between">
+            <div class="bg-slate-900/95 border border-slate-800 rounded-2xl p-4 flex items-center justify-between">
                 <div>
-                    <p class="text-xs text-slate-400">Jogador(a)</p>
-                    <p class="font-extrabold text-white text-base" id="jogadorNomeDisplay">-</p>
-                    <p class="text-xs text-amber-400 font-medium" id="jogadorEquipeDisplay"></p>
+                    <p class="text-[11px] text-slate-400 uppercase font-bold">Participante</p>
+                    <p class="font-black text-white text-base" id="jogadorNomeDisplay">-</p>
+                    <p class="text-xs text-amber-400 font-semibold" id="jogadorEquipeDisplay"></p>
                 </div>
                 <div class="text-right">
-                    <p class="text-xs text-slate-400 uppercase font-semibold">Seus Pontos</p>
-                    <p class="text-2xl font-extrabold text-amber-400"><span id="jogadorPontosDisplay">0</span> <span class="text-xs font-normal text-slate-400">pts</span></p>
+                    <p class="text-[11px] text-slate-400 uppercase font-bold">Seus Pontos</p>
+                    <p class="text-2xl font-black text-amber-400"><span id="jogadorPontosDisplay">0</span> <span class="text-xs font-normal text-slate-400">pts</span></p>
                 </div>
             </div>
 
@@ -84,16 +92,20 @@
             <div id="feedbackResposta" class="hidden rounded-2xl p-4 border"></div>
 
             <!-- Card da Pergunta Ao Vivo -->
-            <div id="cardPerguntaViva" class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-xl">
+            <div id="cardPerguntaViva" class="bg-slate-900/95 border border-slate-800 rounded-3xl p-5 shadow-2xl">
                 <div class="flex items-center justify-between mb-3">
-                    <span id="progressoPergunta" class="text-xs font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300">
-                        Pergunta 1
+                    <span id="progressoPergunta" class="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-amber-500 text-slate-950">
+                        1ª Fase • Pergunta 1
                     </span>
-                    <span id="nivelPergunta" class="text-xs text-slate-400 font-medium"></span>
+                    <span id="nivelPergunta" class="text-xs text-amber-300 font-bold">Vale 10 pts</span>
                 </div>
 
-                <div class="bg-slate-900 border border-slate-700/80 rounded-xl p-4 mb-4">
-                    <p id="textoPerguntaViva" class="text-base sm:text-lg font-bold text-white leading-relaxed">
+                <!-- Dica Bíblica / Convidado Bíblico revelados pelo Apresentador -->
+                <div id="dicaBiblicaViva" class="hidden mb-3 p-3 rounded-xl bg-amber-500/20 border border-amber-400/40 text-xs font-bold text-amber-200"></div>
+                <div id="dicaConvidadoViva" class="hidden mb-3 p-3 rounded-xl bg-blue-950/90 border border-blue-400/40 text-xs font-bold text-blue-100"></div>
+
+                <div class="question-banner rounded-2xl p-4 mb-4 shadow-md">
+                    <p id="textoPerguntaViva" class="text-base sm:text-lg font-black text-white leading-relaxed">
                         Carregando pergunta da sala...
                     </p>
                 </div>
@@ -102,15 +114,15 @@
             </div>
 
             <!-- Ranking Compacto -->
-            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5">
+            <div class="bg-slate-900/95 border border-slate-800 rounded-2xl p-5">
                 <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                    <h2 class="text-sm font-black text-white flex items-center gap-2">
                         <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
                         </svg>
                         Classificação da Sala
                     </h2>
-                    <button type="button" onclick="sairDaSala()" class="text-xs text-slate-400 hover:text-rose-400">
+                    <button type="button" onclick="sairDaSala()" class="text-xs text-slate-400 hover:text-rose-400 font-semibold">
                         Trocar de jogador
                     </button>
                 </div>
@@ -118,6 +130,25 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Modal "Você tem certeza?" estilo Show do Milhão -->
+    <div id="modalCerteza" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-amber-400 rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl">
+            <p class="text-xs font-black uppercase tracking-widest text-amber-400 mb-1">Confirmação Bíblia Show</p>
+            <h3 class="text-2xl font-black text-white mb-2">Você tem certeza?</h3>
+            <p id="textoOpcaoConfirmar" class="text-sm font-bold text-amber-200 bg-slate-950 p-3 rounded-xl border border-slate-800 mb-5"></p>
+            <div class="grid grid-cols-2 gap-3">
+                <button type="button" onclick="fecharModalCerteza()"
+                        class="py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm">
+                    Trocar
+                </button>
+                <button type="button" id="btnConfirmarFinal"
+                        class="py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm shadow-lg">
+                    Sim, Confirmar!
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -134,7 +165,10 @@
             questaoAtualId: null,
             jaRespondeuAtual: false,
             inicioPerguntaTimestamp: Date.now(),
+            opcoesEliminadas: [],
         };
+
+        let indicePendenteConfirmacao = null;
 
         const salvo = sessionStorage.getItem('biblia_show_participante');
         if (salvo) {
@@ -209,7 +243,7 @@
             document.getElementById('jogadorPontosDisplay').innerText = estadoSessao.pontuacao;
 
             sincronizarEstadoSala();
-            setInterval(sincronizarEstadoSala, 2500);
+            setInterval(sincronizarEstadoSala, 2000);
         }
 
         async function sincronizarEstadoSala() {
@@ -236,18 +270,42 @@
                     return;
                 }
 
-                document.getElementById('progressoPergunta').innerText = `Pergunta ${data.numero_pergunta || 1} de ${data.total_perguntas || 12}`;
-                document.getElementById('nivelPergunta').innerText = `Nível ${q.dificuldade_nivel || 1} (${q.dificuldade_nome || 'Iniciante'})`;
+                const fase = data.fase_atual || 1;
+                const placar = data.placar_milhao || {};
+                document.getElementById('progressoPergunta').innerText = `${fase}ª Fase • Pergunta ${data.numero_pergunta || 1}/${data.total_perguntas || 24}`;
+                document.getElementById('nivelPergunta').innerText = `Vale ${placar.valor_pergunta || 10} pts`;
+
+                const ajudas = data.ajudas || {};
+                const dicaEl = document.getElementById('dicaBiblicaViva');
+                if (ajudas.dica_biblica) {
+                    dicaEl.textContent = ajudas.dica_biblica;
+                    dicaEl.classList.remove('hidden');
+                } else {
+                    dicaEl.classList.add('hidden');
+                }
+
+                const convEl = document.getElementById('dicaConvidadoViva');
+                if (ajudas.dica_convidado) {
+                    convEl.innerHTML = `<strong class="text-amber-300">${ajudas.dica_convidado.convidado}:</strong> ${ajudas.dica_convidado.mensagem}`;
+                    convEl.classList.remove('hidden');
+                } else {
+                    convEl.classList.add('hidden');
+                }
+
+                const eliminadasStr = JSON.stringify(ajudas.opcoes_eliminadas || []);
+                const mudouEliminadas = eliminadasStr !== JSON.stringify(estadoSessao.opcoesEliminadas);
+                estadoSessao.opcoesEliminadas = ajudas.opcoes_eliminadas || [];
 
                 if (estadoSessao.questaoAtualId !== q.id) {
                     estadoSessao.questaoAtualId = q.id;
                     estadoSessao.jaRespondeuAtual = !!data.ja_respondeu;
                     estadoSessao.inicioPerguntaTimestamp = Date.now();
                     document.getElementById('feedbackResposta').classList.add('hidden');
+                    fecharModalCerteza();
                     renderizarPergunta(q, estadoSessao.jaRespondeuAtual);
-                } else if (data.ja_respondeu && !estadoSessao.jaRespondeuAtual) {
-                    estadoSessao.jaRespondeuAtual = true;
-                    renderizarPergunta(q, true);
+                } else if ((data.ja_respondeu && !estadoSessao.jaRespondeuAtual) || mudouEliminadas) {
+                    if (data.ja_respondeu) estadoSessao.jaRespondeuAtual = true;
+                    renderizarPergunta(q, estadoSessao.jaRespondeuAtual);
                 }
             } catch (e) {}
         }
@@ -258,34 +316,54 @@
 
             if (bloqueado) {
                 container.innerHTML = `
-                    <div class="p-4 rounded-xl bg-slate-900/70 border border-slate-700 text-center text-sm text-slate-300">
-                        Resposta registrada! Aguarde o apresentador avançar para a próxima pergunta.
+                    <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 text-center text-sm text-slate-300">
+                        Resposta registrada! Aguarde o apresentador chamar a próxima pergunta.
                     </div>
                 `;
                 return;
             }
 
-            container.innerHTML = (q.opcoes || []).map((opcao, idx) => `
-                <button type="button"
-                        onclick="enviarResposta(${idx})"
-                        class="w-full text-left p-4 rounded-xl border-2 border-slate-700 bg-slate-900 hover:border-amber-400 active:scale-[0.99] transition flex items-center gap-3.5">
-                    <span class="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 font-extrabold flex items-center justify-center shrink-0 text-sm">
-                        ${letras[idx] || (idx + 1)}
-                    </span>
-                    <span class="font-semibold text-white text-sm sm:text-base">${opcao}</span>
-                </button>
-            `).join('');
+            const eliminadas = estadoSessao.opcoesEliminadas || [];
+            container.innerHTML = (q.opcoes || []).map((opcao, idx) => {
+                const isEliminada = eliminadas.includes(idx);
+                return `
+                    <button type="button"
+                            ${isEliminada ? 'disabled' : ''}
+                            onclick="confirmarOpcao(${idx}, '${String(opcao).replace(/'/g, "\\'")}')"
+                            class="w-full text-left p-4 rounded-2xl border-2 transition flex items-center gap-3.5 ${isEliminada ? 'opacity-30 border-slate-800 bg-slate-950 line-through' : 'border-blue-500/40 bg-blue-950/70 hover:border-amber-400 active:scale-[0.99]'}">
+                        <span class="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 font-black flex items-center justify-center shrink-0 text-sm">
+                            ${letras[idx] || (idx + 1)}
+                        </span>
+                        <span class="font-bold text-white text-sm sm:text-base">${opcao}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function confirmarOpcao(idx, textoOpcao) {
+            if (estadoSessao.jaRespondeuAtual) return;
+            new Audio('/audio/classico/tecla.wav').play().catch(() => {});
+            indicePendenteConfirmacao = idx;
+            document.getElementById('textoOpcaoConfirmar').innerText = `${letras[idx] || (idx + 1)}) ${textoOpcao}`;
+            document.getElementById('modalCerteza').classList.remove('hidden');
+            document.getElementById('btnConfirmarFinal').onclick = () => {
+                fecharModalCerteza();
+                enviarResposta(indicePendenteConfirmacao);
+            };
+        }
+
+        function fecharModalCerteza() {
+            document.getElementById('modalCerteza').classList.add('hidden');
+            indicePendenteConfirmacao = null;
         }
 
         async function enviarResposta(indiceOpcao) {
             if (estadoSessao.jaRespondeuAtual || !estadoSessao.questaoAtualId) return;
             estadoSessao.jaRespondeuAtual = true;
 
-            new Audio('/audio/classico/tecla.wav').play().catch(() => {});
-
             const tempoSegundos = Math.max(1, Math.min(60, Math.round((Date.now() - estadoSessao.inicioPerguntaTimestamp) / 1000)));
             const container = document.getElementById('opcoesBotoes');
-            container.innerHTML = `<div class="p-4 rounded-xl bg-slate-900 text-center text-sm text-amber-300">Enviando resposta...</div>`;
+            container.innerHTML = `<div class="p-4 rounded-xl bg-slate-950 text-center text-sm text-amber-300 font-bold">Enviando resposta...</div>`;
 
             try {
                 const resp = await fetch(`/api/salas/${estadoSessao.salaId}/responder`, {
@@ -316,12 +394,12 @@
 
                 const fb = document.getElementById('feedbackResposta');
                 fb.className = 'rounded-2xl p-4 border ' + (data.acertou
-                    ? 'bg-emerald-950/70 border-emerald-500/40 text-emerald-100'
-                    : 'bg-rose-950/70 border-rose-500/40 text-rose-100');
+                    ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-100'
+                    : 'bg-rose-950/80 border-rose-500/40 text-rose-100');
 
                 fb.innerHTML = `
-                    <div class="font-extrabold text-base mb-1">
-                        ${data.acertou ? `Certa Resposta! (+${data.pontos} pts)` : `Resposta Incorreta`}
+                    <div class="font-black text-base mb-1">
+                        ${data.acertou ? `Certa Resposta! (+${data.pontos} pts)` : `Que pena, você errou!`}
                     </div>
                     ${!data.acertou ? `<div class="text-xs text-rose-200">Correta: <strong>${data.resposta_correta}</strong></div>` : ''}
                     ${data.referencia_biblica || data.explicacao ? `<div class="text-xs mt-1.5 text-slate-300">${data.referencia_biblica ? '[' + data.referencia_biblica + '] ' : ''}${data.explicacao || ''}</div>` : ''}
@@ -329,8 +407,8 @@
                 fb.classList.remove('hidden');
 
                 container.innerHTML = `
-                    <div class="p-3.5 rounded-xl bg-slate-900/70 border border-slate-700 text-center text-xs text-slate-400">
-                        Aguardando o apresentador chamar a próxima pergunta...
+                    <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 text-center text-xs text-slate-400">
+                        Aguardando o apresentador avançar para a próxima pergunta...
                     </div>
                 `;
                 sincronizarEstadoSala();
@@ -358,11 +436,11 @@
             box.innerHTML = ranking.slice(0, 6).map((p, idx) => {
                 const souEu = Number(p.id) === Number(estadoSessao.participanteId);
                 return `
-                    <div class="flex items-center justify-between p-2.5 rounded-xl ${souEu ? 'bg-amber-500/20 border border-amber-500/40' : 'bg-slate-900/70'}">
-                        <span class="font-semibold text-white truncate">
+                    <div class="flex items-center justify-between p-2.5 rounded-xl ${souEu ? 'bg-amber-500/20 border border-amber-500/40' : 'bg-slate-950/70'}">
+                        <span class="font-bold text-white truncate">
                             <strong class="text-amber-400 mr-1.5">${idx + 1}º</strong> ${p.nome} ${souEu ? '(Você)' : ''}
                         </span>
-                        <span class="font-mono font-bold text-amber-300 text-xs">${p.pontuacao} pts</span>
+                        <span class="font-mono font-black text-amber-300 text-xs">${p.pontuacao} pts</span>
                     </div>
                 `;
             }).join('');

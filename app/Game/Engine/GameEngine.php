@@ -29,6 +29,7 @@ class GameEngine
     private ?array $dicaConvidadoAtual = null;
     private ?string $dicaBiblicaAtual = null;
     private bool $convidadoConsultadoNaPergunta = false;
+    private bool $gabaritoReveladoAtual = false;
 
     public function __construct(
         QuestionSelectorInterface $selector,
@@ -56,6 +57,7 @@ class GameEngine
         $this->dicaConvidadoAtual = null;
         $this->dicaBiblicaAtual = null;
         $this->convidadoConsultadoNaPergunta = false;
+        $this->gabaritoReveladoAtual = false;
         $this->state->setEstado('em_curso');
         $this->state->setPontuacao(0);
 
@@ -69,6 +71,7 @@ class GameEngine
         $this->dicaConvidadoAtual = null;
         $this->dicaBiblicaAtual = null;
         $this->convidadoConsultadoNaPergunta = false;
+        $this->gabaritoReveladoAtual = false;
 
         if ($this->currentIndex >= count($this->questions)) {
             $this->finishGame();
@@ -226,6 +229,7 @@ class GameEngine
         $this->dicaConvidadoAtual = null;
         $this->dicaBiblicaAtual = null;
         $this->convidadoConsultadoNaPergunta = false;
+        $this->gabaritoReveladoAtual = false;
 
         if ($perguntaReserva) {
             $this->questions[$this->currentIndex] = $perguntaReserva;
@@ -357,6 +361,26 @@ class GameEngine
         ];
     }
 
+    public function revelarGabarito(): array
+    {
+        $question = $this->state->getPerguntaAtual();
+        if (!$question) {
+            return ['sucesso' => false, 'mensagem' => 'Nenhuma pergunta ativa.'];
+        }
+
+        $this->gabaritoReveladoAtual = !$this->gabaritoReveladoAtual;
+
+        return [
+            'sucesso' => true,
+            'som_efeito' => $this->gabaritoReveladoAtual ? 'certa1' : 'tecla',
+            'gabarito_revelado' => $this->gabaritoReveladoAtual,
+            'resposta_correta' => $question['resposta_correta'] ?? '',
+            'mensagem' => $this->gabaritoReveladoAtual
+                ? 'Gabarito revelado no telão de projeção!'
+                : 'Gabarito ocultado no telão.',
+        ];
+    }
+
     public function pause(): void
     {
         $this->timer->parar();
@@ -437,6 +461,7 @@ class GameEngine
                 'opcoes_eliminadas' => $this->opcoesEliminadasAtual,
                 'dica_convidado' => $this->dicaConvidadoAtual,
                 'dica_biblica' => $this->dicaBiblicaAtual,
+                'gabarito_revelado' => $this->gabaritoReveladoAtual,
             ],
         ];
     }
