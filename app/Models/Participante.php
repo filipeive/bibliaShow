@@ -17,11 +17,13 @@ class Participante extends Model
         'codigo_acesso',
         'conectado',
         'pontuacao_total',
+        'ajudas_usadas',
     ];
 
     protected $casts = [
         'conectado' => 'boolean',
         'pontuacao_total' => 'integer',
+        'ajudas_usadas' => 'array',
     ];
 
     public function sala()

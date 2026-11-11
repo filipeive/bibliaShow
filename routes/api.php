@@ -11,6 +11,7 @@ Route::prefix('salas')->name('salas.')->group(function () {
     Route::post('/entrar', [ParticipantController::class, 'entrar'])->name('entrar');
     Route::get('/{sala}', [ParticipantController::class, 'mostrar'])->name('mostrar');
     Route::post('/{sala}/responder', [ParticipantController::class, 'responder'])->name('responder');
+    Route::post('/{sala}/ajuda', [ParticipantController::class, 'usarAjuda'])->name('ajuda');
     Route::post('/{sala}/participantes/{participante}/equipe', [ParticipantController::class, 'juntarEquipe'])->name('juntar-equipe');
     Route::delete('/{sala}/participantes/{participante}', [ParticipantController::class, 'sair'])->name('sair');
 });

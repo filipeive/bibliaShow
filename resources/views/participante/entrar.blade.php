@@ -13,7 +13,7 @@
         .milhao-bg { background: radial-gradient(circle at top, #172554 0%, #0f172a 55%, #020617 100%); }
         .question-banner { background: linear-gradient(180deg, #991b1b 0%, #7f1d1d 100%); border: 2px solid #fbbf24; }
         .opcao-bloqueada {
-            background: linear-gradient(90deg, rgba(217, 119, 6, 0.4) 0%, rgba(120, 53, 15, 0.55) 100%) !important;
+            background: linear-gradient(90deg, rgba(217, 119, 6, 0.45) 0%, rgba(120, 53, 15, 0.6) 100%) !important;
             border-color: #fbbf24 !important;
         }
         .opcao-correta-reveal {
@@ -24,17 +24,27 @@
             background: linear-gradient(90deg, rgba(225, 29, 72, 0.92) 0%, rgba(136, 19, 55, 0.95) 100%) !important;
             border-color: #fb7185 !important;
         }
+        .timer-critico {
+            animation: pulse-critico 1s infinite;
+        }
+        @keyframes pulse-critico {
+            0%, 100% { border-color: #ef4444; background-color: rgba(136, 19, 55, 0.7); }
+            50% { border-color: #fca5a5; background-color: rgba(159, 18, 57, 0.9); }
+        }
     </style>
 </head>
 <body class="milhao-bg text-slate-100 min-h-screen">
 
     @include('partials.navbar', ['dark' => true])
 
-    <div class="max-w-2xl sm:max-w-3xl lg:max-w-4xl mx-auto px-4 py-6 sm:py-8">
+    <div class="max-w-2xl sm:max-w-3xl lg:max-w-4xl mx-auto px-4 py-5 sm:py-7">
 
         <!-- Badge da Sala Ativa -->
         <div class="flex items-center justify-between mb-4">
-            <span class="text-xs font-black uppercase tracking-wider text-amber-400">Arena Multiplayer</span>
+            <span class="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                Arena Multiplayer
+            </span>
             <span id="badgeSala" class="text-xs font-mono font-black px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 {{ $sala ? '' : 'hidden' }}">
                 SALA: <span id="codigoSalaTexto">{{ $sala?->codigo_acesso }}</span>
             </span>
@@ -115,44 +125,49 @@
             <div id="errorEntrada" class="hidden bg-rose-950/80 border border-rose-500/40 p-3.5 rounded-xl text-rose-200 text-sm mt-4"></div>
         </div>
 
-        <!-- ETAPA 2: Tela de Jogo ao Vivo no Smartphone -->
+        <!-- ETAPA 2: Tela de Jogo ao Vivo no Smartphone (Organizada no estilo Modo Individual) -->
         <div id="etapaJogo" class="hidden space-y-4">
-            <!-- Barra do Jogador Profissional com Avatar e Equipe -->
-            <div class="bg-slate-900/95 border border-slate-800 rounded-3xl p-4 shadow-xl flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black text-xl flex items-center justify-center shadow-md shadow-amber-500/20 shrink-0" id="jogadorAvatarDisplay">
-                        P
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Participante no Palco</p>
-                        <h3 class="font-black text-white text-base truncate" id="jogadorNomeDisplay">-</h3>
-                        <div class="flex items-center gap-2 mt-0.5">
-                            <span class="text-xs text-amber-400 font-bold truncate" id="jogadorEquipeDisplay">Individual</span>
-                            <button type="button" onclick="abrirModalTrocarEquipe()" class="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-blue-600/30 hover:bg-blue-600 text-blue-300 hover:text-white border border-blue-500/40 transition shrink-0">
-                                Equipes ▾
-                            </button>
+
+            <!-- 1. Card do Participante no Palco + Placar Show do Milhão -->
+            <div class="bg-slate-900/95 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl space-y-4">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black text-xl flex items-center justify-center shadow-md shadow-amber-500/20 shrink-0" id="jogadorAvatarDisplay">
+                            P
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Participante no Palco</p>
+                            <h3 class="font-black text-white text-base sm:text-lg truncate" id="jogadorNomeDisplay">-</h3>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-xs text-amber-400 font-bold truncate" id="jogadorEquipeDisplay">Individual</span>
+                                <button type="button" onclick="abrirModalTrocarEquipe()" class="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-blue-600/30 hover:bg-blue-600 text-blue-300 hover:text-white border border-blue-500/40 transition shrink-0">
+                                    Equipes ▾
+                                </button>
+                            </div>
                         </div>
                     </div>
+                    <div class="text-right shrink-0">
+                        <p class="text-[10px] text-slate-400 uppercase font-black">Seus Pontos</p>
+                        <p class="text-2xl sm:text-3xl font-black text-amber-400 font-mono leading-none mt-1">
+                            <span id="jogadorPontosDisplay">0</span> <span class="text-xs font-normal text-slate-400">pts</span>
+                        </p>
+                    </div>
                 </div>
-                <div class="text-right shrink-0">
-                    <p class="text-[10px] text-slate-400 uppercase font-black">Seus Pontos</p>
-                    <p class="text-2xl font-black text-amber-400 font-mono"><span id="jogadorPontosDisplay">0</span> <span class="text-xs font-normal text-slate-400">pts</span></p>
-                </div>
-            </div>
 
-            <!-- Placar Clássico de Valores da Pergunta (Errar, Parar, Acertar) -->
-            <div class="grid grid-cols-3 gap-2">
-                <div class="p-2.5 rounded-2xl bg-rose-950/40 border border-rose-500/30 text-center">
-                    <p class="text-[9px] font-black uppercase text-rose-300">Se Errar</p>
-                    <p class="text-sm font-black text-rose-400 font-mono" id="placarErrarDisplay">0 <span class="text-[9px]">pts</span></p>
-                </div>
-                <div class="p-2.5 rounded-2xl bg-slate-900 border border-slate-700 text-center">
-                    <p class="text-[9px] font-black uppercase text-amber-300">Parar (Atual)</p>
-                    <p class="text-sm font-black text-amber-400 font-mono" id="placarPararDisplay">0 <span class="text-[9px]">pts</span></p>
-                </div>
-                <div class="p-2.5 rounded-2xl bg-emerald-950/50 border border-emerald-500/40 text-center">
-                    <p class="text-[9px] font-black uppercase text-emerald-300">Se Acertar</p>
-                    <p class="text-sm font-black text-emerald-400 font-mono" id="placarAcertarDisplay">10 <span class="text-[9px]">pts</span></p>
+                <!-- Placar Estilo Show do Milhão: ERRAR | PARAR | ACERTAR -->
+                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800/80">
+                    <div class="p-2.5 rounded-2xl bg-rose-950/40 border border-rose-500/30 text-center">
+                        <p class="text-[9px] font-black uppercase tracking-wider text-rose-300">Se Errar</p>
+                        <p class="text-sm sm:text-base font-black text-rose-400 font-mono" id="placarErrarDisplay">0 <span class="text-[9px]">pts</span></p>
+                    </div>
+                    <div class="p-2.5 rounded-2xl bg-slate-950 border border-slate-700 text-center">
+                        <p class="text-[9px] font-black uppercase tracking-wider text-amber-300">Parar (Atual)</p>
+                        <p class="text-sm sm:text-base font-black text-amber-400 font-mono" id="placarPararDisplay">0 <span class="text-[9px]">pts</span></p>
+                    </div>
+                    <div class="p-2.5 rounded-2xl bg-emerald-950/50 border border-emerald-500/40 text-center">
+                        <p class="text-[9px] font-black uppercase tracking-wider text-emerald-300">Se Acertar</p>
+                        <p class="text-sm sm:text-base font-black text-emerald-400 font-mono" id="placarAcertarDisplay">10 <span class="text-[9px]">pts</span></p>
+                    </div>
                 </div>
             </div>
 
@@ -168,47 +183,120 @@
             <!-- Feedback da Resposta na Rodada -->
             <div id="feedbackResposta" class="hidden rounded-2xl p-4 border"></div>
 
-            <!-- Card da Pergunta Ao Vivo (Estilo TV Show do Milhão Bíblico) -->
-            <div id="cardPerguntaViva" class="bg-slate-900/95 border-2 border-amber-500/40 rounded-3xl p-5 sm:p-6 shadow-2xl">
-                <!-- Topo Bíblico + Fase + Cronômetro -->
-                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <!-- 2. Card Principal da Pergunta Ao Vivo -->
+            <div id="cardPerguntaViva" class="bg-slate-900/95 border-2 border-amber-500/40 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4">
+
+                <!-- Topo Bíblico + Fase + Valor da Pergunta -->
+                <div class="flex flex-wrap items-center justify-between gap-2">
                     <div class="flex items-center gap-2">
                         <span id="progressoPergunta" class="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-amber-500 text-slate-950">
-                            1ª Fase • Pergunta 1
+                            1ª Fase • Pergunta 1/24
                         </span>
                         <span id="nivelPergunta" class="text-xs text-amber-300 font-extrabold px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30">
                             Vale 10 pts
                         </span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-[11px] font-mono font-black text-amber-400 bg-slate-950 px-2.5 py-1 rounded-xl border border-slate-800 flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span id="tempoRestanteDisplay">60</span>s
-                        </span>
+                    <div id="badgeBiblicoCard" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-black uppercase tracking-wider">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                        </svg>
+                        <span id="textoBiblicoCard">Sagradas Escrituras</span>
                     </div>
                 </div>
 
-                <!-- Crachá das Escrituras Sagradas (Livro / Categoria) -->
-                <div id="badgeBiblicoCard" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-black uppercase tracking-wider mb-3">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-                    </svg>
-                    <span id="textoBiblicoCard">Sagradas Escrituras</span>
+                <!-- SUPER CRONÔMETRO DESTACADO COM BARRA REGRESSIVA -->
+                <div id="containerSuperCronometro" class="p-3.5 sm:p-4 rounded-2xl bg-slate-950/90 border-2 border-amber-500/40 shadow-inner transition-all flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <div id="iconeCronometroBox" class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="13" r="8"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4l2.5 2.5M9 2h6"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black uppercase tracking-wider text-slate-400">Tempo para Responder</p>
+                                <p id="labelStatusCronometro" class="text-xs font-bold text-amber-300">Rodada em andamento</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span id="tempoRestanteDisplay" class="text-3xl sm:text-4xl font-black font-mono text-white tracking-tight">60</span><span class="text-sm font-bold text-amber-400 ml-1">s</span>
+                        </div>
+                    </div>
+                    <!-- Barra visual decrescente -->
+                    <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                        <div id="barraProgressoTempo" class="bg-gradient-to-r from-amber-500 to-amber-300 h-2 rounded-full transition-all duration-300" style="width: 100%;"></div>
+                    </div>
                 </div>
 
-                <!-- Dica Bíblica / Convidado Bíblico revelados pelo Apresentador -->
-                <div id="dicaBiblicaViva" class="hidden mb-3 p-3 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-xs font-bold text-amber-200"></div>
-                <div id="dicaConvidadoViva" class="hidden mb-3 p-3 rounded-2xl bg-blue-950/90 border border-blue-400/40 text-xs font-bold text-blue-100"></div>
+                <!-- AVISO SUAVE DE TEMPO ESGOTADO (Sem alerts invasivos) -->
+                <div id="avisoTempoEsgotado" class="hidden p-3.5 rounded-2xl bg-rose-950/60 border border-rose-500/40 text-rose-200 text-xs font-bold text-center flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4 text-rose-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <span>Tempo esgotado para esta pergunta! Respostas encerradas. Aguarde o apresentador.</span>
+                </div>
+
+                <!-- BARRA DE AJUDAS DO JOGADOR (Concedidas pelas regras do jogo) -->
+                <div id="barraAjudasJogador" class="p-3 rounded-2xl bg-slate-950/90 border border-amber-500/30">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                            </svg>
+                            Ajudas Bíblicas Disponíveis
+                        </span>
+                        <span class="text-[10px] text-slate-400">Regras do Jogo</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <!-- 1. Dica Bíblica -->
+                        <button type="button" id="btnAjudaMobileDica" onclick="usarAjudaMobile('dica')"
+                                class="p-2 sm:p-2.5 rounded-xl border border-blue-500/40 bg-blue-950/70 hover:bg-blue-900 active:scale-95 transition text-center disabled:opacity-40 disabled:cursor-not-allowed">
+                            <span class="text-[11px] sm:text-xs font-black text-white block">📖 Dica</span>
+                            <span id="badgeDicasRestantesMobile" class="text-[10px] text-amber-300 font-bold">3 restantes</span>
+                        </button>
+
+                        <!-- 2. Cartas 50/50 -->
+                        <button type="button" id="btnAjudaMobileCartas" onclick="usarAjudaMobile('cartas')"
+                                class="p-2 sm:p-2.5 rounded-xl border border-blue-500/40 bg-blue-950/70 hover:bg-blue-900 active:scale-95 transition text-center disabled:opacity-40 disabled:cursor-not-allowed">
+                            <span class="text-[11px] sm:text-xs font-black text-white block">🃏 Cartas 50/50</span>
+                            <span id="badgeCartasRestantesMobile" class="text-[10px] text-amber-300 font-bold">Eliminar 2</span>
+                        </button>
+
+                        <!-- 3. Convidados Bíblicos -->
+                        <button type="button" id="btnAjudaMobileConvidado" onclick="abrirModalConvidadoMobile()"
+                                class="p-2 sm:p-2.5 rounded-xl border border-blue-500/40 bg-blue-950/70 hover:bg-blue-900 active:scale-95 transition text-center disabled:opacity-40 disabled:cursor-not-allowed">
+                            <span class="text-[11px] sm:text-xs font-black text-white block">👥 Convidados</span>
+                            <span id="badgeConvidadosRestantesMobile" class="text-[10px] text-amber-300 font-bold">3 restantes</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dica Bíblica / Convidado Bíblico revelados -->
+                <div id="dicaBiblicaViva" class="hidden p-3.5 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-xs sm:text-sm font-bold text-amber-200 flex items-start gap-2.5">
+                    <span class="text-base shrink-0">📖</span>
+                    <div>
+                        <p class="text-[10px] uppercase font-black tracking-wider text-amber-400 mb-0.5">Referência Bíblica:</p>
+                        <p id="conteudoDicaBiblicaTexto">-</p>
+                    </div>
+                </div>
+
+                <div id="dicaConvidadoViva" class="hidden p-3.5 rounded-2xl bg-blue-950/90 border border-blue-400/40 text-xs sm:text-sm font-bold text-blue-100 flex items-start gap-2.5">
+                    <span class="text-base shrink-0">👥</span>
+                    <div>
+                        <p class="text-[10px] uppercase font-black tracking-wider text-blue-300 mb-0.5" id="nomeConvidadoViva">Convidado Bíblico:</p>
+                        <p id="conteudoConvidadoTexto">-</p>
+                    </div>
+                </div>
 
                 <!-- Banner Clássico Vermelho Escuro com Borda Dourada -->
-                <div class="question-banner rounded-2xl p-4 sm:p-5 mb-4 shadow-xl">
-                    <p id="textoPerguntaViva" class="text-base sm:text-lg font-black text-white leading-relaxed">
+                <div class="question-banner rounded-2xl p-4 sm:p-6 shadow-xl">
+                    <p id="textoPerguntaViva" class="text-base sm:text-xl font-black text-white leading-relaxed">
                         Carregando pergunta da sala...
                     </p>
                 </div>
 
+                <!-- Alternativas A, B, C, D -->
                 <div id="opcoesBotoes" class="space-y-2.5"></div>
             </div>
 
@@ -272,6 +360,41 @@
         </div>
     </div>
 
+    <!-- Modal Escolha de Convidado Bíblico -->
+    <div id="modalConvidadoMobile" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-amber-400 rounded-3xl max-w-sm w-full p-6 text-slate-100 shadow-2xl relative">
+            <button type="button" onclick="fecharModalConvidadoMobile()" class="absolute top-4 right-4 text-slate-400 hover:text-white font-black text-lg">✕</button>
+            <div class="flex items-center gap-2 mb-2">
+                <span class="text-xl">👥</span>
+                <h3 class="text-lg font-black text-white">Consultar Convidado Bíblico</h3>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">Escolha um dos personagens para obter ajuda na pergunta:</p>
+            <div class="space-y-2.5">
+                <button type="button" onclick="usarAjudaMobile('convidado', 0)" class="w-full p-3 rounded-xl bg-blue-950/80 border border-blue-500/40 hover:border-amber-400 text-left font-bold text-sm flex items-center justify-between text-white transition">
+                    <div>
+                        <p class="font-black text-white">1. Jacó</p>
+                        <p class="text-[10px] text-slate-400 font-normal">Patriarca das 12 Tribos</p>
+                    </div>
+                    <span class="text-[10px] text-emerald-400 font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/30">Sabe a certa</span>
+                </button>
+                <button type="button" onclick="usarAjudaMobile('convidado', 1)" class="w-full p-3 rounded-xl bg-blue-950/80 border border-blue-500/40 hover:border-amber-400 text-left font-bold text-sm flex items-center justify-between text-white transition">
+                    <div>
+                        <p class="font-black text-white">2. Paulo</p>
+                        <p class="text-[10px] text-slate-400 font-normal">Apóstolo dos Gentios</p>
+                    </div>
+                    <span class="text-[10px] text-emerald-400 font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/30">Sabe a certa</span>
+                </button>
+                <button type="button" onclick="usarAjudaMobile('convidado', 2)" class="w-full p-3 rounded-xl bg-blue-950/80 border border-blue-500/40 hover:border-amber-400 text-left font-bold text-sm flex items-center justify-between text-white transition">
+                    <div>
+                        <p class="font-black text-white">3. Jafé</p>
+                        <p class="text-[10px] text-slate-400 font-normal">Filho de Noé</p>
+                    </div>
+                    <span class="text-[10px] text-amber-400 font-extrabold uppercase px-2 py-0.5 rounded bg-amber-950/60 border border-amber-500/30">Histórico</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal "Você tem certeza?" estilo Show do Milhão -->
     <div id="modalCerteza" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-slate-900 border-2 border-amber-400 rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl">
@@ -308,9 +431,15 @@
             reveladoNaPerguntaAtual: false,
             inicioPerguntaTimestamp: Date.now(),
             opcoesEliminadas: [],
+            tempoRestante: 60,
+            tempoEsgotado: false,
+            dicasRestantes: 3,
+            cartasRestantes: 1,
+            convidadosRestantes: 3,
         };
 
         let indicePendenteConfirmacao = null;
+        let timerTickInterval = null;
 
         const salvo = sessionStorage.getItem('biblia_show_participante');
         if (salvo) {
@@ -410,6 +539,97 @@
 
             sincronizarEstadoSala();
             setInterval(sincronizarEstadoSala, 1200);
+
+            // Timer local suave a cada 1s
+            if (!timerTickInterval) {
+                timerTickInterval = setInterval(tickCronometroLocal, 1000);
+            }
+        }
+
+        function tickCronometroLocal() {
+            if (estadoSessao.tempoRestante > 0 && !estadoSessao.jaRespondeuAtual) {
+                estadoSessao.tempoRestante--;
+                atualizarVisualCronometro(estadoSessao.tempoRestante);
+                if (estadoSessao.tempoRestante <= 0) {
+                    desabilitarOpcoesPorTempoEsgotado();
+                }
+            }
+        }
+
+        function atualizarVisualCronometro(segundos) {
+            const timerEl = document.getElementById('tempoRestanteDisplay');
+            const barraEl = document.getElementById('barraProgressoTempo');
+            const boxEl = document.getElementById('containerSuperCronometro');
+            const labelEl = document.getElementById('labelStatusCronometro');
+            const iconeBox = document.getElementById('iconeCronometroBox');
+
+            if (timerEl) timerEl.innerText = Math.max(0, segundos);
+
+            const pct = Math.max(0, Math.min(100, (segundos / 60) * 100));
+            if (barraEl) {
+                barraEl.style.width = `${pct}%`;
+            }
+
+            if (segundos <= 0) {
+                if (boxEl) {
+                    boxEl.className = 'p-3.5 sm:p-4 rounded-2xl bg-slate-950/90 border-2 border-slate-700 shadow-inner flex flex-col gap-2';
+                }
+                if (labelEl) {
+                    labelEl.textContent = 'Tempo Encerrado';
+                    labelEl.className = 'text-xs font-bold text-rose-400';
+                }
+                if (barraEl) {
+                    barraEl.className = 'bg-rose-500 h-2 rounded-full transition-all duration-300';
+                }
+            } else if (segundos <= 10) {
+                // Alerta vermelho piscante nos últimos 10s
+                if (boxEl) {
+                    boxEl.className = 'p-3.5 sm:p-4 rounded-2xl border-2 timer-critico shadow-inner flex flex-col gap-2';
+                }
+                if (labelEl) {
+                    labelEl.textContent = 'Atenção! Últimos segundos!';
+                    labelEl.className = 'text-xs font-bold text-rose-300 animate-pulse';
+                }
+                if (barraEl) {
+                    barraEl.className = 'bg-rose-500 h-2 rounded-full transition-all duration-300';
+                }
+            } else {
+                if (boxEl) {
+                    boxEl.className = 'p-3.5 sm:p-4 rounded-2xl bg-slate-950/90 border-2 border-amber-500/40 shadow-inner transition-all flex flex-col gap-2';
+                }
+                if (labelEl) {
+                    labelEl.textContent = 'Rodada em andamento';
+                    labelEl.className = 'text-xs font-bold text-amber-300';
+                }
+                if (barraEl) {
+                    barraEl.className = 'bg-gradient-to-r from-amber-500 to-amber-300 h-2 rounded-full transition-all duration-300';
+                }
+            }
+        }
+
+        function desabilitarOpcoesPorTempoEsgotado() {
+            estadoSessao.tempoEsgotado = true;
+
+            // Fechar modal de confirmação imediatamente se estiver aberto
+            fecharModalCerteza();
+            if (typeof Swal !== 'undefined' && Swal.isVisible()) {
+                Swal.close();
+            }
+
+            // Desabilitar todas as opções de resposta
+            document.querySelectorAll('.btn-opcao-mobile').forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-40', 'cursor-not-allowed');
+            });
+
+            // Exibir faixa amigável e silenciosa de tempo esgotado (sem alert)
+            const aviso = document.getElementById('avisoTempoEsgotado');
+            if (aviso && !estadoSessao.jaRespondeuAtual) {
+                aviso.classList.remove('hidden');
+            }
+
+            // Desabilitar botões de ajudas
+            atualizarBotoesAjudasMobile();
         }
 
         async function sincronizarEstadoSala() {
@@ -428,8 +648,8 @@
                 }
 
                 if (data.tempo_restante !== undefined) {
-                    const timerEl = document.getElementById('tempoRestanteDisplay');
-                    if (timerEl) timerEl.innerText = data.tempo_restante;
+                    estadoSessao.tempoRestante = Number(data.tempo_restante);
+                    atualizarVisualCronometro(estadoSessao.tempoRestante);
                 }
 
                 const placar = data.placar_milhao || {};
@@ -446,6 +666,7 @@
                 if (data.estado === 'terminado') {
                     document.getElementById('textoPerguntaViva').innerText = 'Partida encerrada pelo apresentador! Confira sua colocação abaixo.';
                     document.getElementById('opcoesBotoes').innerHTML = '';
+                    desabilitarOpcoesPorTempoEsgotado();
                     return;
                 }
 
@@ -461,17 +682,30 @@
                 document.getElementById('nivelPergunta').innerText = `Vale ${placar.valor_pergunta || 10} pts`;
 
                 const ajudas = data.ajudas || {};
+
+                // Atualizar saldos de ajudas
+                if (ajudas.dicas_restantes !== undefined) estadoSessao.dicasRestantes = ajudas.dicas_restantes;
+                if (ajudas.cartas_restantes !== undefined) estadoSessao.cartasRestantes = ajudas.cartas_restantes;
+                if (ajudas.convidados_restantes !== undefined) estadoSessao.convidadosRestantes = ajudas.convidados_restantes;
+                atualizarBotoesAjudasMobile();
+
+                // Dica bíblica ativa
                 const dicaEl = document.getElementById('dicaBiblicaViva');
+                const dicaTexto = document.getElementById('conteudoDicaBiblicaTexto');
                 if (ajudas.dica_biblica) {
-                    dicaEl.textContent = ajudas.dica_biblica;
+                    if (dicaTexto) dicaTexto.textContent = ajudas.dica_biblica;
                     dicaEl.classList.remove('hidden');
                 } else {
                     dicaEl.classList.add('hidden');
                 }
 
+                // Convidado bíblico ativo
                 const convEl = document.getElementById('dicaConvidadoViva');
+                const convNome = document.getElementById('nomeConvidadoViva');
+                const convTexto = document.getElementById('conteudoConvidadoTexto');
                 if (ajudas.dica_convidado) {
-                    convEl.innerHTML = `<strong class="text-amber-300">${ajudas.dica_convidado.convidado}:</strong> ${ajudas.dica_convidado.mensagem}`;
+                    if (convNome) convNome.textContent = `Convidado: ${ajudas.dica_convidado.convidado}`;
+                    if (convTexto) convTexto.textContent = ajudas.dica_convidado.mensagem;
                     convEl.classList.remove('hidden');
                 } else {
                     convEl.classList.add('hidden');
@@ -495,8 +729,10 @@
                     estadoSessao.jaRespondeuAtual = !!data.ja_respondeu;
                     estadoSessao.opcaoEscolhida = null;
                     estadoSessao.reveladoNaPerguntaAtual = false;
+                    estadoSessao.tempoEsgotado = false;
                     estadoSessao.inicioPerguntaTimestamp = Date.now();
                     document.getElementById('feedbackResposta').classList.add('hidden');
+                    document.getElementById('avisoTempoEsgotado').classList.add('hidden');
                     fecharModalCerteza();
                     renderizarPergunta(q);
                 } else {
@@ -507,8 +743,132 @@
                     } else if (mudouEliminadas && !estadoSessao.jaRespondeuAtual) {
                         renderizarPergunta(q);
                     }
+
+                    if (estadoSessao.tempoRestante <= 0 && !estadoSessao.jaRespondeuAtual) {
+                        desabilitarOpcoesPorTempoEsgotado();
+                    }
                 }
             } catch (e) {}
+        }
+
+        function atualizarBotoesAjudasMobile() {
+            const btnDica = document.getElementById('btnAjudaMobileDica');
+            const btnCartas = document.getElementById('btnAjudaMobileCartas');
+            const btnConv = document.getElementById('btnAjudaMobileConvidado');
+
+            const txtDica = document.getElementById('badgeDicasRestantesMobile');
+            const txtCartas = document.getElementById('badgeCartasRestantesMobile');
+            const txtConv = document.getElementById('badgeConvidadosRestantesMobile');
+
+            const bloqueadoGeral = estadoSessao.jaRespondeuAtual || estadoSessao.tempoEsgotado || (estadoSessao.tempoRestante <= 0);
+
+            if (txtDica) txtDica.textContent = `${estadoSessao.dicasRestantes} restantes`;
+            if (btnDica) btnDica.disabled = bloqueadoGeral || estadoSessao.dicasRestantes <= 0;
+
+            if (txtCartas) txtCartas.textContent = estadoSessao.cartasRestantes > 0 ? 'Eliminar 2' : 'Usada';
+            if (btnCartas) btnCartas.disabled = bloqueadoGeral || estadoSessao.cartasRestantes <= 0;
+
+            if (txtConv) txtConv.textContent = `${estadoSessao.convidadosRestantes} restantes`;
+            if (btnConv) btnConv.disabled = bloqueadoGeral || estadoSessao.convidadosRestantes <= 0;
+        }
+
+        async function usarAjudaMobile(tipo, indiceConvidado = null) {
+            if (!estadoSessao.salaId || !estadoSessao.participanteId) return;
+            if (estadoSessao.tempoEsgotado || estadoSessao.tempoRestante <= 0 || estadoSessao.jaRespondeuAtual) {
+                return;
+            }
+
+            fecharModalConvidadoMobile();
+            new Audio('/audio/classico/tecla.wav').play().catch(() => {});
+
+            try {
+                const resp = await fetch(`/api/salas/${estadoSessao.salaId}/ajuda`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        participante_id: estadoSessao.participanteId,
+                        tipo: tipo,
+                        indice_convidado: indiceConvidado,
+                    }),
+                });
+
+                const data = await resp.json();
+                if (!resp.ok) {
+                    throw new Error(data.error || 'Não foi possível utilizar esta ajuda.');
+                }
+
+                // Tocar efeito sonoro clássico
+                if (data.som_efeito) {
+                    new Audio(`/audio/classico/${data.som_efeito}.wav`).play().catch(() => {});
+                }
+
+                if (tipo === 'dica' && data.dica_biblica) {
+                    estadoSessao.dicasRestantes = data.dicas_restantes ?? (estadoSessao.dicasRestantes - 1);
+                    const dicaEl = document.getElementById('dicaBiblicaViva');
+                    const dicaTexto = document.getElementById('conteudoDicaBiblicaTexto');
+                    if (dicaTexto) dicaTexto.textContent = data.dica_biblica;
+                    if (dicaEl) dicaEl.classList.remove('hidden');
+                } else if (tipo === 'cartas' && Array.isArray(data.opcoes_eliminadas)) {
+                    estadoSessao.cartasRestantes = 0;
+                    estadoSessao.opcoesEliminadas = data.opcoes_eliminadas;
+                    data.opcoes_eliminadas.forEach(idx => {
+                        const btn = document.getElementById(`btnOpcaoMobile_${idx}`);
+                        if (btn) {
+                            btn.disabled = true;
+                            btn.className = 'btn-opcao-mobile w-full text-left p-4 rounded-2xl border-2 transition flex items-center justify-between gap-3.5 opacity-30 border-slate-800 bg-slate-950 line-through cursor-not-allowed';
+                        }
+                    });
+                } else if (tipo === 'convidado' && data.dica_convidado) {
+                    estadoSessao.convidadosRestantes = data.convidados_restantes ?? (estadoSessao.convidadosRestantes - 1);
+                    const convEl = document.getElementById('dicaConvidadoViva');
+                    const convNome = document.getElementById('nomeConvidadoViva');
+                    const convTexto = document.getElementById('conteudoConvidadoTexto');
+                    if (convNome) convNome.textContent = `Convidado: ${data.dica_convidado.convidado}`;
+                    if (convTexto) convTexto.textContent = data.dica_convidado.mensagem;
+                    if (convEl) convEl.classList.remove('hidden');
+                }
+
+                atualizarBotoesAjudasMobile();
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: data.mensagem,
+                        timer: 2000,
+                        showConfirmButton: false,
+                        background: '#0f172a',
+                        color: '#f8fafc',
+                        customClass: { popup: 'rounded-3xl border border-amber-400' }
+                    });
+                }
+            } catch (err) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Ajuda Bíblica',
+                        text: err.message,
+                        background: '#0f172a',
+                        color: '#f8fafc',
+                    });
+                } else {
+                    alert(err.message);
+                }
+            }
+        }
+
+        function abrirModalConvidadoMobile() {
+            if (estadoSessao.convidadosRestantes <= 0 || estadoSessao.tempoEsgotado || estadoSessao.tempoRestante <= 0) return;
+            const m = document.getElementById('modalConvidadoMobile');
+            if (m) m.classList.remove('hidden');
+        }
+
+        function fecharModalConvidadoMobile() {
+            const m = document.getElementById('modalConvidadoMobile');
+            if (m) m.classList.add('hidden');
         }
 
         function renderizarPergunta(q) {
@@ -526,12 +886,13 @@
             }
 
             const container = document.getElementById('opcoesBotoes');
-
             const eliminadas = estadoSessao.opcoesEliminadas || [];
+            const tempoZerado = estadoSessao.tempoRestante <= 0;
+
             container.innerHTML = (q.opcoes || []).map((opcao, idx) => {
                 const isEliminada = eliminadas.includes(idx);
                 const isEscolhida = estadoSessao.opcaoEscolhida !== null && Number(estadoSessao.opcaoEscolhida) === idx;
-                const estaBloqueada = estadoSessao.jaRespondeuAtual || (estadoSessao.opcaoEscolhida !== null);
+                const estaBloqueada = estadoSessao.jaRespondeuAtual || (estadoSessao.opcaoEscolhida !== null) || tempoZerado;
 
                 let classesBtn = 'btn-opcao-mobile w-full text-left p-4 rounded-2xl border-2 transition flex items-center justify-between gap-3.5 ';
                 let tagHtml = '';
@@ -564,10 +925,16 @@
                     </button>
                 `;
             }).join('');
+
+            atualizarBotoesAjudasMobile();
         }
 
         async function confirmarOpcao(idx, textoOpcao) {
-            if (estadoSessao.jaRespondeuAtual) return;
+            // Se já respondeu ou tempo esgotou, rejeita sem erro
+            if (estadoSessao.jaRespondeuAtual || estadoSessao.tempoEsgotado || estadoSessao.tempoRestante <= 0) {
+                return;
+            }
+
             new Audio('/audio/classico/tecla.wav').play().catch(() => {});
             const letra = letras[idx] || (idx + 1);
 
@@ -597,6 +964,11 @@
                 });
 
                 if (result.isConfirmed) {
+                    // Valida novamente tempo antes de enviar
+                    if (estadoSessao.tempoRestante <= 0 || estadoSessao.tempoEsgotado) {
+                        desabilitarOpcoesPorTempoEsgotado();
+                        return;
+                    }
                     enviarResposta(idx);
                 }
             } else {
@@ -606,6 +978,10 @@
                 document.getElementById('btnConfirmarFinal').onclick = () => {
                     const escolhido = indicePendenteConfirmacao;
                     fecharModalCerteza();
+                    if (estadoSessao.tempoRestante <= 0 || estadoSessao.tempoEsgotado) {
+                        desabilitarOpcoesPorTempoEsgotado();
+                        return;
+                    }
                     enviarResposta(escolhido);
                 };
             }
@@ -631,6 +1007,7 @@
                     btn.classList.add('opacity-40');
                 }
             });
+            atualizarBotoesAjudasMobile();
         }
 
         function revelarCoresOpcaoMobile(indiceEscolhido, respostaCorreta, acertouParam, questaoObj) {
@@ -666,13 +1043,17 @@
         }
 
         async function enviarResposta(indiceOpcao) {
-            if (estadoSessao.jaRespondeuAtual) return;
+            if (estadoSessao.jaRespondeuAtual || estadoSessao.tempoRestante <= 0 || estadoSessao.tempoEsgotado) {
+                desabilitarOpcoesPorTempoEsgotado();
+                return;
+            }
+
             estadoSessao.jaRespondeuAtual = true;
             estadoSessao.opcaoEscolhida = indiceOpcao;
 
             const tempoSegundos = Math.max(1, Math.min(60, Math.round((Date.now() - estadoSessao.inicioPerguntaTimestamp) / 1000)));
 
-            // 1. Bloquear imediatamente a opção escolhida na tela (permanece na tela)
+            // 1. Bloquear imediatamente a opção escolhida na tela
             bloquearOpcaoMobile(indiceOpcao);
 
             try {
@@ -693,11 +1074,16 @@
 
                 const data = await resp.json();
                 if (!resp.ok) {
+                    // Se o erro for tempo esgotado (408), trata silenciosamente com a mensagem elegante
+                    if (resp.status === 408) {
+                        desabilitarOpcoesPorTempoEsgotado();
+                        return;
+                    }
                     const msgErro = data.error || (data.errors ? Object.values(data.errors).flat()[0] : null) || 'Não foi possível enviar a resposta.';
                     throw new Error(msgErro);
                 }
 
-                // 2. Após pausa dramática (1.2s), revelar verde/vermelho nas opções e tocar som se ativo nas Definições!
+                // 2. Após pausa dramática (1.2s), revelar verde/vermelho nas opções e tocar som se ativo
                 setTimeout(() => {
                     const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : (localStorage.getItem('biblia_show_som') !== 'off');
                     if (ativo) {
@@ -728,13 +1114,13 @@
                     fb.classList.remove('hidden');
                 }, 1200);
             } catch (err) {
-                // Em caso de erro, reabilita as opções e notifica via SweetAlert2
+                // Em caso de erro diferente de tempo esgotado, reabilita as opções e notifica via SweetAlert2
                 estadoSessao.jaRespondeuAtual = false;
                 estadoSessao.opcaoEscolhida = null;
                 document.querySelectorAll('.btn-opcao-mobile').forEach(btn => {
                     const idx = Number(btn.dataset.indice);
                     const isEliminada = (estadoSessao.opcoesEliminadas || []).includes(idx);
-                    if (!isEliminada) {
+                    if (!isEliminada && estadoSessao.tempoRestante > 0) {
                         btn.disabled = false;
                         btn.className = 'btn-opcao-mobile w-full text-left p-4 rounded-2xl border-2 transition flex items-center justify-between gap-3.5 border-blue-500/40 bg-blue-950/70 hover:border-amber-400 active:scale-[0.99] cursor-pointer';
                         const tag = document.getElementById(`tagMobile_${idx}`);

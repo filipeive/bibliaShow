@@ -244,7 +244,35 @@ class ParticipantController extends Controller
             if ($request->filled('participante_id')) {
                 $partId = $request->integer('participante_id');
                 $jaRespondeu = isset($respostasRodada[$partId]);
+                $partModel = $participantes->firstWhere('id', $partId) ?? Participante::find($partId);
+                if ($partModel) {
+                    $partAjudas = $partModel->ajudas_usadas ?? [];
+                    $ajudasAtivas['dicas_restantes'] = max(0, 3 - ($partAjudas['dicas_usadas'] ?? 0));
+                    $ajudasAtivas['cartas_restantes'] = max(0, 1 - ($partAjudas['cartas_usadas'] ?? 0));
+                    $ajudasAtivas['convidados_restantes'] = max(0, 3 - ($partAjudas['convidados_usados'] ?? 0));
+
+                    $pIdKey = $perguntaPublica['id'] ?? $numeroPergunta;
+                    $hist = $partAjudas['historico_por_pergunta'][$pIdKey] ?? [];
+                    if (!empty($hist['dica_biblica'])) {
+                        $ajudasAtivas['dica_biblica'] = $hist['dica_biblica'];
+                    }
+                    if (!empty($hist['dica_convidado'])) {
+                        $ajudasAtivas['dica_convidado'] = $hist['dica_convidado'];
+                    }
+                    if (!empty($hist['opcoes_eliminadas'])) {
+                        $ajudasAtivas['opcoes_eliminadas'] = array_values(array_unique(array_merge(
+                            $ajudasAtivas['opcoes_eliminadas'] ?? [],
+                            $hist['opcoes_eliminadas']
+                        )));
+                    }
+                }
             }
+        }
+
+        if (!isset($ajudasAtivas['dicas_restantes'])) {
+            $ajudasAtivas['dicas_restantes'] = 3;
+            $ajudasAtivas['cartas_restantes'] = 1;
+            $ajudasAtivas['convidados_restantes'] = 3;
         }
 
         $ranking = $participantes->map(fn ($p) => [
@@ -483,6 +511,163 @@ class ParticipantController extends Controller
         ]));
 
         return response()->json(['success' => true]);
+    }
+
+    public function usarAjuda(Request $request, Sala $sala)
+    {
+        $validator = Validator::make($request->all(), [
+            'participante_id' => 'required|exists:participantes,id',
+            'tipo' => 'required|in:dica,cartas,convidado',
+            'indice_convidado' => 'nullable|integer|min:0|max:2',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $validated = $validator->validated();
+        $participante = Participante::find($validated['participante_id']);
+
+        if (!$participante || (int) $participante->sala_id !== (int) $sala->id) {
+            return response()->json(['error' => 'Participante não pertence a esta sala.'], 404);
+        }
+
+        $jogo = $sala->jogoAtivo()->first();
+        if (!$jogo || !$jogo->dados_motor) {
+            return response()->json(['error' => 'Partida não está em andamento.'], 400);
+        }
+
+        $engine = GameEngine::desserializarSeguro($jogo->dados_motor);
+        if (!($engine instanceof GameEngine)) {
+            return response()->json(['error' => 'Estado do jogo inválido.'], 500);
+        }
+
+        $estado = $engine->getState();
+        if ($estado['estado'] !== 'em_curso') {
+            return response()->json(['error' => 'A rodada está pausada ou não iniciada.'], 403);
+        }
+
+        if (!empty($estado['tempo_esgotado']) || ($estado['tempo_restante'] ?? 0) <= 0) {
+            return response()->json(['error' => 'Tempo esgotado para esta pergunta.'], 408);
+        }
+
+        $curQ = $engine->getCurrentQuestion();
+        if (!$curQ) {
+            return response()->json(['error' => 'Nenhuma pergunta ativa no momento.'], 404);
+        }
+
+        $ajudasUsadas = $participante->ajudas_usadas ?? [
+            'dicas_usadas' => 0,
+            'cartas_usadas' => 0,
+            'convidados_usados' => 0,
+            'historico_por_pergunta' => [],
+        ];
+
+        $perguntaKey = $curQ['id'] ?? ($estado['numero_pergunta'] ?? 1);
+        $ajudasDestaPergunta = $ajudasUsadas['historico_por_pergunta'][$perguntaKey] ?? [];
+        $tipo = $validated['tipo'];
+
+        if ($tipo === 'dica') {
+            if (($ajudasUsadas['dicas_usadas'] ?? 0) >= 3) {
+                return response()->json(['error' => 'Você já utilizou todas as 3 Dicas Bíblicas permitidas.'], 422);
+            }
+
+            $ref = $curQ['referencia_biblica'] ?? null;
+            if (!$ref) {
+                $ref = 'Referência Bíblica: Consulte o livro de ' . ($curQ['livro_nome'] ?? 'Escrituras Sagradas');
+            }
+
+            $ajudasUsadas['dicas_usadas'] = ($ajudasUsadas['dicas_usadas'] ?? 0) + 1;
+            $ajudasDestaPergunta['dica_biblica'] = $ref;
+            $ajudasUsadas['historico_por_pergunta'][$perguntaKey] = $ajudasDestaPergunta;
+            $participante->update(['ajudas_usadas' => $ajudasUsadas]);
+
+            return response()->json([
+                'sucesso' => true,
+                'tipo' => 'dica',
+                'dica_biblica' => $ref,
+                'dicas_restantes' => max(0, 3 - $ajudasUsadas['dicas_usadas']),
+                'mensagem' => 'Dica Bíblica revelada!',
+                'som_efeito' => 'dica',
+            ]);
+        }
+
+        if ($tipo === 'cartas') {
+            if (($ajudasUsadas['cartas_usadas'] ?? 0) >= 1) {
+                return response()->json(['error' => 'Você já utilizou as Cartas 50/50 nesta partida.'], 422);
+            }
+
+            $opcoes = $curQ['opcoes'] ?? [];
+            if (is_string($opcoes)) {
+                $opcoes = json_decode($opcoes, true) ?: [];
+            }
+
+            $corretaIdx = null;
+            foreach ($opcoes as $idx => $opTxt) {
+                if (mb_strtolower(trim((string) $opTxt), 'UTF-8') === mb_strtolower(trim((string) ($curQ['resposta_correta'] ?? '')), 'UTF-8')) {
+                    $corretaIdx = $idx;
+                    break;
+                }
+            }
+
+            $erradas = array_values(array_filter(array_keys($opcoes), fn ($i) => $i !== $corretaIdx));
+            shuffle($erradas);
+            $eliminadas = array_slice($erradas, 0, 2);
+            sort($eliminadas);
+
+            $ajudasUsadas['cartas_usadas'] = ($ajudasUsadas['cartas_usadas'] ?? 0) + 1;
+            $ajudasDestaPergunta['opcoes_eliminadas'] = $eliminadas;
+            $ajudasUsadas['historico_por_pergunta'][$perguntaKey] = $ajudasDestaPergunta;
+            $participante->update(['ajudas_usadas' => $ajudasUsadas]);
+
+            return response()->json([
+                'sucesso' => true,
+                'tipo' => 'cartas',
+                'opcoes_eliminadas' => $eliminadas,
+                'cartas_restantes' => 0,
+                'mensagem' => 'Cartas (50/50) eliminaram 2 alternativas incorretas!',
+                'som_efeito' => 'ajuda',
+            ]);
+        }
+
+        if ($tipo === 'convidado') {
+            if (($ajudasUsadas['convidados_usados'] ?? 0) >= 3) {
+                return response()->json(['error' => 'Você já consultou os Convidados Bíblicos 3 vezes.'], 422);
+            }
+
+            $idxConvidado = (int) ($validated['indice_convidado'] ?? 0);
+            $ajudasQ = $curQ['ajudas'] ?? [];
+            if (is_string($ajudasQ)) {
+                $ajudasQ = json_decode($ajudasQ, true) ?: [];
+            }
+            $convidados = $ajudasQ['convidados'] ?? ['Paulo', 'Pedro', 'Moisés'];
+            $nomeConvidado = $convidados[$idxConvidado] ?? $convidados[0] ?? 'Personagem Bíblico';
+
+            $msgConvidado = $idxConvidado < 2
+                ? "Pelo meu conhecimento das Escrituras, creio firmemente na alternativa correta!"
+                : "Este acontecimento ocorreu fora da minha época bíblica, por isso não posso opinar.";
+
+            $dicaConvidado = [
+                'convidado' => $nomeConvidado,
+                'mensagem' => $msgConvidado,
+            ];
+
+            $ajudasUsadas['convidados_usados'] = ($ajudasUsadas['convidados_usados'] ?? 0) + 1;
+            $ajudasDestaPergunta['dica_convidado'] = $dicaConvidado;
+            $ajudasUsadas['historico_por_pergunta'][$perguntaKey] = $ajudasDestaPergunta;
+            $participante->update(['ajudas_usadas' => $ajudasUsadas]);
+
+            return response()->json([
+                'sucesso' => true,
+                'tipo' => 'convidado',
+                'dica_convidado' => $dicaConvidado,
+                'convidados_restantes' => max(0, 3 - $ajudasUsadas['convidados_usados']),
+                'mensagem' => "{$nomeConvidado} foi consultado!",
+                'som_efeito' => 'sabe1',
+            ]);
+        }
+
+        return response()->json(['error' => 'Tipo de ajuda inválido.'], 400);
     }
 
     public function juntarEquipe(Request $request, Sala $sala, Participante $participante)
