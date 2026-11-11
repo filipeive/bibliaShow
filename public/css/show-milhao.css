@@ -1,0 +1,370 @@
+/* ==========================================================================
+   Bíblia Show 2.0 — Tema "Palco do Show" (padrão mobile estilo Show do Milhão)
+   Reutilizado em: welcome, jogo individual (game/play) e participante (entrar)
+   ========================================================================== */
+
+:root {
+    --sm-gold-1: #fde68a;
+    --sm-gold-2: #f59e0b;
+    --sm-gold-3: #b45309;
+    --sm-blue-1: #1e40af;
+    --sm-blue-2: #1e3a8a;
+    --sm-blue-3: #0b1a4d;
+    --sm-glow: rgba(96, 165, 250, 0.55);
+}
+
+/* --- Palco / Auditório com holofotes --- */
+.sm-stage {
+    position: relative;
+    background:
+        radial-gradient(ellipse 60% 35% at 50% 0%, rgba(59, 130, 246, 0.35) 0%, transparent 70%),
+        radial-gradient(ellipse 80% 60% at 50% 110%, rgba(30, 64, 175, 0.45) 0%, transparent 70%),
+        linear-gradient(180deg, #0a1a5c 0%, #0b1446 40%, #060b2a 100%);
+    background-attachment: fixed;
+}
+.sm-stage::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+        conic-gradient(from 200deg at 15% -10%, transparent 0deg, rgba(147, 197, 253, 0.10) 12deg, transparent 24deg),
+        conic-gradient(from 140deg at 85% -10%, transparent 0deg, rgba(147, 197, 253, 0.10) 12deg, transparent 24deg),
+        radial-gradient(circle at 50% 100%, rgba(15, 23, 42, 0.0) 0%, rgba(2, 6, 23, 0.6) 100%);
+    z-index: 0;
+}
+.sm-stage > * { position: relative; z-index: 1; }
+
+/* Palco Universal (Desktop e Mobile com a mesma atmosfera de auditório do Show do Milhão) */
+body.sm-stage-mobile,
+body.sm-stage,
+.sm-stage {
+    background:
+        radial-gradient(ellipse 60% 35% at 50% 0%, rgba(59, 130, 246, 0.35) 0%, transparent 70%),
+        radial-gradient(ellipse 80% 60% at 50% 110%, rgba(30, 64, 175, 0.45) 0%, transparent 70%),
+        linear-gradient(180deg, #0a1a5c 0%, #0b1446 40%, #060b2a 100%) !important;
+    background-attachment: fixed !important;
+}
+
+/* Plateia estilizada (silhuetas no rodapé) */
+.sm-crowd {
+    height: 38px;
+    background:
+        radial-gradient(circle at 6% 100%, #020617 18px, transparent 19px),
+        radial-gradient(circle at 16% 100%, #020617 22px, transparent 23px),
+        radial-gradient(circle at 27% 100%, #020617 17px, transparent 18px),
+        radial-gradient(circle at 38% 100%, #020617 21px, transparent 22px),
+        radial-gradient(circle at 50% 100%, #020617 19px, transparent 20px),
+        radial-gradient(circle at 62% 100%, #020617 23px, transparent 24px),
+        radial-gradient(circle at 73% 100%, #020617 18px, transparent 19px),
+        radial-gradient(circle at 84% 100%, #020617 21px, transparent 22px),
+        radial-gradient(circle at 95% 100%, #020617 18px, transparent 19px);
+    opacity: .85;
+}
+
+/* --- Pílula dourada (valor / rodada) --- */
+.sm-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    padding: .3rem 1.1rem;
+    border-radius: 9999px;
+    background: linear-gradient(180deg, #fff7d1 0%, var(--sm-gold-1) 25%, var(--sm-gold-2) 75%, var(--sm-gold-3) 100%);
+    color: #3b1d00;
+    font-weight: 900;
+    line-height: 1.05;
+    text-align: center;
+    border: 2px solid #fff3c4;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.45), inset 0 -2px 0 rgba(120, 53, 15, 0.35);
+}
+.sm-pill small { display: block; font-size: .62rem; font-weight: 800; opacity: .85; }
+
+/* --- Card da Pergunta --- */
+.sm-question {
+    position: relative;
+    background: linear-gradient(180deg, #1d3fae 0%, #142c86 55%, #0d1f66 100%);
+    border: 2px solid rgba(147, 197, 253, 0.65);
+    border-radius: 1.25rem;
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.6), 0 0 28px var(--sm-glow), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    color: #fff;
+    text-align: center;
+}
+.sm-question .sm-question-text {
+    font-weight: 900;
+    line-height: 1.25;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
+}
+
+/* --- Alternativas em cápsula --- */
+.sm-option {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .6rem;
+    text-align: left;
+    padding: .7rem 1rem;
+    min-height: 48px;
+    border-radius: 9999px;
+    background: linear-gradient(180deg, #2747c4 0%, #1a34a0 50%, #12257a 100%);
+    border: 2px solid rgba(147, 197, 253, 0.7);
+    box-shadow: 0 3px 0 #0a1652, 0 0 14px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    color: #fff;
+    font-weight: 800;
+    transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+}
+.sm-option:hover:not(:disabled) { filter: brightness(1.12); border-color: #fde68a; }
+.sm-option:active:not(:disabled) { transform: translateY(2px) scale(.99); box-shadow: 0 1px 0 #0a1652; }
+.sm-option:disabled { cursor: not-allowed; }
+.sm-option .sm-letter {
+    color: var(--sm-gold-1);
+    font-weight: 900;
+    margin-right: .25rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .5);
+    flex-shrink: 0;
+}
+.sm-option.is-eliminada {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+    border-color: #334155 !important;
+    box-shadow: none !important;
+    opacity: .4;
+    text-decoration: line-through;
+}
+
+/* Estados de revelação compatíveis com o JS existente */
+.sm-option.opcao-bloqueada {
+    background: linear-gradient(180deg, #fbbf24 0%, #d97706 60%, #92400e 100%) !important;
+    border-color: #fff3c4 !important;
+    color: #1c0f00 !important;
+    box-shadow: 0 0 24px rgba(251, 191, 36, .6) !important;
+    animation: sm-blink 0.7s ease-in-out infinite alternate;
+}
+.sm-option.opcao-bloqueada .sm-letter { color: #3b1d00; text-shadow: none; }
+.sm-option.opcao-correta-reveal {
+    background: linear-gradient(180deg, #34d399 0%, #059669 60%, #065f46 100%) !important;
+    border-color: #a7f3d0 !important;
+    box-shadow: 0 0 28px rgba(16, 185, 129, .65) !important;
+    animation: none;
+}
+.sm-option.opcao-errada-reveal {
+    background: linear-gradient(180deg, #fb7185 0%, #e11d48 60%, #881337 100%) !important;
+    border-color: #fecdd3 !important;
+    box-shadow: 0 0 28px rgba(244, 63, 94, .65) !important;
+    animation: none;
+}
+.sm-option.opcao-correta-reveal .sm-letter,
+.sm-option.opcao-errada-reveal .sm-letter { color: #fff; }
+@keyframes sm-blink { from { filter: brightness(1); } to { filter: brightness(1.25); } }
+
+/* --- Botões de ajuda circulares --- */
+.sm-lifeline {
+    position: relative;
+    width: 52px;
+    height: 40px;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #2747c4 0%, #142c86 100%);
+    border: 2px solid rgba(147, 197, 253, 0.75);
+    box-shadow: 0 3px 0 #0a1652, 0 0 10px rgba(59, 130, 246, .35);
+    color: #fff;
+    font-weight: 900;
+    font-size: .95rem;
+    transition: transform .12s ease, filter .12s ease;
+}
+.sm-lifeline:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #0a1652; }
+.sm-lifeline:disabled { opacity: .35; filter: grayscale(1); cursor: not-allowed; }
+.sm-lifeline .sm-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 9999px;
+    background: var(--sm-gold-2);
+    color: #1c0f00;
+    font-size: .62rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #fff3c4;
+}
+
+/* --- Lingotes ERRAR / PARAR / ACERTAR --- */
+.sm-ingot {
+    border-radius: .6rem;
+    padding: .35rem .25rem;
+    text-align: center;
+    background: linear-gradient(180deg, #fde68a 0%, #f59e0b 55%, #b45309 100%);
+    border: 2px solid #fff3c4;
+    box-shadow: 0 3px 0 #78350f, inset 0 1px 0 rgba(255, 255, 255, .6);
+    color: #3b1d00;
+}
+.sm-ingot .sm-ingot-label { font-size: .58rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.sm-ingot .sm-ingot-value { font-size: .85rem; font-weight: 900; font-family: ui-monospace, monospace; line-height: 1.1; }
+.sm-ingot.is-errar { background: linear-gradient(180deg, #fecdd3 0%, #fb7185 55%, #9f1239 100%); border-color: #ffe4e6; box-shadow: 0 3px 0 #4c0519; color: #fff; }
+.sm-ingot.is-acertar { background: linear-gradient(180deg, #a7f3d0 0%, #34d399 55%, #047857 100%); border-color: #d1fae5; box-shadow: 0 3px 0 #064e3b; color: #022c22; }
+
+/* --- Escada de prêmios --- */
+.sm-ladder-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .35rem .9rem;
+    border-radius: 9999px;
+    font-weight: 900;
+    font-size: .8rem;
+    background: linear-gradient(180deg, #1d3fae 0%, #12257a 100%);
+    border: 1.5px solid rgba(147, 197, 253, .45);
+    color: #e0e7ff;
+}
+.sm-ladder-row .sm-ladder-pts { color: var(--sm-gold-1); font-family: ui-monospace, monospace; }
+.sm-ladder-row.is-done { background: linear-gradient(180deg, #34d399 0%, #047857 100%); border-color: #a7f3d0; color: #fff; }
+.sm-ladder-row.is-done .sm-ladder-pts { color: #fff; }
+.sm-ladder-row.is-current { background: linear-gradient(180deg, #fde68a 0%, #f59e0b 60%, #b45309 100%); border-color: #fff3c4; color: #3b1d00; transform: scale(1.03); box-shadow: 0 0 16px rgba(245, 158, 11, .6); }
+.sm-ladder-row.is-current .sm-ladder-pts { color: #3b1d00; }
+.sm-ladder-row.is-checkpoint:not(.is-current):not(.is-done) .sm-ladder-pts { color: #fb923c; }
+
+/* --- Cartas viradas (ajuda 50/50) --- */
+.sm-card-back {
+    aspect-ratio: 3 / 4;
+    border-radius: .9rem;
+    background:
+        radial-gradient(circle at 50% 45%, #fde68a 0 18%, transparent 19%),
+        repeating-linear-gradient(45deg, #b91c1c 0 8px, #991b1b 8px 16px);
+    border: 3px solid #fde68a;
+    box-shadow: 0 6px 0 #7f1d1d, 0 0 18px rgba(239, 68, 68, .4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    transition: transform .25s ease;
+}
+.sm-card-back:active { transform: rotateY(25deg) scale(.97); }
+
+/* --- Modal / painel do palco --- */
+.sm-panel {
+    background: linear-gradient(180deg, #1d3fae 0%, #12257a 60%, #0b1a4d 100%);
+    border: 2px solid rgba(147, 197, 253, .7);
+    border-radius: 1.25rem;
+    box-shadow: 0 0 30px var(--sm-glow);
+}
+.sm-panel-title {
+    background: linear-gradient(180deg, #2747c4 0%, #142c86 100%);
+    border-bottom: 2px solid rgba(147, 197, 253, .5);
+    border-radius: 1.1rem 1.1rem 0 0;
+}
+
+/* --- Botão principal dourado (CTA) --- */
+.sm-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    width: 100%;
+    padding: .85rem 1rem;
+    border-radius: 9999px;
+    background: linear-gradient(180deg, #fff7d1 0%, #fde68a 20%, #f59e0b 70%, #b45309 100%);
+    border: 2px solid #fff3c4;
+    box-shadow: 0 4px 0 #78350f, 0 0 18px rgba(245, 158, 11, .45);
+    color: #3b1d00;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    transition: transform .12s ease;
+}
+.sm-cta:active { transform: translateY(3px); box-shadow: 0 1px 0 #78350f; }
+
+/* Faixa vermelha de chamada (rodapé estilo anúncio) */
+.sm-banner-red {
+    background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+    color: #fff;
+    font-weight: 900;
+    text-align: center;
+    border-top: 2px solid #fecaca;
+}
+
+/* Balão de fala do convidado */
+.sm-speech {
+    position: relative;
+    background: #fff;
+    color: #0b1a4d;
+    border-radius: 1rem;
+    padding: .45rem .75rem;
+    font-weight: 800;
+    font-size: .8rem;
+}
+.sm-speech::before {
+    content: "";
+    position: absolute;
+    left: -7px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 7px solid transparent;
+    border-right-color: #fff;
+    border-left: 0;
+}
+.sm-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
+    background: linear-gradient(180deg, #fde68a, #b45309);
+    border: 2px solid #fff3c4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    color: #3b1d00;
+    flex-shrink: 0;
+}
+.sm-answer-letter {
+    width: 30px;
+    height: 30px;
+    border-radius: 9999px;
+    background: #fff;
+    color: #b45309;
+    border: 2px solid #f59e0b;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+}
+
+/* Timer circular */
+.sm-timer {
+    width: 46px;
+    height: 46px;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle, #142c86 60%, #0b1a4d 100%);
+    border: 3px solid #fde68a;
+    color: #fff;
+    font-weight: 900;
+    font-family: ui-monospace, monospace;
+    font-size: 1rem;
+    box-shadow: 0 0 12px rgba(245, 158, 11, .45);
+}
+.sm-timer.is-critical, .timer-box-warning.sm-timer {
+    border-color: #f43f5e;
+    background: radial-gradient(circle, #9f1239 60%, #4c0519 100%);
+    animation: sm-pulse .8s ease-in-out infinite;
+}
+@keyframes sm-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+/* Logo do jogo (welcome mobile) */
+.sm-logo-title {
+    font-weight: 900;
+    letter-spacing: -.02em;
+    background: linear-gradient(180deg, #fff7d1 0%, #fde68a 35%, #f59e0b 75%, #b45309 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 3px 0 #78350f) drop-shadow(0 0 14px rgba(245, 158, 11, .35));
+}

@@ -7,14 +7,12 @@
     <link rel="icon" href="/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/show-milhao.css') }}">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .milhao-bg {
-            background: radial-gradient(circle at top, #1e293b 0%, #090d16 75%);
-        }
     </style>
 </head>
-<body class="milhao-bg text-slate-100 min-h-screen flex flex-col">
+<body class="sm-stage text-slate-100 min-h-screen flex flex-col">
 
     @include('partials.navbar', ['dark' => true])
 

@@ -6,25 +6,26 @@
     <title>Bíblia Show — Banco de Perguntas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/show-milhao.css') }}">
     <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-900">
+<body class="sm-stage min-h-screen text-slate-100">
 
     @include('partials.navbar', ['dark' => true])
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <header class="flex flex-wrap justify-between items-center gap-4 mb-8">
             <div>
-                <a href="/" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 font-medium">
+                <a href="/" class="inline-flex items-center gap-1.5 text-sm text-blue-300 hover:text-white font-medium">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                     </svg>
                     Início
                 </a>
-                <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">Banco de Perguntas Bíblicas</h1>
-                <p class="text-slate-600 text-sm">Acervo de {{ $questoes->total() }} questões com referências e dicas bíblicas</p>
+                <h1 class="text-2xl sm:text-3xl font-black text-white sm-logo-title mt-1">Banco de Perguntas Bíblicas</h1>
+                <p class="text-blue-200 text-sm">Acervo de {{ $questoes->total() }} questões com referências e dicas bíblicas</p>
             </div>
-            <a href="{{ route('perguntas.create') }}" class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-slate-950 px-5 py-2.5 rounded-xl font-extrabold text-sm shadow">
+            <a href="{{ route('perguntas.create') }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 px-5 py-2.5 rounded-xl font-extrabold text-sm shadow-lg transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
@@ -33,22 +34,22 @@
         </header>
 
         @if(session('success'))
-            <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl mb-6">
-                <p class="text-emerald-800 text-sm font-medium">{{ session('success') }}</p>
+            <div class="bg-emerald-950/80 border border-emerald-500/50 p-4 rounded-xl mb-6">
+                <p class="text-emerald-200 text-sm font-medium">{{ session('success') }}</p>
             </div>
         @endif
 
         <!-- Filtros -->
-        <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 mb-8">
+        <div class="sm-panel p-6 mb-8">
             <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Pesquisar Texto / Referência</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-blue-200 mb-1.5">Pesquisar Texto / Referência</label>
                     <input type="text" name="busca" value="{{ request('busca') }}" placeholder="Ex.: Moisés, Arca, Gênesis 1..."
-                           class="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm">
+                           class="w-full px-3.5 py-2.5 bg-blue-950/80 border border-blue-400/40 rounded-xl text-white placeholder-blue-300/40 focus:ring-2 focus:ring-amber-400 outline-none text-sm transition">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Livro</label>
-                    <select name="livro_id" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-blue-200 mb-1.5">Livro</label>
+                    <select name="livro_id" class="w-full px-3 py-2.5 bg-blue-950/80 border border-blue-400/40 rounded-xl text-white focus:ring-2 focus:ring-amber-400 outline-none text-sm transition">
                         <option value="">Todos os 66 livros</option>
                         @foreach($livros as $livro)
                             <option value="{{ $livro->id }}" {{ request('livro_id') == $livro->id ? 'selected' : '' }}>
@@ -58,8 +59,8 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Fase / Dificuldade</label>
-                    <select name="dificuldade_id" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none text-sm">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-blue-200 mb-1.5">Fase / Dificuldade</label>
+                    <select name="dificuldade_id" class="w-full px-3 py-2.5 bg-blue-950/80 border border-blue-400/40 rounded-xl text-white focus:ring-2 focus:ring-amber-400 outline-none text-sm transition">
                         <option value="">Todas as Fases</option>
                         @foreach($dificuldades as $dificuldade)
                             <option value="{{ $dificuldade->id }}" {{ request('dificuldade_id') == $dificuldade->id ? 'selected' : '' }}>
@@ -69,10 +70,10 @@
                     </select>
                 </div>
                 <div class="flex items-end gap-2">
-                    <button type="submit" class="flex-1 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl font-bold text-sm">
+                    <button type="submit" class="flex-1 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 px-4 py-2.5 rounded-xl font-black text-sm shadow transition">
                         Filtrar
                     </button>
-                    <a href="{{ route('perguntas.index') }}" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-3.5 py-2 rounded-xl font-semibold text-sm">
+                    <a href="{{ route('perguntas.index') }}" class="bg-blue-950 hover:bg-blue-900 border border-blue-400/30 text-blue-200 px-3.5 py-2.5 rounded-xl font-bold text-sm transition">
                         Limpar
                     </a>
                 </div>
@@ -80,36 +81,36 @@
         </div>
 
         <!-- Lista de perguntas -->
-        <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+        <div class="sm-panel overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="border-b border-slate-200 bg-slate-50">
-                            <th class="px-5 py-3.5 text-xs font-bold text-slate-500 uppercase">Cód.</th>
-                            <th class="px-5 py-3.5 text-xs font-bold text-slate-500 uppercase">Referência Bíblica</th>
-                            <th class="px-5 py-3.5 text-xs font-bold text-slate-500 uppercase">Pergunta</th>
-                            <th class="px-5 py-3.5 text-xs font-bold text-slate-500 uppercase">Fase</th>
-                            <th class="px-5 py-3.5 text-xs font-bold text-slate-500 uppercase text-right">Ações</th>
+                        <tr class="border-b border-blue-400/20 bg-blue-950/60">
+                            <th class="px-5 py-3.5 text-xs font-black text-amber-300 uppercase">Cód.</th>
+                            <th class="px-5 py-3.5 text-xs font-black text-amber-300 uppercase">Referência Bíblica</th>
+                            <th class="px-5 py-3.5 text-xs font-black text-amber-300 uppercase">Pergunta</th>
+                            <th class="px-5 py-3.5 text-xs font-black text-amber-300 uppercase">Fase</th>
+                            <th class="px-5 py-3.5 text-xs font-black text-amber-300 uppercase text-right">Ações</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-blue-400/10">
                         @foreach($questoes as $questao)
-                            <tr class="hover:bg-slate-50 transition">
-                                <td class="px-5 py-3.5 font-mono text-xs text-slate-500">
+                            <tr class="hover:bg-blue-900/30 transition">
+                                <td class="px-5 py-3.5 font-mono text-xs text-blue-300">
                                     {{ $questao->codigo_classico ?? ('#' . $questao->id) }}
                                 </td>
-                                <td class="px-5 py-3.5 font-semibold text-xs text-amber-800">
+                                <td class="px-5 py-3.5 font-semibold text-xs text-amber-300">
                                     {{ $questao->referencia_biblica ?: (($questao->livro->nome ?? '') . ' ' . ($questao->capitulo->numero ?? '') . ':' . ($questao->versiculo_de ?? '')) }}
                                 </td>
-                                <td class="px-5 py-3.5 text-sm text-slate-800 max-w-md truncate font-medium" title="{{ $questao->texto }}">
+                                <td class="px-5 py-3.5 text-sm text-white max-w-md truncate font-medium" title="{{ $questao->texto }}">
                                     {{ $questao->texto }}
                                 </td>
-                                <td class="px-5 py-3.5 text-xs font-bold text-slate-600">
+                                <td class="px-5 py-3.5 text-xs font-bold text-blue-200">
                                     {{ $questao->dificuldade->nivel ?? 1 }}ª Fase ({{ $questao->dificuldade->pontos_base ?? 10 }} pts)
                                 </td>
                                 <td class="px-5 py-3.5 text-right space-x-2">
-                                    <a href="{{ route('perguntas.show', $questao->id) }}" class="text-blue-600 hover:text-blue-800 text-xs font-bold">Ver</a>
-                                    <a href="{{ route('perguntas.edit', $questao->id) }}" class="text-slate-600 hover:text-slate-900 text-xs font-bold">Editar</a>
+                                    <a href="{{ route('perguntas.show', $questao->id) }}" class="text-amber-300 hover:text-amber-200 text-xs font-bold">Ver</a>
+                                    <a href="{{ route('perguntas.edit', $questao->id) }}" class="text-blue-300 hover:text-white text-xs font-bold">Editar</a>
                                 </td>
                             </tr>
                         @endforeach
@@ -118,7 +119,7 @@
             </div>
 
             @if($questoes->count() > 0)
-                <div class="px-6 py-4 border-t border-slate-200">
+                <div class="px-6 py-4 border-t border-blue-400/20 text-slate-100">
                     {{ $questoes->links() }}
                 </div>
             @endif

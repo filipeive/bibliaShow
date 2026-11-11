@@ -6,36 +6,37 @@
     <title>Bíblia Show — Pergunta #{{ $questao->id }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/show-milhao.css') }}">
     <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-900">
-    @include('partials.navbar')
+<body class="sm-stage min-h-screen text-slate-100">
+    @include('partials.navbar', ['dark' => true])
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <header class="flex items-center justify-between mb-8">
             <div>
-                <a href="{{ route('perguntas.index') }}" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 font-medium">
+                <a href="{{ route('perguntas.index') }}" class="inline-flex items-center gap-1.5 text-sm text-blue-300 hover:text-white font-medium">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                     </svg>
                     Voltar à lista
                 </a>
-                <h1 class="text-2xl font-extrabold text-slate-900 mt-1">
+                <h1 class="text-2xl sm:text-3xl font-black text-white sm-logo-title mt-1">
                     Pergunta {{ $questao->codigo_classico ? ('#' . $questao->codigo_classico) : ('#' . $questao->id) }}
                 </h1>
             </div>
-            <a href="{{ route('perguntas.edit', $questao->id) }}" class="bg-amber-500 hover:bg-amber-600 text-slate-950 px-5 py-2.5 rounded-xl font-extrabold text-sm shadow">
+            <a href="{{ route('perguntas.edit', $questao->id) }}" class="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 px-5 py-2.5 rounded-xl font-black text-sm shadow-lg transition">
                 Editar Pergunta
             </a>
         </header>
 
         @if(session('success'))
-            <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl mb-6 text-emerald-800 text-sm font-medium">
+            <div class="bg-emerald-950/80 border border-emerald-500/50 p-4 rounded-xl mb-6 text-emerald-200 text-sm font-medium">
                 {{ session('success') }}
             </div>
         @endif
 
-        <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-8">
+        <div class="sm-panel p-8">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80">
                     <p class="text-xs font-bold text-slate-400 uppercase">Livro Bíblico</p>

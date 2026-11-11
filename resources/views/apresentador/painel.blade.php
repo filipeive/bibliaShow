@@ -7,30 +7,32 @@
     <title>Bíblia Show — Painel do Apresentador</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/show-milhao.css') }}">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .milhao-bg { background: radial-gradient(circle at top, #172554 0%, #0f172a 50%, #020617 100%); }
     </style>
 </head>
-<body class="milhao-bg min-h-screen text-slate-100">
+<body class="sm-stage min-h-screen text-slate-100 flex flex-col">
 
     @include('partials.navbar', ['dark' => true])
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full relative z-10">
         <header class="flex flex-wrap justify-between items-center gap-4 mb-8">
             <div>
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-black uppercase tracking-wider mb-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Estúdio de Apresentação Ao Vivo
+                <div class="inline-flex items-center gap-2 mb-2">
+                    <span class="sm-pill text-xs uppercase tracking-wider">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse inline-block"></span>
+                        Estúdio de Apresentação Ao Vivo
+                    </span>
                 </div>
-                <h1 class="text-2xl sm:text-3xl font-black text-white">Painel do Apresentador</h1>
-                <p class="text-slate-400 text-sm">Crie salas no formato Show do Milhão Bíblico (4 Fases), projete no telão e controle dicas, convidados e cartas</p>
+                <h1 class="text-2xl sm:text-3xl font-black text-white sm-logo-title">Painel do Apresentador</h1>
+                <p class="text-blue-200 text-sm">Crie salas no formato Show do Milhão Bíblico (4 Fases), projete no telão e comande ao vivo</p>
             </div>
             <div class="flex items-center gap-2.5">
-                <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold transition">
+                <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center gap-2 bg-blue-950/80 hover:bg-blue-900 border border-blue-400/30 text-blue-200 px-4 py-2.5 rounded-xl text-xs font-bold transition">
                     Painel Admin
                 </a>
-                <a href="{{ route('perguntas.index') }}" class="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2.5 rounded-xl text-xs font-black shadow transition">
+                <a href="{{ route('perguntas.index') }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 px-4 py-2.5 rounded-xl text-xs font-black shadow-lg transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                     </svg>
@@ -40,8 +42,8 @@
         </header>
 
         <!-- Criar Nova Sala -->
-        <div class="bg-slate-900/90 rounded-3xl shadow-2xl border border-amber-500/30 p-6 sm:p-8 mb-8">
-            <h2 class="text-lg font-black text-white mb-4 flex items-center gap-2">
+        <div class="sm-panel p-6 sm:p-8 mb-8">
+            <h2 class="text-lg font-black text-amber-300 mb-4 flex items-center gap-2">
                 <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
@@ -51,19 +53,19 @@
                 @csrf
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="md:col-span-2">
-                        <label for="nome" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                        <label for="nome" class="block text-xs font-bold uppercase tracking-wider text-blue-200 mb-1.5">
                             Nome da Sala / Culto / Evento
                         </label>
                         <input type="text" id="nome" name="nome" required
                                placeholder="Ex.: Culto de Jovens, Gincana EBD, Célula Betel..."
-                               class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white focus:ring-2 focus:ring-amber-500 outline-none text-sm">
+                               class="w-full px-4 py-3 rounded-xl border border-blue-400/40 bg-blue-950/80 text-white placeholder-blue-300/40 focus:ring-2 focus:ring-amber-400 outline-none text-sm transition">
                     </div>
                     <div>
-                        <label for="quantidade_perguntas" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                        <label for="quantidade_perguntas" class="block text-xs font-bold uppercase tracking-wider text-blue-200 mb-1.5">
                             Formato da Partida
                         </label>
                         <select id="quantidade_perguntas" name="quantidade_perguntas"
-                                class="w-full px-3.5 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white focus:ring-2 focus:ring-amber-500 outline-none text-sm">
+                                class="w-full px-3.5 py-3 rounded-xl border border-blue-400/40 bg-blue-950/80 text-white focus:ring-2 focus:ring-amber-400 outline-none text-sm transition">
                             <option value="12">12 Perguntas (3 por Fase)</option>
                             <option value="16">16 Perguntas (4 por Fase)</option>
                             <option value="24" selected>24 Perguntas (4 Fases Clássicas)</option>
@@ -73,25 +75,27 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                     <div>
-                        <label for="premio_primeiro_lugar" class="block text-xs font-bold uppercase tracking-wider text-amber-400 mb-1.5">
+                        <label for="premio_primeiro_lugar" class="block text-xs font-bold uppercase tracking-wider text-amber-300 mb-1.5">
                             Prêmio para o 1º Lugar (Opcional)
                         </label>
                         <input type="text" id="premio_primeiro_lugar" name="premio_primeiro_lugar"
                                placeholder="Ex.: Bíblia de Estudo + Troféu Ouro"
-                               class="w-full px-4 py-3 rounded-xl border border-amber-500/40 bg-slate-950 text-white focus:ring-2 focus:ring-amber-500 outline-none text-sm">
+                               class="w-full px-4 py-3 rounded-xl border border-blue-400/40 bg-blue-950/80 text-white placeholder-blue-300/40 focus:ring-2 focus:ring-amber-400 outline-none text-sm transition">
                     </div>
                     <div>
-                        <label for="premio_segundo_lugar" class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
+                        <label for="premio_segundo_lugar" class="block text-xs font-bold uppercase tracking-wider text-blue-200 mb-1.5">
                             Prêmio para o 2º Lugar (Opcional)
                         </label>
                         <input type="text" id="premio_segundo_lugar" name="premio_segundo_lugar"
                                placeholder="Ex.: Livro Devocional + Medalha Prata"
-                               class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white focus:ring-2 focus:ring-amber-500 outline-none text-sm">
+                               class="w-full px-4 py-3 rounded-xl border border-blue-400/40 bg-blue-950/80 text-white placeholder-blue-300/40 focus:ring-2 focus:ring-amber-400 outline-none text-sm transition">
                     </div>
                     <div>
-                        <button type="submit"
-                                class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3 px-6 rounded-xl shadow-lg shadow-amber-500/20 transition text-sm">
-                            Criar e Abrir Estúdio →
+                        <button type="submit" class="sm-cta text-sm cursor-pointer">
+                            <span>Criar e Abrir Estúdio</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>
                         </button>
                     </div>
                 </div>
@@ -99,8 +103,11 @@
         </div>
 
         <!-- Salas Ativas -->
-        <div class="bg-slate-900/90 rounded-3xl shadow-2xl border border-slate-800 p-6 sm:p-8">
-            <h2 class="text-lg font-black text-white mb-4">Salas Ativas Recentes</h2>
+        <div class="sm-panel p-6 sm:p-8">
+            <h2 class="text-lg font-black text-amber-300 mb-4 flex items-center justify-between">
+                <span>Salas Ativas Recentes</span>
+                <span class="text-xs text-blue-200 font-semibold">{{ $salas->count() }} sala(s)</span>
+            </h2>
 
             @if($salas->isEmpty())
                 <div class="text-center py-12 text-slate-400 text-sm">

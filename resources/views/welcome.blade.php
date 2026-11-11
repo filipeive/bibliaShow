@@ -12,6 +12,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/show-milhao.css') }}">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -117,64 +118,78 @@
 
                 <!-- Coluna Direita (5 cols): Preview Interativo da Arena Show do Milhão -->
                 <div class="lg:col-span-5">
-                    <div class="stitch-card border-2 border-amber-500/40 rounded-3xl p-5 sm:p-6 shadow-2xl relative">
-                        <!-- Topo do Card Preview -->
-                        <div class="flex items-center justify-between mb-4">
-                            <span
-                                class="px-3 py-1 rounded-full bg-amber-500 text-slate-950 font-black text-[11px] uppercase tracking-wider">
-                                1ª Fase • Vale 10 Pontos
-                            </span>
-                            <span class="font-mono font-black text-amber-400 text-sm flex items-center gap-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                60s
-                            </span>
+                    <div class="sm-panel p-4 sm:p-6 shadow-2xl relative">
+                        <!-- Topo do Card Preview: Sair, Pílula Dourada e Cronômetro -->
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="sm-lifeline !w-9 !h-9 !text-sm">🚪</span>
+                            <div class="sm-pill text-xs">
+                                <span>
+                                    ◆ 10 PTS ◆
+                                    <small>1 / 24 • 1ª FASE</small>
+                                </span>
+                            </div>
+                            <span class="sm-timer !w-9 !h-9 !text-xs !border-amber-400">60s</span>
                         </div>
 
                         <!-- Pergunta Exemplo Real do Clássico -->
-                        <div class="question-preview rounded-2xl p-4 sm:p-5 mb-4 shadow-lg">
-                            <p class="text-[11px] font-bold uppercase tracking-wider text-amber-300 mb-1">Gênesis 6:14 •
-                                Pergunta Clássica #001</p>
-                            <p class="text-base sm:text-lg font-black text-white leading-snug">
+                        <div class="sm-question pt-4 pb-3.5 px-4 mb-3 shadow-lg">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-blue-200/80 mb-1">Gênesis 6:14 • Pergunta #001</p>
+                            <p class="sm-question-text text-base sm:text-lg leading-snug">
                                 De qual madeira Deus ordenou que Noé construísse a arca?
                             </p>
                         </div>
 
-                        <!-- 4 Alternativas -->
-                        <div class="space-y-2 mb-5">
+                        <!-- Balão do Convidado Bíblico -->
+                        <div class="flex items-center gap-2 mb-3 px-1">
+                            <div class="sm-avatar !w-8 !h-8 text-xs">J</div>
+                            <div class="sm-speech flex-1 text-xs">
+                                <span class="block text-[9px] uppercase tracking-wider text-blue-700 font-black">Convidado Jacó:</span>
+                                Parece que a resposta é <strong class="text-amber-600 font-black">B</strong>
+                            </div>
+                        </div>
+
+                        <!-- Botões de Ajudas Redondos -->
+                        <div class="flex items-center justify-center gap-2.5 mb-3">
+                            <span class="sm-lifeline !w-10 !h-8 !text-xs">−2<span class="sm-badge">1</span></span>
+                            <span class="sm-lifeline !w-10 !h-8 !text-xs">👥<span class="sm-badge">3</span></span>
+                            <span class="sm-lifeline !w-10 !h-8 !text-xs">📖<span class="sm-badge">3</span></span>
+                            <span class="sm-lifeline !w-10 !h-8 !text-xs">⇄<span class="sm-badge">3</span></span>
+                        </div>
+
+                        <!-- 4 Alternativas em Cápsula -->
+                        <div class="space-y-2 mb-4">
                             @foreach(['A' => 'Madeira de Cedro', 'B' => 'Madeira de Gofer', 'C' => 'Madeira de Acácia', 'D' => 'Madeira de Oliveira'] as $letra => $textoOp)
-                                <div
-                                    class="p-3 rounded-xl border flex items-center gap-3 {{ $letra === 'B' ? 'bg-emerald-950/70 border-emerald-400 text-emerald-100' : 'bg-blue-950/60 border-blue-500/30 text-slate-200' }}">
-                                    <span
-                                        class="w-7 h-7 rounded-lg {{ $letra === 'B' ? 'bg-emerald-400 text-slate-950' : 'bg-amber-500 text-slate-950' }} font-black text-xs flex items-center justify-center shrink-0">
-                                        {{ $letra }}
+                                <div class="sm-option {{ $letra === 'B' ? 'opcao-correta-reveal' : '' }}">
+                                    <span class="flex items-center gap-2">
+                                        <span class="sm-letter text-sm">{{ $letra }}:</span>
+                                        <span class="text-xs sm:text-sm font-bold">{{ $textoOp }}</span>
                                     </span>
-                                    <span class="text-xs sm:text-sm font-bold flex-1">{{ $textoOp }}</span>
                                     @if($letra === 'B')
-                                        <span
-                                            class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">Certa!</span>
+                                        <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-700 text-white">Certa!</span>
                                     @endif
                                 </div>
                             @endforeach
                         </div>
 
-                        <!-- Placar 3 Caixas (ERRAR | PARAR | ACERTAR) -->
-                        <div class="grid grid-cols-3 gap-2.5 pt-3 border-t border-slate-800">
-                            <div class="bg-rose-950/60 border border-rose-500/40 rounded-xl p-2.5 text-center">
-                                <span class="text-[10px] font-black uppercase text-rose-300 block">Errar</span>
-                                <span class="text-base font-black text-rose-400">25 pts</span>
+                        <!-- Placar 3 Lingotes (ERRAR | PARAR | ACERTAR) -->
+                        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800">
+                            <div class="sm-ingot is-errar">
+                                <div class="sm-ingot-value">0 pts</div>
+                                <div class="sm-ingot-label">Errar</div>
                             </div>
-                            <div class="bg-amber-500/20 border border-amber-400/50 rounded-xl p-2.5 text-center">
-                                <span class="text-[10px] font-black uppercase text-amber-200 block">Parar</span>
-                                <span class="text-base font-black text-amber-300">50 pts</span>
+                            <div class="sm-ingot">
+                                <div class="sm-ingot-value">0 pts</div>
+                                <div class="sm-ingot-label">Parar</div>
                             </div>
-                            <div class="bg-emerald-950/60 border border-emerald-500/40 rounded-xl p-2.5 text-center">
-                                <span class="text-[10px] font-black uppercase text-emerald-300 block">Acertar</span>
-                                <span class="text-base font-black text-emerald-400">60 pts</span>
+                            <div class="sm-ingot is-acertar">
+                                <div class="sm-ingot-value">10 pts</div>
+                                <div class="sm-ingot-label">Acertar</div>
                             </div>
+                        </div>
+
+                        <!-- Faixa Vermelha de Incentivo -->
+                        <div class="sm-banner-red py-1.5 px-3 rounded-xl text-[10px] uppercase tracking-wider text-center mt-3">
+                            Não sabe a resposta? Use ajuda!
                         </div>
                     </div>
                 </div>

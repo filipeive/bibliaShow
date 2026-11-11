@@ -10,6 +10,7 @@
     <link rel="icon" href="/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/show-milhao.css') }}">
     <style>
         body { font-family: 'Inter', sans-serif; }
         .milhao-bg {
@@ -17,6 +18,11 @@
         }
         .milhao-card {
             background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%);
+        }
+        @media (min-width: 1024px) {
+            .milhao-card-lg {
+                background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%);
+            }
         }
         .milhao-option {
             background: linear-gradient(90deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
@@ -54,11 +60,11 @@
         }
     </style>
 </head>
-<body class="milhao-bg text-slate-100 min-h-screen">
+<body class="milhao-bg sm-stage-mobile text-slate-100 min-h-screen">
 
-    @include('partials.navbar', ['dark' => true, 'hideJogarAgora' => true])
+    @include('partials.navbar', ['dark' => true, 'hideJogarAgora' => true, 'hideOnMobile' => true])
 
-    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-7">
+    <div class="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 py-2.5 sm:py-7">
 
         @php
             $resultado = session('resultado');
@@ -96,12 +102,47 @@
         @endif
 
         @if($estado === 'em_curso' && $pergunta)
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            @php
+                $valoresFase = [1 => 10, 2 => 20, 3 => 30, 4 => 50];
+                $escadaPremios = [];
+                $acumulado = 0;
+                for ($n = 1; $n <= ($total_perguntas ?? 24); $n++) {
+                    $faseN = min(4, (int) ceil($n / 6));
+                    $acumulado += $valoresFase[$faseN];
+                    $escadaPremios[$n] = ['pts' => $acumulado, 'fase' => $faseN, 'checkpoint' => $n % 6 === 0];
+                }
+                $valorPerguntaAtual = $placar_milhao['valor_pergunta'] ?? 10;
+            @endphp
+
+            <!-- ===================== HUD MOBILE (estilo Show do Milhão) ===================== -->
+            <div class="lg:hidden flex items-center justify-between gap-2 mb-2">
+                <div class="flex items-center gap-2 min-w-0">
+                    <div class="sm-avatar !w-9 !h-9 text-sm">{{ mb_strtoupper(mb_substr($jogador_nome ?? 'P', 0, 1)) }}</div>
+                    <div class="min-w-0 leading-tight">
+                        <p class="text-[11px] font-black text-white truncate max-w-[110px]">{{ $jogador_nome ?? 'Participante' }}</p>
+                        <div class="flex items-center gap-1 mt-0.5" title="Vidas">
+                            @for($i = 1; $i <= ($max_erros ?? 3); $i++)
+                                <span class="text-[10px] {{ $i <= ($erros_restantes ?? 3) ? 'text-rose-400' : 'text-slate-600' }}">♥</span>
+                            @endfor
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <button type="button" onclick="abrirEscadaPremios()" class="sm-lifeline !w-10 !h-9 !text-sm" title="Escada de Prêmios">🏆</button>
+                    <button type="button" onclick="typeof abrirModalDefinicoes === 'function' && abrirModalDefinicoes()" class="sm-lifeline !w-10 !h-9 !text-sm" title="Som e Definições">⚙️</button>
+                    <form action="{{ route('game.finish') }}" method="POST" class="inline">
+                        @csrf
+                        <button type="submit" class="sm-lifeline !w-10 !h-9 !text-sm" title="Parar e ver resultado">⏹</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-6 items-start">
 
                 <!-- ======================================================== -->
                 <!-- SIDEBAR ESQUERDA: PARTICIPANTE, VIDAS, PLACAR E JORNADA  -->
                 <!-- ======================================================== -->
-                <aside class="lg:col-span-4 xl:col-span-4 space-y-4">
+                <aside class="hidden lg:block lg:col-span-4 xl:col-span-4 space-y-4">
                     <!-- 1. Card do Participante no Palco -->
                     <div class="bg-slate-900/95 border border-slate-800 rounded-3xl p-5 shadow-xl">
                         <div class="flex items-center gap-3.5 mb-4">
@@ -253,9 +294,9 @@
                 <!-- ======================================================== -->
                 <!-- ARENA CENTRAL DO JOGO: TEMPORIZADOR, PERGUNTA E AJUDAS   -->
                 <!-- ======================================================== -->
-                <main class="lg:col-span-8 xl:col-span-8 space-y-5">
+                <main class="lg:col-span-8 xl:col-span-8 space-y-3 lg:space-y-5">
                     <!-- Barra de Destaque Superior: Temporizador & Contexto da Pergunta -->
-                    <div class="milhao-card border border-amber-500/40 rounded-3xl p-4 sm:p-5 shadow-2xl flex flex-wrap items-center justify-between gap-4">
+                    <div class="milhao-card border border-amber-500/40 rounded-3xl p-4 sm:p-5 shadow-2xl hidden lg:flex flex-wrap items-center justify-between gap-4">
                         <div class="flex items-center gap-3">
                             <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center font-black text-lg shadow-inner shrink-0">
                                 {{ $numero_pergunta }}
@@ -288,7 +329,7 @@
                             <div class="text-right">
                                 <p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Tempo Restante</p>
                                 <p class="text-2xl sm:text-3xl font-black font-mono text-white leading-none tracking-tight">
-                                    <span id="timer">{{ $tempo_restante }}</span><span class="text-sm font-bold text-amber-400 ml-0.5">s</span>
+                                    <span id="timer" class="js-timer">{{ $tempo_restante }}</span><span class="text-sm font-bold text-amber-400 ml-0.5">s</span>
                                 </p>
                             </div>
                             <div id="timerIconBox" class="w-11 h-11 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center shrink-0">
@@ -301,8 +342,21 @@
                     </div>
 
                     <!-- Card Principal da Pergunta -->
-                    <div class="milhao-card border-2 border-amber-500/30 rounded-3xl shadow-2xl p-6 sm:p-8">
-                        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <div class="milhao-card-lg lg:border-2 lg:border-amber-500/30 rounded-3xl lg:shadow-2xl p-0 lg:p-8">
+                        <!-- MOBILE: Pílula dourada + cronômetro circular -->
+                        <div class="lg:hidden flex items-center justify-between gap-2 mb-[-14px] px-1 relative z-10">
+                            <div class="sm-timer js-timer-box" id="timerMobileBox"><span class="js-timer">{{ $tempo_restante }}</span></div>
+                            <div class="sm-pill text-sm">
+                                <span>
+                                    ◆ {{ $valorPerguntaAtual }} PTS ◆
+                                    <small>{{ $numero_pergunta }} / {{ $total_perguntas }} • {{ $fase_atual ?? 1 }}ª FASE</small>
+                                </span>
+                            </div>
+                            <div class="sm-timer !border-blue-300 !text-[10px] !leading-none text-center flex-col" title="Pontos atuais">
+                                <span class="text-amber-300 text-sm">{{ $pontuacao }}</span><span class="text-[8px] opacity-80">PTS</span>
+                            </div>
+                        </div>
+                        <div class="hidden lg:flex flex-wrap items-center justify-between gap-2 mb-4">
                             <div class="flex flex-wrap items-center gap-2">
                                 @if(!empty($pergunta['livro_nome']))
                                     <span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
@@ -326,7 +380,15 @@
                         </div>
 
                         <!-- Caixa de Enunciado Estilo Show do Milhão -->
-                        <div class="bg-gradient-to-r from-red-950/80 via-slate-900 to-red-950/80 border-2 border-amber-400/50 rounded-2xl p-5 sm:p-7 mb-6 shadow-inner">
+                        <div class="sm-question lg:hidden pt-7 pb-4 px-4 mb-3">
+                            <p class="sm-question-text text-[17px] sm:text-xl">
+                                {{ $pergunta['texto'] ?? $pergunta->texto }}
+                            </p>
+                            @if(!empty($pergunta['livro_nome']))
+                                <p class="text-[10px] font-bold uppercase tracking-wider text-blue-200/80 mt-2">📖 {{ $pergunta['livro_nome'] }}</p>
+                            @endif
+                        </div>
+                        <div class="hidden lg:block bg-gradient-to-r from-red-950/80 via-slate-900 to-red-950/80 border-2 border-amber-400/50 rounded-2xl p-5 sm:p-7 mb-6 shadow-inner">
                             <p class="text-lg sm:text-2xl font-extrabold text-white leading-relaxed tracking-tight">
                                 {{ $pergunta['texto'] ?? $pergunta->texto }}
                             </p>
@@ -334,7 +396,7 @@
 
                         <!-- Dica Bíblica (Referência) quando acionada -->
                         @if($dicaBiblica)
-                            <div class="mb-5 rounded-2xl p-4 bg-blue-950/60 border border-blue-400/40 text-blue-100 flex items-center gap-3">
+                            <div class="mb-3 lg:mb-5 rounded-2xl p-2.5 lg:p-4 bg-blue-950/60 border border-blue-400/40 text-blue-100 flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-xl bg-blue-500 text-slate-950 flex items-center justify-center shrink-0">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
@@ -349,7 +411,15 @@
 
                         <!-- Resposta do Convidado Bíblico quando acionada -->
                         @if($dicaConvidado)
-                            <div class="mb-6 rounded-2xl p-4 border {{ !empty($dicaConvidado['sabe_resposta']) ? 'bg-amber-500/15 border-amber-400/50 text-amber-100' : 'bg-slate-800/90 border-slate-600 text-slate-200' }}">
+                            <!-- MOBILE: Balão de fala do convidado -->
+                            <div class="lg:hidden flex items-center gap-2.5 mb-3 px-1">
+                                <div class="sm-avatar">{{ mb_strtoupper(mb_substr($dicaConvidado['convidado'] ?? '?', 0, 1)) }}</div>
+                                <div class="sm-speech flex-1">
+                                    <span class="block text-[9px] uppercase tracking-wider text-blue-700 font-black">{{ $dicaConvidado['convidado'] }} diz:</span>
+                                    {{ $dicaConvidado['mensagem'] }}
+                                </div>
+                            </div>
+                            <div class="hidden lg:block mb-6 rounded-2xl p-4 border {{ !empty($dicaConvidado['sabe_resposta']) ? 'bg-amber-500/15 border-amber-400/50 text-amber-100' : 'bg-slate-800/90 border-slate-600 text-slate-200' }}">
                                 <div class="flex items-start gap-3.5">
                                     <div class="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 font-black flex items-center justify-center shrink-0">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
@@ -368,6 +438,34 @@
                             </div>
                         @endif
 
+                        <!-- MOBILE: Ajudas circulares (estilo Show do Milhão) -->
+                        <div class="lg:hidden flex items-center justify-center gap-3 mb-3">
+                            <button type="button" onclick="abrirCartasMobile()" class="sm-lifeline" title="Cartas: eliminar 2 alternativas" @if($cartasUsada) disabled @endif>
+                                −2
+                                <span class="sm-badge">{{ $cartasUsada ? 0 : 1 }}</span>
+                            </button>
+                            <button type="button" onclick="abrirConvidadosMobile()" class="sm-lifeline" title="Convidados bíblicos" @if($convidadosUsada || $convidadosRestantes <= 0) disabled @endif>
+                                👥
+                                <span class="sm-badge">{{ $convidadosRestantes }}</span>
+                            </button>
+                            <form action="{{ route('game.lifeline') }}" method="POST" class="inline">
+                                @csrf
+                                <input type="hidden" name="tipo" value="dica">
+                                <button type="submit" class="sm-lifeline" title="Dica bíblica" @if($dicasRestantes <= 0 || $dicaBiblica) disabled @endif>
+                                    📖
+                                    <span class="sm-badge">{{ $dicasRestantes }}</span>
+                                </button>
+                            </form>
+                            <form action="{{ route('game.lifeline') }}" method="POST" class="inline">
+                                @csrf
+                                <input type="hidden" name="tipo" value="pulo">
+                                <button type="submit" class="sm-lifeline" title="Pular pergunta" @if($pulosRestantes <= 0) disabled @endif>
+                                    ⇄
+                                    <span class="sm-badge">{{ $pulosRestantes }}</span>
+                                </button>
+                            </form>
+                        </div>
+
                         <!-- Alternativas A, B, C, D -->
                         <form action="{{ route('game.answer') }}" method="POST" id="respostaForm">
                             @csrf
@@ -381,18 +479,18 @@
                                 $letras = ['A', 'B', 'C', 'D'];
                             @endphp
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5" id="gridAlternativas">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 lg:gap-3.5" id="gridAlternativas">
                                 @foreach($opcoesArray as $indice => $opcao)
                                     @php
                                         $eliminada = in_array((int) $indice, $opcoesEliminadas, true);
                                         $letra = $letras[$indice] ?? ($indice + 1);
                                     @endphp
                                     @if($eliminada)
-                                        <div class="border-2 border-slate-800 bg-slate-950/50 rounded-2xl p-4 flex items-center gap-4 opacity-35 select-none cursor-not-allowed">
-                                            <span class="w-10 h-10 rounded-xl bg-slate-800 text-slate-500 font-black flex items-center justify-center shrink-0">
-                                                {{ $letra }}
+                                        <div class="sm-option is-eliminada select-none">
+                                            <span class="flex items-center gap-2 min-w-0">
+                                                <span class="sm-letter">{{ $letra }}:</span>
+                                                <span class="text-slate-400 font-medium text-sm lg:text-base">{{ $opcao }}</span>
                                             </span>
-                                            <span class="text-slate-500 line-through font-medium">{{ $opcao }}</span>
                                         </div>
                                     @else
                                         <button type="button"
@@ -400,16 +498,16 @@
                                                 data-indice="{{ $indice }}"
                                                 onmouseenter="tocarHover()"
                                                 onclick="pedirConfirmacao('{{ $indice }}', '{{ $letra }}', @js($opcao))"
-                                                class="btn-alternativa milhao-option text-left w-full border-2 border-slate-700 hover:border-amber-400 rounded-2xl p-4 transition flex items-center justify-between gap-4 group shadow-md">
-                                            <div class="flex items-center gap-4 min-w-0">
-                                                <span id="badgeLetra_{{ $indice }}" class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black text-base flex items-center justify-center shrink-0 shadow group-hover:scale-105 transition">
-                                                    {{ $letra }}
+                                                class="btn-alternativa sm-option group">
+                                            <div class="flex items-center gap-2.5 min-w-0">
+                                                <span id="badgeLetra_{{ $indice }}" class="sm-letter text-base lg:text-lg">
+                                                    {{ $letra }}:
                                                 </span>
-                                                <span class="text-slate-100 group-hover:text-white font-bold text-base sm:text-lg leading-snug">
+                                                <span class="text-white font-extrabold text-sm sm:text-base lg:text-lg leading-snug">
                                                     {{ $opcao }}
                                                 </span>
                                             </div>
-                                            <span id="statusTag_{{ $indice }}" class="hidden shrink-0 text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg"></span>
+                                            <span id="statusTag_{{ $indice }}" class="hidden shrink-0 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full"></span>
                                         </button>
                                     @endif
                                 @endforeach
@@ -420,8 +518,24 @@
                         <div id="painelResultadoInstantaneo" class="hidden mt-6 rounded-2xl p-4 sm:p-5 border transition-all"></div>
                     </div>
 
+                    <!-- MOBILE: Lingotes ERRAR | PARAR | ACERTAR -->
+                    <div class="lg:hidden grid grid-cols-3 gap-2 pt-1">
+                        <div class="sm-ingot is-errar">
+                            <div class="sm-ingot-value">{{ $placar_milhao['errar'] ?? 0 }}</div>
+                            <div class="sm-ingot-label">Errar</div>
+                        </div>
+                        <div class="sm-ingot">
+                            <div class="sm-ingot-value">{{ $pontuacao }}</div>
+                            <div class="sm-ingot-label">Parar</div>
+                        </div>
+                        <div class="sm-ingot is-acertar">
+                            <div class="sm-ingot-value">{{ $placar_milhao['acertar'] ?? ($pontuacao + 10) }}</div>
+                            <div class="sm-ingot-label">Acertar</div>
+                        </div>
+                    </div>
+
                     <!-- Área Destacada de Dicas & Ajudas do Clássico Bíblia Show -->
-                    <div class="milhao-card border-2 border-amber-500/30 rounded-3xl p-5 sm:p-6 shadow-xl">
+                    <div class="hidden lg:block milhao-card border-2 border-amber-500/30 rounded-3xl p-5 sm:p-6 shadow-xl">
                         <div class="flex items-center justify-between mb-4">
                             <h2 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-amber-400 flex items-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -559,6 +673,76 @@
                         </div>
                     </div>
                 </main>
+            </div>
+
+            <!-- ===== MOBILE: Escada de Prêmios ===== -->
+            <div id="modalEscadaPremios" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm items-center justify-center p-3" onclick="if(event.target===this) fecharEscadaPremios()">
+                <div class="sm-panel w-full max-w-sm max-h-[90vh] flex flex-col">
+                    <div class="sm-panel-title px-4 py-3 text-center">
+                        <div class="text-2xl">🏆</div>
+                        <div class="sm-pill text-xs mt-1">24 ◆ {{ end($escadaPremios)['pts'] ?? 660 }} PTS</div>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-3 space-y-1.5">
+                        @foreach(array_reverse($escadaPremios, true) as $n => $deg)
+                            @php
+                                $classe = $n < $numero_pergunta ? 'is-done' : ($n == $numero_pergunta ? 'is-current' : '');
+                                if ($deg['checkpoint']) $classe .= ' is-checkpoint';
+                            @endphp
+                            <div class="sm-ladder-row {{ $classe }}">
+                                <span>{{ $n }} <span class="text-[9px] opacity-70 ml-1">{{ $deg['fase'] }}ª fase</span></span>
+                                <span class="sm-ladder-pts">{{ $deg['pts'] }} pts</span>
+                            </div>
+                        @endforeach
+                    </div>
+                    <div class="p-3">
+                        <button type="button" onclick="fecharEscadaPremios()" class="sm-cta">Voltar ao Jogo</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== MOBILE: Cartas (eliminar 2) ===== -->
+            <div id="modalCartasMobile" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm items-center justify-center p-4" onclick="if(event.target===this) fecharCartasMobile()">
+                <div class="sm-panel w-full max-w-xs">
+                    <div class="sm-panel-title px-4 py-2.5 text-center font-black text-white tracking-wider">CARTAS</div>
+                    <div class="p-4">
+                        <p class="text-center text-xs font-bold text-blue-100 mb-3">Vire uma carta para eliminar 2 alternativas erradas</p>
+                        <form action="{{ route('game.lifeline') }}" method="POST" id="formCartasMobile">
+                            @csrf
+                            <input type="hidden" name="tipo" value="cartas">
+                            <div class="grid grid-cols-2 gap-3">
+                                @for($c = 0; $c < 4; $c++)
+                                    <button type="submit" class="sm-card-back" onclick="vibrar(40)">✝</button>
+                                @endfor
+                            </div>
+                        </form>
+                        <button type="button" onclick="fecharCartasMobile()" class="sm-cta mt-4 !py-2.5 text-sm">Voltar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== MOBILE: Convidados Bíblicos ===== -->
+            <div id="modalConvidadosMobile" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm items-center justify-center p-4" onclick="if(event.target===this) fecharConvidadosMobile()">
+                <div class="sm-panel w-full max-w-xs">
+                    <div class="sm-panel-title px-4 py-2.5 text-center font-black text-white tracking-wider">CONVIDADOS BÍBLICOS</div>
+                    <div class="p-4 space-y-2.5">
+                        <p class="text-center text-xs font-bold text-blue-100">Quem você quer consultar?</p>
+                        @foreach($convidadosBiblicos as $idx => $nomeConvidado)
+                            <form action="{{ route('game.lifeline') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="tipo" value="convidado">
+                                <input type="hidden" name="convidado_indice" value="{{ $idx }}">
+                                <button type="submit" class="sm-option" onclick="vibrar(30)">
+                                    <span class="flex items-center gap-2.5">
+                                        <span class="sm-avatar !w-8 !h-8 text-xs">{{ mb_strtoupper(mb_substr($nomeConvidado, 0, 1)) }}</span>
+                                        <span>{{ $nomeConvidado }}</span>
+                                    </span>
+                                    <span class="text-amber-300 text-xs">›</span>
+                                </button>
+                            </form>
+                        @endforeach
+                        <button type="button" onclick="fecharConvidadosMobile()" class="sm-cta !py-2.5 text-sm">Voltar</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Modal 0: Continuar Como [Nome] ou Trocar de Participante -->
@@ -1054,7 +1238,7 @@
                         if (idx === String(indiceCorreto)) {
                             btn.classList.add('opcao-correta-reveal');
                             if (badge) {
-                                badge.className = 'w-10 h-10 rounded-xl bg-white text-emerald-700 font-black text-base flex items-center justify-center shrink-0 shadow';
+                                badge.className = 'sm-letter text-base lg:text-lg';
                             }
                             if (tag) {
                                 tag.textContent = acertou ? 'CERTA RESPOSTA!' : 'CORRETA';
@@ -1063,7 +1247,7 @@
                         } else if (indiceEscolhido !== null && idx === String(indiceEscolhido) && !acertou) {
                             btn.classList.add('opcao-errada-reveal');
                             if (badge) {
-                                badge.className = 'w-10 h-10 rounded-xl bg-white text-rose-700 font-black text-base flex items-center justify-center shrink-0 shadow';
+                                badge.className = 'sm-letter text-base lg:text-lg';
                             }
                             if (tag) {
                                 tag.textContent = 'VOCÊ ERROU';
@@ -1207,6 +1391,34 @@
                     }
                 }
 
+                function abrirEscadaPremios() {
+                    const m = document.getElementById('modalEscadaPremios');
+                    if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+                    vibrar(25);
+                }
+                function fecharEscadaPremios() {
+                    const m = document.getElementById('modalEscadaPremios');
+                    if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+                }
+                function abrirCartasMobile() {
+                    const m = document.getElementById('modalCartasMobile');
+                    if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+                    vibrar(30);
+                }
+                function fecharCartasMobile() {
+                    const m = document.getElementById('modalCartasMobile');
+                    if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+                }
+                function abrirConvidadosMobile() {
+                    const m = document.getElementById('modalConvidadosMobile');
+                    if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+                    vibrar(30);
+                }
+                function fecharConvidadosMobile() {
+                    const m = document.getElementById('modalConvidadosMobile');
+                    if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+                }
+
                 // Temporizador de 60 segundos (aguarda caso o modal de nome esteja aberto)
                 let tempo = {{ max(1, (int) $tempo_restante) }};
                 const tempoInicial = tempo;
@@ -1216,14 +1428,16 @@
                 let timerInterval = setInterval(() => {
                     if (!jogoIniciado) return;
                     tempo--;
-                    if (timerEl) {
-                        timerEl.textContent = Math.max(0, tempo);
-                        if (tempo <= 10) {
-                            timerEl.classList.add('timer-warning');
-                            const box = document.getElementById('timerContainerBox');
-                            if (box) box.classList.add('timer-box-warning');
-                            tocarSomContagemRegressiva(tempo);
-                        }
+                    document.querySelectorAll('.js-timer').forEach(el => {
+                        el.textContent = Math.max(0, tempo);
+                    });
+                    const timerMob = document.getElementById('timerMobileBox');
+                    const box = document.getElementById('timerContainerBox');
+                    if (tempo <= 10) {
+                        if (timerEl) timerEl.classList.add('timer-warning');
+                        if (box) box.classList.add('timer-box-warning');
+                        if (timerMob) timerMob.classList.add('is-critical');
+                        tocarSomContagemRegressiva(tempo);
                     }
                     if (hiddenTempo) hiddenTempo.value = Math.max(0, tempoInicial - tempo);
 

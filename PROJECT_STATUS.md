@@ -36,6 +36,9 @@ O **Bíblia Show 2.0** é a recriação fiel e moderna do clássico jogo multim�
 | **UX-03**  | Suspense / Revelação | Alto | Sigilo de resposta no smartphone: bloqueio sem antecipação de acerto/erro, revelação sincronizada apenas quando o apresentador autoriza. | Resolvido |
 | **OPS-01** | Produção / Nginx | Alto | Deploy automatizado via `deploy.sh` em `/var/www/html/bibliaShow` (alias `/bibliashow`), MySQL `biblia_show` e PHP 8.4-FPM dedicado. | Resolvido |
 | **APP-01** | Multiplataforma | Médio | Configuração do Capacitor (`capacitor.config.json` para Android APK) e Electron (`electron/` para Desktop Linux/Windows com F11 Telão). | Resolvido |
+| **UX-04**  | Mobile-First | Alto | Redesign completo da tela do participante (`entrar.blade.php`) focado em smartphones: botões táteis Kahoot-style (A, B, C, D), dock de ajudas inferior, drawer deslizante para ranking e equipes sem poluição visual. | Resolvido |
+| **UX-05**  | Áudio & Vibração | Alto | Integração de vibração háptica nativa no Android (`AndroidNative.vibrate()`), resolução de caminhos de áudio absolutos via `asset('audio/classico')` e desbloqueio de áudio em navegadores móveis no primeiro toque. | Resolvido |
+| **SEC-08** | Segurança / Apresentador | Alto | Remoção de contas de demonstração do login, perfil seguro no cadastro (`usuario` vs `apresentador`) e isolamento estrito de salas por criador (`apresentador_id`). | Resolvido |
 
 ---
 

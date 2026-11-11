@@ -6,12 +6,13 @@
     <title>Bíblia Show — Resultado e Ranking Geral</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/show-milhao.css') }}">
     <style>
         body { font-family: 'Inter', sans-serif; }
         .milhao-bg { background: radial-gradient(circle at top, #172554 0%, #0f172a 55%, #020617 100%); }
     </style>
 </head>
-<body class="milhao-bg text-slate-100 min-h-screen">
+<body class="milhao-bg sm-stage-mobile text-slate-100 min-h-screen">
     @include('partials.navbar', ['dark' => true])
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">

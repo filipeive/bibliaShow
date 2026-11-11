@@ -237,6 +237,19 @@ A aplicação foi executada e homologada em ambiente real de navegador através 
   - Suporte nativo a Modo Telão de Igreja em Tela Cheia (`F11`), atalhos de projeção rápida (`Ctrl+T`), menu de controle e alternância dev/produção.
   - Comandos: `npm run desktop:start`, `npm run desktop:build:linux` (AppImage/deb) e `npm run desktop:build:win` (nsis).
 
+### 9.5 Redesign Mobile-First, Hápticos e Áudio Android (UX-05)
+- **Redesign Mobile-First do Participante:**
+  - Layout otimizado para celulares (100dvh): botões táteis grandes (mínimo 56px de altura) com cores e letras marcantes estilo Kahoot/HQ Trivia (A: Vermelho, B: Azul, C: Âmbar, D: Verde).
+  - Placar Show do Milhão em pílula esbelta (Errar/Parar/Acertar), dock inferior ergonômica de ajudas bíblicas e gaveta deslizante para rankings sem poluição visual.
+- **Vibrações Hápticas e Áudio no Android:**
+  - Adicionada JavascriptInterface `AndroidNative` em `MainActivity.java` com métodos `vibrate(long ms)` e `vibratePattern(long[] pattern)` via `android.os.Vibrator`.
+  - Desbloqueio da política de autoplay do WebView com `settings.setMediaPlaybackRequiresUserGesture(false)` e destravamento suave no primeiro toque (`touchstart`/`click`).
+  - Constante dinâmica `BASE_AUDIO_URL = "{{ asset('audio/classico') }}"` e alias Nginx `/audio/` para reprodução contínua mesmo sob subcaminhos de produção.
+- **Autenticação e Isolamento de Apresentadores:**
+  - Remoção definitiva de contas de demonstração da interface de login.
+  - Separação clara no registro de novos usuários entre "Jogador / Usuário Normal" (`usuario`) e "Apresentador de Salas" (`apresentador`), mantendo administradores estritamente protegidos.
+  - Apresentadores têm visão e controle exclusivamente das salas criadas com sua própria identidade (`apresentador_id == auth()->id()`).
+
 ---
 
 ## 10. Conclusão e Prontidão para Produção

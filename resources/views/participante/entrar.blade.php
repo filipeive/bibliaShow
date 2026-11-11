@@ -11,6 +11,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/show-milhao.css') }}">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -57,7 +58,7 @@
         }
     </style>
 </head>
-<body class="milhao-bg text-slate-100 min-h-screen flex flex-col justify-between">
+<body class="milhao-bg sm-stage-mobile text-slate-100 min-h-screen flex flex-col justify-between">
 
     @include('partials.navbar', ['dark' => true, 'hideOnMobile' => true])
 
@@ -141,159 +142,132 @@
         </div>
 
         <!-- ============================================================== -->
-        <!-- ETAPA 2: TELA MOBILE-FIRST DE JOGO AO VIVO                     -->
+        <!-- ETAPA 2: TELA MOBILE-FIRST DE JOGO AO VIVO (SHOW DO MILHÃO)    -->
         <!-- ============================================================== -->
-        <div id="etapaJogo" class="hidden flex-1 flex flex-col justify-between gap-2.5 w-full">
+        <div id="etapaJogo" class="hidden flex-1 flex flex-col justify-between gap-2 w-full">
 
-            <!-- 1. HEADER DO APP: Identidade, Pontos e Controles Rápidos -->
-            <header class="bg-slate-900/90 backdrop-blur-md border border-slate-800 rounded-2xl p-2.5 sm:p-3 shadow-lg flex items-center justify-between gap-2">
-                <!-- Esquerda: Avatar + Nome + Sala PIN -->
-                <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black text-lg flex items-center justify-center shadow-md shadow-amber-500/20 shrink-0" id="jogadorAvatarDisplay">
-                        P
-                    </div>
-                    <div class="min-w-0">
-                        <div class="flex items-center gap-1.5">
-                            <h3 class="font-black text-white text-sm sm:text-base truncate leading-none" id="jogadorNomeDisplay">-</h3>
-                            <span class="text-[9px] font-mono font-black px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0" id="codigoSalaBadge">-</span>
-                        </div>
-                        <p class="text-[10px] text-amber-400 font-bold truncate mt-0.5" id="jogadorEquipeDisplay">Individual</p>
-                    </div>
+            <!-- 1. HEADER DO APP: Sair, Pílula Central Dourada, Pontos & Som -->
+            <header class="flex items-center justify-between gap-2 px-1">
+                <!-- Botão Sair / Portinha -->
+                <button type="button" onclick="sairDaSala()" title="Sair da sala"
+                        class="sm-lifeline !w-10 !h-10 !text-base" title="Sair da Sala">
+                    🚪
+                </button>
+
+                <!-- Pílula Dourada Central do Show do Milhão -->
+                <div class="sm-pill text-xs">
+                    <span>
+                        ◆ <span id="valorPontosBadge">10 pts</span> ◆
+                        <small id="perguntaContadorBadge">1 / 24 • 1ª FASE</small>
+                    </span>
                 </div>
 
-                <!-- Direita: Pontos + Botões Rápidos (Ranking, Som, Sair) -->
-                <div class="flex items-center gap-2 shrink-0">
-                    <div class="text-right px-2 py-1 rounded-xl bg-slate-950/80 border border-slate-800">
-                        <p class="text-[8px] uppercase tracking-wider text-slate-400 font-bold leading-none">Pontos</p>
-                        <p class="text-base sm:text-lg font-black text-amber-400 font-mono leading-none mt-0.5">
-                            <span id="jogadorPontosDisplay">0</span>
-                        </p>
-                    </div>
-
-                    <!-- Botão Toggle Som/Vibração -->
-                    <button type="button" onclick="alternarSomMobile()" id="btnToggleSomMobile" title="Ativar/Desativar Sons e Vibração"
-                            class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 flex items-center justify-center border border-slate-700 active:scale-95 transition">
-                        <svg id="iconeSomLigado" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.414 0-.75-.336-.75-.75V8.25c0-.414.336-.75.75-.75h2.24z" />
-                        </svg>
-                        <svg id="iconeSomMudo" class="w-4 h-4 hidden text-rose-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-3.75l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.414 0-.75-.336-.75-.75V8.25c0-.414.336-.75.75-.75h2.24z" />
-                        </svg>
+                <!-- Lado Direito: Pontos + Ranking + Toggle Som -->
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <button type="button" onclick="alternarSomMobile()" id="btnToggleSomMobile" title="Som e Vibração"
+                            class="sm-lifeline !w-10 !h-10 !text-sm">
+                        <span id="iconeSomLigado">🔊</span>
+                        <span id="iconeSomMudo" class="hidden">🔇</span>
                     </button>
-
-                    <!-- Botão Abrir Gaveta do Ranking / Equipes -->
                     <button type="button" onclick="abrirDrawerRanking()" title="Ver Ranking da Sala"
-                            class="w-9 h-9 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 flex items-center justify-center active:scale-95 transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.004-6.75A4.5 4.5 0 1012 3a4.5 4.5 0 005.004 5.625z" />
-                        </svg>
+                            class="sm-timer !w-10 !h-10 !text-[10px] !border-amber-400 leading-none flex flex-col items-center justify-center">
+                        <span id="jogadorPontosDisplay" class="text-amber-300 font-black text-xs">0</span>
+                        <span class="text-[7px] text-slate-400 font-bold">PTS</span>
                     </button>
                 </div>
             </header>
 
-            <!-- 2. PLACAR COMPACTO SHOW DO MILHÃO (ERRAR | PARAR | ACERTAR) -->
-            <div class="grid grid-cols-3 gap-1.5 px-1">
-                <div class="py-1.5 px-2 rounded-xl bg-rose-950/40 border border-rose-500/30 text-center">
-                    <p class="text-[8px] font-black uppercase text-rose-300">Se Errar</p>
-                    <p class="text-xs sm:text-sm font-black text-rose-400 font-mono" id="placarErrarDisplay">0 <span class="text-[8px]">pts</span></p>
+            <!-- Participante + Equipe Subtítulo Discreto -->
+            <div class="flex items-center justify-between px-2 text-[10px] text-slate-400">
+                <span class="truncate max-w-[180px]">👤 <strong class="text-white" id="jogadorNomeDisplay">-</strong> (<span id="codigoSalaBadge">-</span>)</span>
+                <span class="text-amber-400 font-bold truncate" id="jogadorEquipeDisplay">Individual</span>
+            </div>
+
+            <!-- 2. CARD PRINCIPAL DA PERGUNTA BÍBLICA -->
+            <div class="sm-question pt-4 pb-3.5 px-4 relative">
+                <div class="text-[10px] font-black uppercase tracking-wider text-blue-200/80 mb-1" id="badgeBiblicoCard">
+                    <span id="textoBiblicoCard">Sagradas Escrituras</span>
                 </div>
-                <div class="py-1.5 px-2 rounded-xl bg-slate-950/90 border border-slate-700 text-center">
-                    <p class="text-[8px] font-black uppercase text-amber-300">Parar (Atual)</p>
-                    <p class="text-xs sm:text-sm font-black text-amber-400 font-mono" id="placarPararDisplay">0 <span class="text-[8px]">pts</span></p>
-                </div>
-                <div class="py-1.5 px-2 rounded-xl bg-emerald-950/50 border border-emerald-500/40 text-center">
-                    <p class="text-[8px] font-black uppercase text-emerald-300">Se Acertar</p>
-                    <p class="text-xs sm:text-sm font-black text-emerald-400 font-mono" id="placarAcertarDisplay">10 <span class="text-[8px]">pts</span></p>
+                <p id="textoPerguntaViva" class="sm-question-text text-[16px] sm:text-lg leading-snug">
+                    Aguardando o apresentador iniciar a pergunta...
+                </p>
+            </div>
+
+            <!-- 3. BALÃO DO CONVIDADO / DICA (se ativos) -->
+            <div id="dicaConvidadoViva" class="hidden flex items-center gap-2 px-1">
+                <div class="sm-avatar !w-9 !h-9 text-xs">👥</div>
+                <div class="sm-speech flex-1 text-xs">
+                    <span class="block text-[9px] uppercase tracking-wider text-blue-700 font-black" id="nomeConvidadoViva">Convidado Bíblico:</span>
+                    <span id="conteudoConvidadoTexto">-</span>
                 </div>
             </div>
 
-            <!-- 3. FEEDBACK DA RESPOSTA (Aparece ao bloquear ou pós-revelação) -->
-            <div id="feedbackResposta" class="hidden rounded-2xl p-3 border text-xs text-center transition-all"></div>
-
-            <!-- 4. BANNER DE DICAS OU CONVIDADO ATIVOS -->
-            <div id="dicaBiblicaViva" class="hidden p-2.5 rounded-xl bg-amber-500/20 border border-amber-400/40 text-xs font-bold text-amber-200 flex items-center gap-2">
-                <span class="text-base shrink-0">📖</span>
-                <div class="min-w-0">
-                    <span class="text-[9px] uppercase font-black tracking-wider text-amber-400 block">Dica Bíblica:</span>
-                    <span id="conteudoDicaBiblicaTexto" class="truncate block">-</span>
+            <div id="dicaBiblicaViva" class="hidden flex items-center gap-2 px-1">
+                <div class="sm-avatar !w-9 !h-9 text-xs">📖</div>
+                <div class="sm-speech flex-1 text-xs bg-amber-50 text-amber-900 border border-amber-300">
+                    <span class="block text-[9px] uppercase tracking-wider text-amber-700 font-black">Referência Bíblica:</span>
+                    <span id="conteudoDicaBiblicaTexto">-</span>
                 </div>
             </div>
 
-            <div id="dicaConvidadoViva" class="hidden p-2.5 rounded-xl bg-blue-950/90 border border-blue-400/40 text-xs font-bold text-blue-100 flex items-center gap-2">
-                <span class="text-base shrink-0">👥</span>
-                <div class="min-w-0">
-                    <span class="text-[9px] uppercase font-black tracking-wider text-blue-300 block" id="nomeConvidadoViva">Convidado Bíblico:</span>
-                    <span id="conteudoConvidadoTexto" class="truncate block">-</span>
+            <!-- Feedback da Resposta Pós-Bloqueio -->
+            <div id="feedbackResposta" class="hidden rounded-2xl p-2.5 border text-xs text-center transition-all"></div>
+
+            <!-- 4. BOTÕES REDONDOS DE AJUDA & CRONÔMETRO -->
+            <div id="barraAjudasJogador" class="flex items-center justify-center gap-3">
+                <!-- Cartas 50/50 -->
+                <button type="button" id="btnAjudaMobileCartas" onclick="abrirModalCartasParticipante()" class="sm-lifeline" title="Cartas (Eliminar 2)">
+                    −2
+                    <span id="badgeCartasRestantesMobile" class="sm-badge">1</span>
+                </button>
+
+                <!-- Convidados -->
+                <button type="button" id="btnAjudaMobileConvidado" onclick="abrirModalConvidadoMobile()" class="sm-lifeline" title="Convidados Bíblicos">
+                    👥
+                    <span id="badgeConvidadosRestantesMobile" class="sm-badge">3</span>
+                </button>
+
+                <!-- Dica -->
+                <button type="button" id="btnAjudaMobileDica" onclick="usarAjudaMobile('dica')" class="sm-lifeline" title="Dica Bíblica">
+                    📖
+                    <span id="badgeDicasRestantesMobile" class="sm-badge">3</span>
+                </button>
+
+                <!-- Cronômetro Circular -->
+                <div class="sm-timer" id="cronometroCircularBox" title="Tempo Restante">
+                    <span id="tempoRestanteDisplay">60</span>
                 </div>
             </div>
 
-            <!-- 5. CRONÔMETRO COMPACTO COM BARRA REGRESSIVA -->
-            <div id="containerSuperCronometro" class="p-2 sm:p-2.5 rounded-2xl bg-slate-950/90 border-2 border-amber-500/40 shadow-inner flex flex-col gap-1.5 transition-all">
-                <div class="flex items-center justify-between px-1">
-                    <div class="flex items-center gap-1.5">
-                        <span id="faseBadge" class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">
-                            1ª Fase
-                        </span>
-                        <span id="perguntaContadorBadge" class="text-[10px] text-amber-300 font-extrabold">
-                            Pergunta 1/24
-                        </span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase" id="labelStatusCronometro">Tempo</span>
-                        <span id="tempoRestanteDisplay" class="text-xl sm:text-2xl font-black font-mono text-white tracking-tight leading-none">60</span><span class="text-[10px] font-bold text-amber-400">s</span>
-                    </div>
-                </div>
-                <!-- Barra de progresso do tempo -->
-                <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                    <div id="barraProgressoTempo" class="bg-gradient-to-r from-amber-500 to-amber-300 h-1.5 rounded-full transition-all duration-300" style="width: 100%;"></div>
-                </div>
-            </div>
-
-            <!-- AVISO DE TEMPO ESGOTADO SILENCIOSO (Sem alert) -->
+            <!-- AVISO SILENCIOSO DE TEMPO ESGOTADO -->
             <div id="avisoTempoEsgotado" class="hidden p-2 rounded-xl bg-rose-950/80 border border-rose-500/40 text-rose-200 text-xs font-bold text-center">
                 ⏱️ Tempo esgotado para esta pergunta! Aguarde o apresentador.
             </div>
 
-            <!-- 6. CARD PRINCIPAL DA PERGUNTA BÍBLICA -->
-            <div class="question-card rounded-2xl p-3.5 sm:p-5 shadow-xl flex flex-col justify-center min-h-[90px] sm:min-h-[110px]">
-                <div class="flex items-center justify-between gap-1 mb-1.5 text-[10px] font-black uppercase tracking-wider text-amber-400" id="badgeBiblicoCard">
-                    <span id="textoBiblicoCard">Sagradas Escrituras</span>
-                    <span id="valorPontosBadge" class="text-amber-300 font-extrabold">Vale 10 pts</span>
-                </div>
-                <p id="textoPerguntaViva" class="text-sm sm:text-base md:text-lg font-black text-white leading-snug">
-                    Aguardando início da pergunta...
-                </p>
-            </div>
-
-            <!-- 7. BOTÕES DAS 4 ALTERNATIVAS (ESTILO MOBILE GAME TÁTIL KAHOOT/HQ TRIVIA) -->
-            <div id="opcoesBotoes" class="grid grid-cols-1 gap-2 sm:gap-2.5">
+            <!-- 5. AS 4 ALTERNATIVAS EM CÁPSULA (ESTILO SHOW DO MILHÃO MOBILE) -->
+            <div id="opcoesBotoes" class="space-y-2">
                 <!-- Inserido dinamicamente via JS -->
             </div>
 
-            <!-- 8. DOCK DE AJUDAS BÍBLICAS NO RODAPÉ -->
-            <div id="barraAjudasJogador" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2 shadow-lg">
-                <div class="grid grid-cols-3 gap-2">
-                    <!-- Ajuda: Dica -->
-                    <button type="button" id="btnAjudaMobileDica" onclick="usarAjudaMobile('dica')"
-                            class="p-2 rounded-xl border border-blue-500/30 bg-blue-950/60 hover:bg-blue-900 active:scale-95 transition text-center disabled:opacity-40 disabled:cursor-not-allowed">
-                        <span class="text-xs font-black text-white block">📖 Dica</span>
-                        <span id="badgeDicasRestantesMobile" class="text-[9px] text-amber-300 font-bold block">3 restantes</span>
-                    </button>
-
-                    <!-- Ajuda: Cartas 50/50 -->
-                    <button type="button" id="btnAjudaMobileCartas" onclick="usarAjudaMobile('cartas')"
-                            class="p-2 rounded-xl border border-blue-500/30 bg-blue-950/60 hover:bg-blue-900 active:scale-95 transition text-center disabled:opacity-40 disabled:cursor-not-allowed">
-                        <span class="text-xs font-black text-white block">🃏 50/50</span>
-                        <span id="badgeCartasRestantesMobile" class="text-[9px] text-amber-300 font-bold block">Eliminar 2</span>
-                    </button>
-
-                    <!-- Ajuda: Convidados -->
-                    <button type="button" id="btnAjudaMobileConvidado" onclick="abrirModalConvidadoMobile()"
-                            class="p-2 rounded-xl border border-blue-500/30 bg-blue-950/60 hover:bg-blue-900 active:scale-95 transition text-center disabled:opacity-40 disabled:cursor-not-allowed">
-                        <span class="text-xs font-black text-white block">👥 Convidado</span>
-                        <span id="badgeConvidadosRestantesMobile" class="text-[9px] text-amber-300 font-bold block">3 restantes</span>
-                    </button>
+            <!-- 6. OS 3 LINGOTES SHOW DO MILHÃO (ERRAR | PARAR | ACERTAR) -->
+            <div class="grid grid-cols-3 gap-2 pt-1">
+                <div class="sm-ingot is-errar">
+                    <div class="sm-ingot-value" id="placarErrarDisplay">0 pts</div>
+                    <div class="sm-ingot-label">Errar</div>
                 </div>
+                <div class="sm-ingot">
+                    <div class="sm-ingot-value" id="placarPararDisplay">0 pts</div>
+                    <div class="sm-ingot-label">Parar</div>
+                </div>
+                <div class="sm-ingot is-acertar">
+                    <div class="sm-ingot-value" id="placarAcertarDisplay">10 pts</div>
+                    <div class="sm-ingot-label">Acertar</div>
+                </div>
+            </div>
+
+            <!-- FAIXA VERMELHA DE INCENTIVO -->
+            <div class="sm-banner-red py-1.5 px-3 rounded-xl text-[11px] uppercase tracking-wider text-center">
+                Não sabe a resposta? Use ajuda!
             </div>
 
         </div>
@@ -342,6 +316,25 @@
                     Sair da Sala
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal das Cartas 50/50 (Estilo Show do Milhão) -->
+    <div id="modalCartasMobile" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="sm-panel w-full max-w-xs text-center p-4">
+            <div class="sm-panel-title py-2.5 px-3 text-white font-black text-sm tracking-wider uppercase mb-3 rounded-xl">
+                CARTAS DO MILHÃO
+            </div>
+            <p class="text-xs text-blue-100 font-bold mb-3">Toque em uma carta para eliminar 2 alternativas incorretas:</p>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <button type="button" onclick="confirmarCartaEscolhida(0)" class="sm-card-back">✝</button>
+                <button type="button" onclick="confirmarCartaEscolhida(1)" class="sm-card-back">✝</button>
+                <button type="button" onclick="confirmarCartaEscolhida(2)" class="sm-card-back">✝</button>
+                <button type="button" onclick="confirmarCartaEscolhida(3)" class="sm-card-back">✝</button>
+            </div>
+            <button type="button" onclick="fecharModalCartasParticipante()" class="sm-cta text-xs py-2">
+                Voltar à Pergunta
+            </button>
         </div>
     </div>
 
@@ -654,49 +647,15 @@
 
         function atualizarVisualCronometro(segundos) {
             const timerEl = document.getElementById('tempoRestanteDisplay');
-            const barraEl = document.getElementById('barraProgressoTempo');
-            const boxEl = document.getElementById('containerSuperCronometro');
-            const labelEl = document.getElementById('labelStatusCronometro');
+            const circEl = document.getElementById('cronometroCircularBox');
 
             if (timerEl) timerEl.innerText = Math.max(0, segundos);
 
-            const pct = Math.max(0, Math.min(100, (segundos / 60) * 100));
-            if (barraEl) {
-                barraEl.style.width = `${pct}%`;
-            }
-
-            if (segundos <= 0) {
-                if (boxEl) {
-                    boxEl.className = 'p-2 sm:p-2.5 rounded-2xl bg-slate-950/90 border-2 border-slate-700 shadow-inner flex flex-col gap-1.5 transition-all';
-                }
-                if (labelEl) {
-                    labelEl.textContent = 'Encerrado';
-                    labelEl.className = 'text-[10px] font-bold text-rose-400 uppercase';
-                }
-                if (barraEl) {
-                    barraEl.className = 'bg-rose-500 h-1.5 rounded-full transition-all duration-300';
-                }
-            } else if (segundos <= 10) {
-                if (boxEl) {
-                    boxEl.className = 'p-2 sm:p-2.5 rounded-2xl border-2 timer-critico shadow-inner flex flex-col gap-1.5 transition-all';
-                }
-                if (labelEl) {
-                    labelEl.textContent = 'Atenção!';
-                    labelEl.className = 'text-[10px] font-black text-rose-300 uppercase animate-pulse';
-                }
-                if (barraEl) {
-                    barraEl.className = 'bg-rose-500 h-1.5 rounded-full transition-all duration-300';
-                }
-            } else {
-                if (boxEl) {
-                    boxEl.className = 'p-2 sm:p-2.5 rounded-2xl bg-slate-950/90 border-2 border-amber-500/40 shadow-inner flex flex-col gap-1.5 transition-all';
-                }
-                if (labelEl) {
-                    labelEl.textContent = 'Tempo';
-                    labelEl.className = 'text-[10px] font-bold text-slate-400 uppercase';
-                }
-                if (barraEl) {
-                    barraEl.className = 'bg-gradient-to-r from-amber-500 to-amber-300 h-1.5 rounded-full transition-all duration-300';
+            if (circEl) {
+                if (segundos <= 10 && segundos > 0) {
+                    circEl.classList.add('is-critical');
+                } else {
+                    circEl.classList.remove('is-critical');
                 }
             }
         }
@@ -975,8 +934,26 @@
             }
         }
 
+        function abrirModalCartasParticipante() {
+            if (estadoSessao.cartasRestantes <= 0 || estadoSessao.tempoEsgotado || estadoSessao.tempoRestante <= 0 || estadoSessao.jaRespondeuAtual) return;
+            vibrar(30);
+            const m = document.getElementById('modalCartasMobile');
+            if (m) m.classList.remove('hidden');
+        }
+
+        function fecharModalCartasParticipante() {
+            const m = document.getElementById('modalCartasMobile');
+            if (m) m.classList.add('hidden');
+        }
+
+        function confirmarCartaEscolhida(idx) {
+            vibrar(40);
+            fecharModalCartasParticipante();
+            usarAjudaMobile('cartas');
+        }
+
         function abrirModalConvidadoMobile() {
-            if (estadoSessao.convidadosRestantes <= 0 || estadoSessao.tempoEsgotado || estadoSessao.tempoRestante <= 0) return;
+            if (estadoSessao.convidadosRestantes <= 0 || estadoSessao.tempoEsgotado || estadoSessao.tempoRestante <= 0 || estadoSessao.jaRespondeuAtual) return;
             vibrar(30);
             const m = document.getElementById('modalConvidadoMobile');
             if (m) m.classList.remove('hidden');
@@ -987,7 +964,7 @@
             if (m) m.classList.add('hidden');
         }
 
-        // Renderização Mobile-First das Alternativas Grandes e Táteis
+        // Renderização Mobile-First das Alternativas no Estilo Show do Milhão (Cápsulas)
         function renderizarPergunta(q) {
             document.getElementById('textoPerguntaViva').innerText = q.texto;
 
@@ -1009,20 +986,17 @@
                 const isEliminada = eliminadas.includes(idx);
                 const isEscolhida = estadoSessao.opcaoEscolhida !== null && Number(estadoSessao.opcaoEscolhida) === idx;
                 const estaBloqueada = estadoSessao.jaRespondeuAtual || (estadoSessao.opcaoEscolhida !== null) || tempoZerado;
-                const estiloKahoot = coresKahoot[idx % 4];
 
-                let classesBtn = 'btn-opcao-mobile opcao-btn w-full text-left p-3.5 sm:p-4 rounded-2xl border-2 transition flex items-center justify-between gap-3 shadow-md ';
+                let classesBtn = 'btn-opcao-mobile sm-option ';
                 let tagHtml = '';
 
                 if (isEliminada) {
-                    classesBtn += 'opacity-25 border-slate-800 bg-slate-950 line-through cursor-not-allowed';
+                    classesBtn += 'is-eliminada';
                 } else if (isEscolhida) {
-                    classesBtn += 'opcao-bloqueada cursor-not-allowed';
-                    tagHtml = '<span class="shrink-0 text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-400 text-slate-950">BLOQUEADA 🔒</span>';
+                    classesBtn += 'opcao-bloqueada';
+                    tagHtml = '<span class="text-[9px] font-black uppercase text-amber-950 px-2 py-0.5 rounded-full bg-amber-300">BLOQUEADA</span>';
                 } else if (estaBloqueada) {
-                    classesBtn += 'opacity-40 border-slate-800 bg-slate-950 cursor-not-allowed';
-                } else {
-                    classesBtn += `${estiloKahoot.border} ${estiloKahoot.bg} hover:border-amber-400 active:scale-[0.98] cursor-pointer`;
+                    classesBtn += 'opacity-40 cursor-not-allowed';
                 }
 
                 return `
@@ -1032,12 +1006,14 @@
                             ${isEliminada || estaBloqueada ? 'disabled' : ''}
                             onclick="confirmarOpcao(${idx}, '${String(opcao).replace(/'/g, "\\'")}')"
                             class="${classesBtn}">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <span id="badgeMobile_${idx}" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl ${isEscolhida ? 'bg-amber-400 text-slate-950' : estiloKahoot.letraBg} font-black flex items-center justify-center shrink-0 text-sm shadow">
-                                ${letras[idx] || (idx + 1)}
+                        <span class="flex items-center gap-2 min-w-0">
+                            <span id="badgeMobile_${idx}" class="sm-letter text-base sm:text-lg">
+                                ${letras[idx] || (idx + 1)}:
                             </span>
-                            <span class="font-bold text-white text-xs sm:text-sm leading-snug break-words">${opcao}</span>
-                        </div>
+                            <span class="text-white font-extrabold text-sm sm:text-base leading-snug break-words">
+                                ${opcao}
+                            </span>
+                        </span>
                         <span id="tagMobile_${idx}" class="shrink-0">${tagHtml}</span>
                     </button>
                 `;
@@ -1099,9 +1075,9 @@
                 const idx = String(btn.dataset.indice);
                 const tag = document.getElementById(`tagMobile_${idx}`);
                 if (idx === String(indiceEscolhido)) {
-                    btn.className = 'btn-opcao-mobile opcao-btn w-full text-left p-3.5 sm:p-4 rounded-2xl border-2 transition flex items-center justify-between gap-3 opcao-bloqueada cursor-not-allowed';
+                    btn.className = 'btn-opcao-mobile sm-option opcao-bloqueada cursor-not-allowed';
                     if (tag) {
-                        tag.innerHTML = '<span class="shrink-0 text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-400 text-slate-950">BLOQUEADA 🔒</span>';
+                        tag.innerHTML = '<span class="text-[9px] font-black uppercase text-amber-950 px-2 py-0.5 rounded-full bg-amber-300">BLOQUEADA</span>';
                     }
                 } else {
                     btn.classList.add('opacity-40');
@@ -1117,24 +1093,21 @@
                 const idx = String(btn.dataset.indice);
                 btn.classList.remove('opcao-bloqueada', 'opacity-40', 'opacity-50');
                 const tag = document.getElementById(`tagMobile_${idx}`);
-                const badge = document.getElementById(`badgeMobile_${idx}`);
-                const textoBtn = String(btn.querySelector('.font-bold')?.textContent || '').trim().toLowerCase();
+                const textoBtn = String(btn.textContent || '').replace(/^[A-D]:\s*/, '').trim().toLowerCase();
 
                 const ehCorreta = corretaTexto && textoBtn === corretaTexto;
                 const ehEscolhida = indiceEscolhido !== null && idx === String(indiceEscolhido);
                 const acertou = acertouParam !== null ? acertouParam : (ehEscolhida && ehCorreta);
 
                 if (ehCorreta) {
-                    btn.className = 'btn-opcao-mobile opcao-btn w-full text-left p-3.5 sm:p-4 rounded-2xl border-2 transition flex items-center justify-between gap-3 opcao-correta-reveal';
-                    if (badge) badge.className = 'w-8 h-8 rounded-xl bg-white text-emerald-800 font-black flex items-center justify-center shrink-0 text-sm';
+                    btn.className = 'btn-opcao-mobile sm-option opcao-correta-reveal';
                     if (tag) {
-                        tag.innerHTML = '<span class="shrink-0 text-[10px] font-black uppercase px-2 py-0.5 rounded bg-white text-emerald-800">' + (acertou ? 'CERTA!' : 'CORRETA') + '</span>';
+                        tag.innerHTML = '<span class="text-[9px] font-black uppercase text-white px-2 py-0.5 rounded-full bg-emerald-700">' + (acertou ? 'CERTA!' : 'CORRETA') + '</span>';
                     }
                 } else if (ehEscolhida && !acertou) {
-                    btn.className = 'btn-opcao-mobile opcao-btn w-full text-left p-3.5 sm:p-4 rounded-2xl border-2 transition flex items-center justify-between gap-3 opcao-errada-reveal';
-                    if (badge) badge.className = 'w-8 h-8 rounded-xl bg-white text-rose-800 font-black flex items-center justify-center shrink-0 text-sm';
+                    btn.className = 'btn-opcao-mobile sm-option opcao-errada-reveal';
                     if (tag) {
-                        tag.innerHTML = '<span class="shrink-0 text-[10px] font-black uppercase px-2 py-0.5 rounded bg-white text-rose-800">ERROU</span>';
+                        tag.innerHTML = '<span class="text-[9px] font-black uppercase text-white px-2 py-0.5 rounded-full bg-rose-700">ERROU</span>';
                     }
                 } else {
                     btn.classList.add('opacity-30');

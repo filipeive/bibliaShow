@@ -7,13 +7,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@gh-pages/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/show-milhao.css') }}">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .projection-bg { background: radial-gradient(circle at top, #172554 0%, #0f172a 55%, #020617 100%); }
-        .question-banner { background: linear-gradient(180deg, #991b1b 0%, #7f1d1d 100%); border: 2px solid #fbbf24; }
     </style>
 </head>
-<body class="projection-bg text-white min-h-screen p-5 sm:p-8">
+<body class="sm-stage text-white min-h-screen p-5 sm:p-8">
 
     @php
         $faseAtual = $fase_atual ?? 1;

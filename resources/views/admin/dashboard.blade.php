@@ -7,12 +7,12 @@
     <title>Bíblia Show — Painel de Administração</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/show-milhao.css') }}">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .admin-bg { background: radial-gradient(circle at top, #172554 0%, #0f172a 45%, #020617 100%); }
     </style>
 </head>
-<body class="admin-bg text-slate-100 min-h-screen">
+<body class="sm-stage text-slate-100 min-h-screen">
 
     @include('partials.navbar', ['dark' => true])
 
