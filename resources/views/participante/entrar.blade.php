@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
@@ -739,7 +739,48 @@
                     const gabaritoRevelado = !!(data.ajudas && data.ajudas.gabarito_revelado);
                     if (gabaritoRevelado && !estadoSessao.reveladoNaPerguntaAtual) {
                         estadoSessao.reveladoNaPerguntaAtual = true;
-                        revelarCoresOpcaoMobile(estadoSessao.opcaoEscolhida, data.pergunta_atual?.resposta_correta, null, q);
+
+                        const respostaCorreta = data.pergunta_atual?.resposta_correta;
+                        let acertou = null;
+                        let pontosGanhos = 0;
+
+                        if (data.respostas_rodada && estadoSessao.participanteId && data.respostas_rodada[estadoSessao.participanteId]) {
+                            const r = data.respostas_rodada[estadoSessao.participanteId];
+                            acertou = r.correta;
+                            pontosGanhos = r.pontos || 0;
+                        } else if (estadoSessao.opcaoEscolhida !== null && respostaCorreta && q.opcoes) {
+                            const textoEscolhido = q.opcoes[estadoSessao.opcaoEscolhida];
+                            acertou = (textoEscolhido && String(textoEscolhido).trim().toLowerCase() === String(respostaCorreta).trim().toLowerCase());
+                        }
+
+                        // 1. Revelar visualmente verde/vermelho apenas agora que o apresentador autorizou
+                        revelarCoresOpcaoMobile(estadoSessao.opcaoEscolhida, respostaCorreta, acertou, q);
+
+                        // 2. Tocar som de acerto/erro sincronizado com o telão
+                        const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : (localStorage.getItem('biblia_show_som') !== 'off');
+                        if (ativo && acertou !== null) {
+                            const fx = new Audio(acertou ? '/audio/classico/certa1.wav' : '/audio/classico/errou1.wav');
+                            fx.volume = typeof obterVolumeGlobal === 'function' ? obterVolumeGlobal() : 0.85;
+                            fx.play().catch(() => {});
+                        }
+
+                        // 3. Exibir feedback oficial pós-revelação
+                        const fb = document.getElementById('feedbackResposta');
+                        if (fb && estadoSessao.jaRespondeuAtual) {
+                            fb.className = 'rounded-2xl p-4 border ' + (acertou
+                                ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-100'
+                                : 'bg-rose-950/80 border-rose-500/40 text-rose-100');
+
+                            fb.innerHTML = `
+                                <div class="font-black text-base mb-1">
+                                    ${acertou ? `✓ Certa Resposta! (+${pontosGanhos || placar.valor_pergunta || 10} pts)` : `✕ Que pena, você errou!`}
+                                </div>
+                                ${!acertou && respostaCorreta ? `<div class="text-xs text-rose-200">Gabarito oficial: <strong class="text-emerald-300 underline">${respostaCorreta}</strong></div>` : ''}
+                                ${data.pergunta_atual?.referencia_biblica ? `<div class="text-xs mt-1.5 text-slate-300">[${data.pergunta_atual.referencia_biblica}]</div>` : ''}
+                                <div class="text-[11px] mt-2 text-amber-300 font-semibold">Aguarde o apresentador chamar a próxima pergunta.</div>
+                            `;
+                            fb.classList.remove('hidden');
+                        }
                     } else if (mudouEliminadas && !estadoSessao.jaRespondeuAtual) {
                         renderizarPergunta(q);
                     }
@@ -1083,36 +1124,20 @@
                     throw new Error(msgErro);
                 }
 
-                // 2. Após pausa dramática (1.2s), revelar verde/vermelho nas opções e tocar som se ativo
-                setTimeout(() => {
-                    const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : (localStorage.getItem('biblia_show_som') !== 'off');
-                    if (ativo) {
-                        const fx = new Audio(data.acertou ? '/audio/classico/certa1.wav' : '/audio/classico/errou1.wav');
-                        fx.volume = typeof obterVolumeGlobal === 'function' ? obterVolumeGlobal() : 0.85;
-                        fx.play().catch(() => {});
-                    }
-
-                    revelarCoresOpcaoMobile(indiceOpcao, data.resposta_correta, !!data.acertou);
-
-                    estadoSessao.pontuacao = data.participante?.pontuacao_total ?? estadoSessao.pontuacao;
-                    document.getElementById('jogadorPontosDisplay').innerText = estadoSessao.pontuacao;
-                    sessionStorage.setItem('biblia_show_participante', JSON.stringify(estadoSessao));
-
-                    const fb = document.getElementById('feedbackResposta');
-                    fb.className = 'rounded-2xl p-4 border ' + (data.acertou
-                        ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-100'
-                        : 'bg-rose-950/80 border-rose-500/40 text-rose-100');
-
+                // Exibe feedback de Resposta Bloqueada (aguardando revelação oficial do apresentador no telão)
+                const fb = document.getElementById('feedbackResposta');
+                if (fb) {
+                    fb.className = 'rounded-2xl p-4 border bg-amber-500/15 border-amber-500/40 text-amber-200';
                     fb.innerHTML = `
-                        <div class="font-black text-base mb-1">
-                            ${data.acertou ? `Certa Resposta! (+${data.pontos} pts)` : `Que pena, você errou!`}
+                        <div class="font-black text-base flex items-center gap-2">
+                            <span>🔒</span>
+                            <span>Alternativa Bloqueada com Sucesso!</span>
                         </div>
-                        ${!data.acertou && data.resposta_correta ? `<div class="text-xs text-rose-200">Correta: <strong class="text-emerald-300 underline">${data.resposta_correta}</strong></div>` : ''}
-                        ${data.referencia_biblica || data.explicacao ? `<div class="text-xs mt-1.5 text-slate-300">${data.referencia_biblica ? '[' + data.referencia_biblica + '] ' : ''}${data.explicacao || ''}</div>` : ''}
-                        <div class="text-[11px] mt-2 text-amber-300 font-semibold">Sua resposta prevalece na tela até o apresentador chamar a próxima pergunta.</div>
+                        <p class="text-xs text-slate-300 mt-1">Sua resposta foi registrada no estúdio. Aguarde o apresentador comandar a revelação oficial no telão!</p>
                     `;
                     fb.classList.remove('hidden');
-                }, 1200);
+                }
+                sessionStorage.setItem('biblia_show_participante', JSON.stringify(estadoSessao));
             } catch (err) {
                 // Em caso de erro diferente de tempo esgotado, reabilita as opções e notifica via SweetAlert2
                 estadoSessao.jaRespondeuAtual = false;

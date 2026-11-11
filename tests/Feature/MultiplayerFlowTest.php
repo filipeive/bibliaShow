@@ -106,7 +106,8 @@ class MultiplayerFlowTest extends TestCase
             'tempo_resposta' => 15,
         ]);
         $r1->assertStatus(200);
-        $r1->assertJsonPath('acertou', true);
+        $r1->assertJsonPath('bloqueada', true);
+        $this->assertNull($r1->json('resposta_correta'));
 
         // 2ª Tentativa de Resposta na mesma questão
         $r2 = $this->postJson("/api/salas/{$sala->id}/responder", [
@@ -204,5 +205,51 @@ class MultiplayerFlowTest extends TestCase
 
         $resp->assertStatus(408);
         $resp->assertJsonPath('error', 'Tempo esgotado para esta pergunta! Resposta não computada.');
+    }
+
+    public function test_gabarito_somente_e_revelado_ao_participante_quando_apresentador_autoriza(): void
+    {
+        $cenario = $this->criarCenarioBase();
+        $sala = $cenario['sala'];
+        $apresentador = $cenario['apresentador'];
+        $questao = $cenario['questao'];
+
+        $this->actingAs($apresentador)->get("/apresentador/control/{$sala->id}");
+
+        $participante = Participante::create([
+            'sala_id' => $sala->id,
+            'nome' => 'Mateus',
+            'codigo_acesso' => 'MAT001',
+            'conectado' => true,
+            'pontuacao_total' => 0,
+        ]);
+
+        // Participante bloqueia resposta
+        $respResp = $this->postJson("/api/salas/{$sala->id}/responder", [
+            'participante_id' => $participante->id,
+            'questao_id' => $questao->id,
+            'resposta' => 'Deus',
+            'tempo_resposta' => 12,
+        ]);
+        $respResp->assertStatus(200);
+        $respResp->assertJsonPath('bloqueada', true);
+        $this->assertNull($respResp->json('resposta_correta'));
+
+        // Antes de revelar: rota de estado NÃO vaza o gabarito
+        $estadoAntes = $this->getJson("/api/salas/{$sala->id}?participante_id={$participante->id}");
+        $estadoAntes->assertStatus(200);
+        $this->assertNull($estadoAntes->json('pergunta_atual.resposta_correta'));
+        $this->assertFalse($estadoAntes->json('ajudas.gabarito_revelado'));
+
+        // Apresentador clica para revelar gabarito no telão
+        $this->actingAs($apresentador)->postJson("/apresentador/control/{$sala->id}/ajuda", [
+            'tipo' => 'revelar',
+        ])->assertStatus(200);
+
+        // Após revelar: rota de estado agora envia gabarito revelado oficialmente
+        $estadoDepois = $this->getJson("/api/salas/{$sala->id}?participante_id={$participante->id}");
+        $estadoDepois->assertStatus(200);
+        $this->assertTrue($estadoDepois->json('ajudas.gabarito_revelado'));
+        $this->assertEquals('Deus', $estadoDepois->json('pergunta_atual.resposta_correta'));
     }
 }

@@ -235,9 +235,9 @@ class ParticipantController extends Controller
                     'resposta' => $r->resposta,
                     'letra' => $letra ?? '?',
                     'indice' => $idxEscolhido,
-                    'correta' => (bool) $r->correta,
+                    'correta' => $gabaritoRevelado ? (bool) $r->correta : null,
                     'tempo' => $r->tempo_resposta,
-                    'pontos' => $r->pontos_ganhos,
+                    'pontos' => $gabaritoRevelado ? $r->pontos_ganhos : 0,
                 ];
             }
 
@@ -483,15 +483,13 @@ class ParticipantController extends Controller
         $this->tentarBroadcast(new RankingAtualizado($sala->id, $ranking->values()->all()));
 
         return response()->json([
-            'acertou' => $acertou,
-            'pontos' => $pontos,
+            'sucesso' => true,
+            'bloqueada' => true,
             'resposta_dada' => $respostaTexto,
-            'resposta_correta' => $questao->resposta_correta,
-            'indice_correto' => $indiceCorreto,
-            'referencia_biblica' => $questao->referencia_biblica,
-            'explicacao' => $questao->explicacao,
+            'mensagem' => 'Resposta bloqueada com sucesso! Aguarde a revelação do apresentador no telão.',
             'participante' => [
-                'pontuacao_total' => $participante->pontuacao_total,
+                'id' => $participante->id,
+                'nome' => $participante->nome,
             ],
         ]);
     }
