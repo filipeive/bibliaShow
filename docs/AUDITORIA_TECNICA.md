@@ -152,11 +152,12 @@ Realizou-se a inspeção direta e independente do ficheiro binário original `da
 
 ## 5. Multiplayer, Concorrência e Sincronização
 
-- **Controle de Respostas Concorrentes:**
+- **Controle de Respostas Concorrentes e Sigilo de Gabarito:**
   - Transação atômica (`DB::transaction`) na submissão de respostas em `ParticipantController::responder()`.
   - Checagem prévia de resposta duplicada (`exists()` na tabela `respostas` por participante e questão).
   - Validação estrita do estado da sala: participantes não conseguem pontuar se a sala estiver pausada ou terminada.
   - Validação de tempo esgotado: respostas submetidas após o fim do cronômetro da pergunta são rejeitadas com HTTP 408.
+  - **Preservação do Suspense e Papel do Apresentador:** A resposta da API `POST /api/salas/{sala}/responder` não vaza prematuramente `acertou` ou `resposta_correta`. A alternativa fica no estado `BLOQUEADA` no smartphone. A revelação de cores (verde/vermelho), efeitos sonoros e pontuação só ocorre de forma sincronizada quando o apresentador comanda **"Revelar no Telão"** (`gabarito_revelado = true`).
 - **Reconexão Resiliente:**
   - Caso o participante feche o navegador ou perca a conexão, o `sessionStorage` e o cookie restauram o estado da sala sem duplicar o participante na base de dados.
 - **Broadcasting via Reverb e Fallback HTTP:**
