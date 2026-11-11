@@ -264,6 +264,26 @@
             document.addEventListener(evt, desbloquearAudioTelao, { once: true, passive: true });
         });
 
+        let ultimoSegundoTocado = null;
+        function tocarTickTelao(segundos) {
+            if (segundos > 10 || segundos < 0 || !somAtivo || estadoAtual !== 'em_curso') return;
+            if (ultimoSegundoTocado === segundos) return;
+            ultimoSegundoTocado = segundos;
+
+            try {
+                if (segundos > 0) {
+                    const audioSrc = segundos <= 3 ? '/audio/classico/tempo_alerta.wav' : '/audio/classico/tempo_tick.wav';
+                    const fx = new Audio(audioSrc);
+                    fx.volume = 0.8;
+                    fx.play().catch(() => {});
+                } else if (segundos === 0) {
+                    const fx = new Audio('/audio/classico/ks.wav');
+                    fx.volume = 0.8;
+                    fx.play().catch(() => {});
+                }
+            } catch (e) {}
+        }
+
         function atualizarIconeAudioTelao() {
             const btn = document.getElementById('btnAudioProj');
             const icone = document.getElementById('iconeAudioProj');
@@ -444,7 +464,11 @@
 
             const timerEl = document.getElementById('timerSegundos');
             if (timerEl && typeof data.tempo_restante !== 'undefined') {
-                timerEl.textContent = data.tempo_restante;
+                const seg = Number(data.tempo_restante);
+                timerEl.textContent = seg;
+                if (seg <= 10) {
+                    tocarTickTelao(seg);
+                }
             }
 
             if (data.estado === 'terminado' && estadoAtual !== 'terminado') {

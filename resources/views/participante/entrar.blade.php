@@ -550,10 +550,32 @@
             if (estadoSessao.tempoRestante > 0 && !estadoSessao.jaRespondeuAtual) {
                 estadoSessao.tempoRestante--;
                 atualizarVisualCronometro(estadoSessao.tempoRestante);
+                if (estadoSessao.tempoRestante <= 10) {
+                    tocarSomContagemRegressiva(estadoSessao.tempoRestante);
+                }
                 if (estadoSessao.tempoRestante <= 0) {
                     desabilitarOpcoesPorTempoEsgotado();
                 }
             }
+        }
+
+        function tocarSomContagemRegressiva(segundos) {
+            if (segundos > 10 || segundos < 0) return;
+            const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : (localStorage.getItem('biblia_show_som') !== 'off');
+            if (!ativo) return;
+
+            try {
+                if (segundos > 0) {
+                    const audioSrc = segundos <= 3 ? '/audio/classico/tempo_alerta.wav' : '/audio/classico/tempo_tick.wav';
+                    const fx = new Audio(audioSrc);
+                    fx.volume = typeof obterVolumeGlobal === 'function' ? Math.min(1, obterVolumeGlobal() * 1.1) : 0.85;
+                    fx.play().catch(() => {});
+                } else if (segundos === 0) {
+                    const fx = new Audio('/audio/classico/ks.wav');
+                    fx.volume = typeof obterVolumeGlobal === 'function' ? obterVolumeGlobal() : 0.85;
+                    fx.play().catch(() => {});
+                }
+            } catch (e) {}
         }
 
         function atualizarVisualCronometro(segundos) {
