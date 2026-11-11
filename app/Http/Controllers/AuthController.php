@@ -41,8 +41,18 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended(route('admin.dashboard'))
-                ->with('success', 'Bem-vindo(a), ' . Auth::user()->nome . '!');
+            $user = Auth::user();
+
+            if ($user->papel === 'apresentador') {
+                return redirect()->intended(route('apresentador.painel'))
+                    ->with('success', 'Bem-vindo ao seu Estúdio de Apresentador, ' . $user->nome . '!');
+            } elseif (in_array($user->papel, ['admin_geral', 'admin_igreja', 'editor'])) {
+                return redirect()->intended(route('admin.dashboard'))
+                    ->with('success', 'Bem-vindo ao Painel Administrativo, ' . $user->nome . '!');
+            }
+
+            return redirect()->intended(route('game.play'))
+                ->with('success', 'Bem-vindo ao Bíblia Show, ' . $user->nome . '!');
         }
 
         return back()->withErrors([
@@ -64,7 +74,7 @@ class AuthController extends Controller
             'password' => 'required|string|min:6|confirmed',
             'igreja_nome' => 'nullable|string|max:150',
             'igreja_id' => 'nullable|exists:igrejas,id',
-            'papel' => 'nullable|in:admin_igreja,apresentador,editor',
+            'papel' => 'nullable|in:usuario,apresentador',
         ]);
 
         if (!empty($validated['igreja_nome'])) {
@@ -80,19 +90,26 @@ class AuthController extends Controller
             ])->id);
         }
 
+        $papelEscolhido = in_array($validated['papel'] ?? '', ['usuario', 'apresentador']) ? $validated['papel'] : 'usuario';
+
         $usuario = Usuario::create([
             'igreja_id' => $igrejaId,
             'nome' => trim($validated['nome']),
             'email' => strtolower(trim($validated['email'])),
             'password' => Hash::make($validated['password']),
-            'papel' => $validated['papel'] ?? 'apresentador',
+            'papel' => $papelEscolhido,
         ]);
 
         Auth::login($usuario);
         $request->session()->regenerate();
 
-        return redirect()->route('admin.dashboard')
-            ->with('success', 'Conta criada com sucesso! Bem-vindo ao Painel Bíblia Show.');
+        if ($usuario->papel === 'apresentador') {
+            return redirect()->route('apresentador.painel')
+                ->with('success', 'Conta de Apresentador criada com sucesso! Você já pode gerenciar suas salas.');
+        }
+
+        return redirect()->route('game.play')
+            ->with('success', 'Conta criada com sucesso! Bem-vindo ao Bíblia Show.');
     }
 
     public function logout(Request $request)

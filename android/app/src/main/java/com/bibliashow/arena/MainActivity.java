@@ -50,6 +50,45 @@ public class MainActivity extends BridgeActivity {
         if (this.getBridge() != null && this.getBridge().getWebView() != null) {
             WebView webView = this.getBridge().getWebView();
 
+            // Configurar WebView para permitir reprodução de áudio programática (sem exigir toque a cada som)
+            android.webkit.WebSettings settings = webView.getSettings();
+            settings.setMediaPlaybackRequiresUserGesture(false);
+            settings.setJavaScriptEnabled(true);
+            settings.setDomStorageEnabled(true);
+            settings.setAllowFileAccess(true);
+            settings.setDatabaseEnabled(true);
+
+            // Expor ponte nativa de vibração de hardware para o JavaScript
+            webView.addJavascriptInterface(new Object() {
+                @android.webkit.JavascriptInterface
+                public void vibrate(long ms) {
+                    try {
+                        android.os.Vibrator v = (android.os.Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                        if (v != null && v.hasVibrator()) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                v.vibrate(android.os.VibrationEffect.createOneShot(ms, android.os.VibrationEffect.DEFAULT_AMPLITUDE));
+                            } else {
+                                v.vibrate(ms);
+                            }
+                        }
+                    } catch (Exception ignored) {}
+                }
+
+                @android.webkit.JavascriptInterface
+                public void vibratePattern(long[] pattern) {
+                    try {
+                        android.os.Vibrator v = (android.os.Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                        if (v != null && v.hasVibrator()) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                v.vibrate(android.os.VibrationEffect.createWaveform(pattern, -1));
+                            } else {
+                                v.vibrate(pattern, -1);
+                            }
+                        }
+                    } catch (Exception ignored) {}
+                }
+            }, "AndroidNative");
+
             // 1. Offline Error Handling
             webView.setWebViewClient(new BridgeWebViewClient(this.getBridge()) {
                 @Override
@@ -95,7 +134,7 @@ public class MainActivity extends BridgeActivity {
                         }
 
                         request.setTitle(fileName);
-                        request.setDescription("A baixar ficheiro do Life App...");
+                        request.setDescription("A baixar ficheiro do Bíblia Show 2.0...");
                         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
                         request.setAllowedOverMetered(true);

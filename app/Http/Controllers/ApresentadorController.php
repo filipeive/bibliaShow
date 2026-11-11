@@ -27,12 +27,14 @@ class ApresentadorController extends Controller
         $user = $request->user();
         $query = Sala::where('status', '!=', 'terminada')->withCount('participantes');
 
-        if ($user && $user->papel !== 'admin_geral') {
+        if ($user && $user->papel === 'apresentador') {
+            $query->where('apresentador_id', $user->id);
+        } elseif ($user && $user->papel !== 'admin_geral') {
             $query->where('igreja_id', $user->igreja_id);
         }
 
         $salas = $query->orderByDesc('updated_at')
-            ->limit(15)
+            ->limit(20)
             ->get();
 
         return view('apresentador.painel', compact('salas'));
@@ -83,6 +85,15 @@ class ApresentadorController extends Controller
         $sala = Sala::findOrFail($salaId);
         $user = $request->user();
 
+        // Apresentador só pode acessar e controlar salas criadas por ele mesmo
+        if ($user && $user->papel === 'apresentador' && (int) $user->id !== (int) $sala->apresentador_id) {
+            if ($request->expectsJson() || $request->ajax()) {
+                abort(response()->json(['error' => 'Acesso negado: você só pode gerenciar salas criadas pela sua identidade.'], 403));
+            }
+            abort(403, 'Acesso negado: você só pode gerenciar salas criadas pela sua identidade de apresentador.');
+        }
+
+        // Outros papéis respeitam o isolamento de igreja (exceto admin_geral)
         if ($user && $user->papel !== 'admin_geral' && (int) $user->igreja_id !== (int) $sala->igreja_id) {
             if ($request->expectsJson() || $request->ajax()) {
                 abort(response()->json(['error' => 'Acesso negado: sala pertence a outra igreja.'], 403));

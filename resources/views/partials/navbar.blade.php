@@ -2,8 +2,9 @@
     $dark = $dark ?? true;
     $rotaAtual = request()->route()?->getName() ?? '';
     $nomeJogadorSessao = session('jogador_nome', auth()->user()?->nome ?? '');
+    $hideOnMobile = $hideOnMobile ?? false;
 @endphp
-<nav class="{{ $dark ? 'bg-slate-950/90 border-slate-800/80 text-slate-100' : 'bg-white/95 border-slate-200 text-slate-900' }} backdrop-blur-md sticky top-0 z-50 border-b">
+<nav class="{{ $dark ? 'bg-slate-950/90 border-slate-800/80 text-slate-100' : 'bg-white/95 border-slate-200 text-slate-900' }} backdrop-blur-md sticky top-0 z-50 border-b {{ $hideOnMobile ? 'hidden sm:block' : '' }}">
     <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16 gap-2">
             <!-- Brand / Logo (Never wraps) -->

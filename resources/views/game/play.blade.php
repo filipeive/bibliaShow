@@ -664,18 +664,49 @@
 
             <script>
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+                const BASE_AUDIO_URL = "{{ asset('audio/classico') }}";
                 let precisaIdentificar = {{ !empty($precisa_identificacao) ? 'true' : 'false' }};
                 let perguntarContinuar = {{ !empty($perguntar_continuar) ? 'true' : 'false' }};
                 let jogoIniciado = !precisaIdentificar && !perguntarContinuar;
 
-                const audioLocucao = new Audio('/audio/classico/locucao.wav');
+                function vibrar(padrao = 30) {
+                    const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : (localStorage.getItem('biblia_show_som') !== 'off');
+                    if (!ativo) return;
+                    try {
+                        if (window.AndroidNative) {
+                            if (Array.isArray(padrao)) {
+                                window.AndroidNative.vibratePattern(padrao);
+                            } else {
+                                window.AndroidNative.vibrate(Number(padrao) || 30);
+                            }
+                            return;
+                        }
+                        if (navigator.vibrate) {
+                            navigator.vibrate(padrao);
+                        }
+                    } catch (e) {}
+                }
+
+                // Desbloqueio de áudio no mobile
+                function destravarAudioMobile() {
+                    try {
+                        const dummy = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA');
+                        dummy.volume = 0.01;
+                        dummy.play().catch(() => {});
+                    } catch (e) {}
+                }
+                ['touchstart', 'pointerdown', 'click'].forEach(evt => {
+                    window.addEventListener(evt, destravarAudioMobile, { once: true, passive: true });
+                });
+
+                const audioLocucao = new Audio(`${BASE_AUDIO_URL}/locucao.wav`);
                 audioLocucao.loop = false; // "so fala uma vez"
 
-                const audioSuspense = new Audio('/audio/classico/suspense.wav');
+                const audioSuspense = new Audio(`${BASE_AUDIO_URL}/suspense.wav`);
                 audioSuspense.loop = true;
 
-                const audioHover = new Audio('/audio/classico/hover.wav');
-                const audioTecla = new Audio('/audio/classico/tecla.wav');
+                const audioHover = new Audio(`${BASE_AUDIO_URL}/hover.wav`);
+                const audioTecla = new Audio(`${BASE_AUDIO_URL}/tecla.wav`);
 
                 function aplicarVolume(audioObj, fator = 1) {
                     const base = typeof obterVolumeGlobal === 'function' ? obterVolumeGlobal() : 0.85;
@@ -722,7 +753,7 @@
                     }
                 }
 
-                const audioFase1 = new Audio('/audio/classico/fase1.wav');
+                const audioFase1 = new Audio(`${BASE_AUDIO_URL}/fase1.wav`);
                 audioFase1.loop = false;
 
                 let fase1JaTocou = false;
@@ -791,7 +822,7 @@
                             setTimeout(resolve, 1600);
                             return;
                         }
-                        const fx = new Audio(`/audio/classico/${nome}.wav`);
+                        const fx = new Audio(`${BASE_AUDIO_URL}/${nome}.wav`);
                         aplicarVolume(fx, 1.0);
                         let finalizado = false;
                         const concluir = () => {
@@ -962,6 +993,7 @@
 
                 function pedirConfirmacao(indice, letra, texto) {
                     if (!jogoIniciado || enviado) return;
+                    vibrar(35);
                     const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : true;
                     if (ativo) {
                         aplicarVolume(audioTecla, 0.7);
@@ -1007,6 +1039,11 @@
                 }
 
                 function revelarCoresOpcoes(indiceEscolhido, indiceCorreto, acertou) {
+                    if (acertou) {
+                        vibrar([60, 60, 120]);
+                    } else {
+                        vibrar([150, 80, 150]);
+                    }
                     document.querySelectorAll('.btn-alternativa').forEach(btn => {
                         const idx = String(btn.dataset.indice);
                         btn.classList.remove('opcao-bloqueada', 'opacity-50');
@@ -1202,12 +1239,14 @@
 
                     try {
                         if (segundos > 0) {
-                            const audioSrc = segundos <= 3 ? '/audio/classico/tempo_alerta.wav' : '/audio/classico/tempo_tick.wav';
-                            const fx = new Audio(audioSrc);
+                            vibrar(25);
+                            const audioNome = segundos <= 3 ? 'tempo_alerta.wav' : 'tempo_tick.wav';
+                            const fx = new Audio(`${BASE_AUDIO_URL}/${audioNome}`);
                             fx.volume = typeof obterVolumeGlobal === 'function' ? Math.min(1, obterVolumeGlobal() * 1.1) : 0.85;
                             fx.play().catch(() => {});
                         } else if (segundos === 0) {
-                            const fx = new Audio('/audio/classico/ks.wav');
+                            vibrar([50, 50, 100]);
+                            const fx = new Audio(`${BASE_AUDIO_URL}/ks.wav`);
                             fx.volume = typeof obterVolumeGlobal === 'function' ? obterVolumeGlobal() : 0.85;
                             fx.play().catch(() => {});
                         }

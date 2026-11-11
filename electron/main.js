@@ -10,7 +10,7 @@ function createWindow() {
     minWidth: 1024,
     minHeight: 700,
     title: 'Bíblia Show 2.0 — Arena de Conhecimento Bíblico',
-    icon: path.join(__dirname, '../public/favicon.ico'),
+    icon: path.join(__dirname, 'build/icon.png'),
     backgroundColor: '#020617',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),

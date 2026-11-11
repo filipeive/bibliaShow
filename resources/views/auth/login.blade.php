@@ -37,14 +37,14 @@
                 @csrf
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">E-mail</label>
-                    <input type="email" name="email" id="inputEmail" value="{{ old('email', app()->environment('local') ? 'admin@igreja.com' : '') }}" required
+                    <input type="email" name="email" id="inputEmail" value="{{ old('email') }}" required
                            placeholder="seu@email.com"
                            class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white focus:ring-2 focus:ring-amber-500 outline-none text-sm">
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Palavra-passe</label>
-                    <input type="password" name="password" id="inputPassword" value="{{ app()->environment('local') ? 'password' : '' }}" required
+                    <input type="password" name="password" id="inputPassword" required
                            placeholder="••••••••"
                            class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white focus:ring-2 focus:ring-amber-500 outline-none text-sm">
                 </div>
@@ -59,24 +59,9 @@
 
                 <button type="submit"
                         class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3.5 rounded-xl shadow-lg shadow-amber-500/20 transition text-sm">
-                    Entrar no Painel →
+                    Entrar →
                 </button>
             </form>
-
-            @if(app()->environment('local'))
-            <!-- Acesso Rápido de Demonstração (Ativo apenas em ambiente local) -->
-            <div class="mt-6 pt-5 border-t border-slate-800">
-                <p class="text-[11px] font-bold uppercase tracking-wider text-amber-400/80 text-center mb-2.5">
-                    Ambiente Local: Demonstração Rápida
-                </p>
-                <button type="button"
-                        onclick="document.getElementById('inputEmail').value='admin@igreja.com'; document.getElementById('inputPassword').value='password'; document.getElementById('loginForm').submit();"
-                        class="w-full py-2.5 px-3 rounded-xl bg-blue-950/70 hover:bg-blue-900 border border-blue-500/30 text-xs font-bold text-blue-200 transition flex items-center justify-between">
-                    <span>Administrador Geral (admin@igreja.com)</span>
-                    <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono">1-Clique</span>
-                </button>
-            </div>
-            @endif
         </div>
     </main>
 

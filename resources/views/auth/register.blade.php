@@ -49,9 +49,8 @@
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Perfil de Acesso</label>
                         <select name="papel" class="w-full px-3 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-white focus:ring-2 focus:ring-amber-500 outline-none text-sm">
-                            <option value="apresentador">Apresentador de Salas</option>
-                            <option value="admin_igreja">Administrador da Igreja</option>
-                            <option value="editor">Editor de Perguntas</option>
+                            <option value="usuario">Jogador / Usuário Normal</option>
+                            <option value="apresentador" selected>Apresentador de Salas</option>
                         </select>
                     </div>
                 </div>
