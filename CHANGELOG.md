@@ -2,6 +2,33 @@
 
 Todas as alterações relevantes do projeto **Bíblia Show** estão documentadas neste arquivo.
 
+## [2.2.0] — 2026-11-11 (Auditoria Técnica, Segurança e Consolidação)
+
+### Segurança e Autorização
+- **Prevenção de PHP Object Injection**: Substituição da desserialização nativa com `unserialize()` por persistência de estado em JSON versionado (`GameEngine::toJsonState()` / `fromJsonState()`), além de whitelist estrita de classes em caso de fallback legado.
+- **Controle de Acesso por Papel (RBAC)**: Criação do middleware `CheckRole` registado em `bootstrap/app.php` protegendo rotas `/admin/*` (`admin_geral`, `admin_igreja`), `/apresentador/*` (`admin_geral`, `admin_igreja`, `apresentador`) e `/perguntas/*` (`admin_geral`, `admin_igreja`, `editor`).
+- **Isolamento Efetivo Multi-Tenant**: Correção do `IgrejaScope` e validação nos controllers de que salas e questões pertencem estritamente à mesma congregação do usuário autenticado (retornando HTTP 403 em tentativas de IDOR cross-tenant).
+- **Proteção de Canais Privados de Broadcasting**: Autorização estrita em `routes/channels.php` para `game.{salaId}`, permitindo assinatura somente de apresentadores/administradores da mesma igreja ou de participantes devidamente vinculados à sala.
+- **Sanitização contra CSV Formula Injection**: Sanitização automática de caracteres maliciosos (`=`, `+`, `-`, `@`, `\t`) nas exportações de acervo no painel administrativo.
+- **Ambiente e Demonstração**: Acesso rápido com botão de auto-login e criação de conta admin padrão restritos a ambiente local (`APP_ENV=local`).
+
+### Acervo Bíblico e Banco de Dados
+- **Auditoria de Integridade**: Verificação independente com hash SHA-256 de `database/data/cadastro.dbf` confirmando 1.000 perguntas originais ativas e 100% de consistência de gabaritos (`A` a `D`).
+- **Parsing Resiliente de Referências Bíblicas**: Tratamento de referências com pontuação aderida no `QuestoesClassicoSeeder`, elevando para 902 o número de perguntas com referência formal mapeada para os 66 livros canônicos.
+- **Correção de Migrações**: Inversão da ordem de criação de `equipes` e `participantes` para respeitar chaves estrangeiras no MySQL; ajuste de unicidade em `livros_biblicos` para `codigo_osis` evitando colisão de collation insensível a acentos entre "Jo" (João) e "Jó" (Jó).
+
+### PWA e Funcionamento Offline
+- **Web App Manifest**: Criação de `public/manifest.json` com especificações de PWA, tema dark/ouro e ícones.
+- **Service Worker Inteligente**: Criação de `public/sw.js` com estratégia híbrida (Cache-First para áudios `.wav` e artigos da enciclopédia; Network-First para páginas solo; Network-Only para endpoints dinâmicos).
+- **Rotas Dedicadas**: Adição de rotas explícitas para `/manifest.json` e `/sw.js` em `routes/web.php`.
+
+### Multiplayer e Concorrência
+- **Atomicidade e Anti-Trapaça**: Submissão de respostas em transação de banco com checagem contra duplicidades e rejeição com HTTP 408 para respostas enviadas após o encerramento do cronômetro.
+- **Correção de Sintaxe JS**: Remoção de declaração duplicada da variável `placar` no polling do smartphone participante.
+- **Testes End-to-End**: Testes completos no navegador (Chrome DevTools MCP) e suíte automatizada expandida para 23 testes (80 asserções).
+
+---
+
 ## [2.1.0] — 2026-11-10
 
 ### Adicionado

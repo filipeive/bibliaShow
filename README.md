@@ -77,6 +77,8 @@ php artisan serve
 
 ## Documentação Adicional
 
+- [`PROJECT_STATUS.md`](PROJECT_STATUS.md) — Status atual do projeto e histórico de correções
+- [`docs/AUDITORIA_TECNICA.md`](docs/AUDITORIA_TECNICA.md) — Relatório aprofundado de auditoria de segurança, integridade do acervo e testes
 - [`CHANGELOG.md`](CHANGELOG.md) — Histórico detalhado de versões e melhorias
 - [`docs/ARCHITETURA.md`](docs/ARCHITETURA.md) — Arquitetura do motor, módulos e fluxos em tempo real
 - [`docs/MODELO_DE_DADOS.md`](docs/MODELO_DE_DADOS.md) — Esquema das tabelas SQLite/MySQL
