@@ -561,6 +561,32 @@
                 </main>
             </div>
 
+            <!-- Modal 0: Continuar Como [Nome] ou Trocar de Participante -->
+            <div id="modalContinuarComo" class="fixed inset-0 z-50 {{ !empty($perguntar_continuar) ? 'flex' : 'hidden' }} items-center justify-center bg-slate-950/90 backdrop-blur-md p-4">
+                <div class="bg-slate-900 border-2 border-amber-400 rounded-3xl max-w-md w-full p-6 sm:p-8 text-center shadow-2xl">
+                    <div class="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-9 h-9" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                        </svg>
+                    </div>
+                    <p class="text-xs font-black uppercase tracking-widest text-amber-400 mb-1">Arena Bíblia Show</p>
+                    <h3 class="text-2xl font-black text-white mb-2">Continuar Partida?</h3>
+                    <p class="text-sm text-slate-300 mb-6">
+                        Você deseja continuar jogando como <strong class="text-amber-400 text-base font-black">{{ $jogador_nome }}</strong> ou deseja entrar com outro nome?
+                    </p>
+                    <div class="space-y-3">
+                        <button type="button" onclick="confirmarContinuarComo()"
+                                class="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm uppercase tracking-wider shadow-lg transition transform hover:-translate-y-0.5">
+                            Continuar como {{ $jogador_nome }} →
+                        </button>
+                        <button type="button" onclick="trocarParaNovoParticipante()"
+                                class="w-full py-3 px-6 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs uppercase tracking-wider border border-slate-700 transition">
+                            Entrar com Outro Nome / Participante
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Modal 1: Identificação Clássica do Jogador ao Iniciar -->
             <div id="modalNomeJogador" class="fixed inset-0 z-50 {{ !empty($precisa_identificacao) ? 'flex' : 'hidden' }} items-center justify-center bg-slate-950/90 backdrop-blur-md p-4">
                 <div class="bg-slate-900 border-2 border-amber-400 rounded-3xl max-w-md w-full p-6 sm:p-8 text-center shadow-2xl">
@@ -692,23 +718,25 @@
                     audioHover.play().catch(() => {});
                 }
 
+                let perguntarContinuar = {{ !empty($perguntar_continuar) ? 'true' : 'false' }};
+
                 function anunciarParticipante() {
                     const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : (localStorage.getItem('biblia_show_som') !== 'off');
                     if (!ativo) return;
 
-                    // 1. Toca chime clássico de início do Bíblia Show
+                    // 1. Toca o chime clássico de abertura do Bíblia Show
                     const chime = new Audio('/audio/classico/inicio.wav');
-                    aplicarVolume(chime, 0.75);
+                    aplicarVolume(chime, 0.85);
                     chime.play().catch(() => {});
 
-                    // 2. Apresentador vocal: "Vamos ver quem vai participar!"
+                    // 2. Apresentador vocal clássico: "Agora vamos ver quem vai participar do Bíblia Show!"
                     if ('speechSynthesis' in window) {
                         try {
                             window.speechSynthesis.cancel();
-                            const vozMsg = new SpeechSynthesisUtterance("Vamos ver quem vai participar!");
+                            const vozMsg = new SpeechSynthesisUtterance("Agora vamos ver quem vai participar do Bíblia Show!");
                             vozMsg.lang = 'pt-BR';
-                            vozMsg.rate = 1.05;
-                            vozMsg.pitch = 1.1;
+                            vozMsg.rate = 1.0;
+                            vozMsg.pitch = 1.05;
                             const vozes = window.speechSynthesis.getVoices();
                             const vozPt = vozes.find(v => v.lang.startsWith('pt')) || vozes[0];
                             if (vozPt) vozMsg.voice = vozPt;
@@ -720,6 +748,8 @@
                 }
 
                 function abrirModalNomeJogador() {
+                    const mCont = document.getElementById('modalContinuarComo');
+                    if (mCont) mCont.classList.add('hidden');
                     const m = document.getElementById('modalNomeJogador');
                     if (m) {
                         m.classList.remove('hidden');
@@ -727,6 +757,22 @@
                         anunciarParticipante();
                         const inputNome = m.querySelector('input[name="jogador_nome"]');
                         if (inputNome) setTimeout(() => inputNome.focus(), 250);
+                    }
+                }
+
+                function trocarParaNovoParticipante() {
+                    perguntarContinuar = false;
+                    abrirModalNomeJogador();
+                }
+
+                function confirmarContinuarComo() {
+                    perguntarContinuar = false;
+                    const m = document.getElementById('modalContinuarComo');
+                    if (m) m.classList.add('hidden');
+                    const somLigado = typeof somEstaAtivo === 'function' ? somEstaAtivo() : true;
+                    if (somLigado && !enviado) {
+                        aplicarVolume(audioSuspense, 0.28);
+                        audioSuspense.play().catch(() => {});
                     }
                 }
 
@@ -738,7 +784,7 @@
                     @if($novaFaseSom)
                         if (ativo) setTimeout(() => tocarEfeitoComPromise('fase{{ $novaFaseSom }}'), 1500);
                     @endif
-                    if (ativo && !precisaIdentificar) {
+                    if (ativo && !precisaIdentificar && !perguntarContinuar) {
                         setTimeout(() => {
                             aplicarVolume(audioSuspense, 0.28);
                             audioSuspense.play().catch(() => {});
@@ -749,13 +795,15 @@
                             const inputNome = document.querySelector('#modalNomeJogador input[name="jogador_nome"]');
                             if (inputNome) inputNome.focus();
                         }, 500);
+                    } else if (perguntarContinuar) {
+                        // Quando está no modal perguntando se continua como X, aguarda confirmação antes do suspense
                     }
 
                     // Garante que o áudio seja iniciado na primeira interação caso o navegador bloqueie autoplay
                     ['click', 'touchstart', 'keydown'].forEach(evt => {
                         document.addEventListener(evt, () => {
                             const somLigado = typeof somEstaAtivo === 'function' ? somEstaAtivo() : true;
-                            if (somLigado && !enviado && !precisaIdentificar && audioSuspense.paused) {
+                            if (somLigado && !enviado && !precisaIdentificar && !perguntarContinuar && audioSuspense.paused) {
                                 aplicarVolume(audioSuspense, 0.28);
                                 audioSuspense.play().catch(() => {});
                             }

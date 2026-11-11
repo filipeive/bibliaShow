@@ -383,6 +383,48 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        // Toca automaticamente a trilha clássica ao entrar na página inicial
+        let musicaHome = null;
+
+        function iniciarAudioHome() {
+            if (localStorage.getItem('biblia_show_som') === 'off') return;
+
+            if (!musicaHome) {
+                musicaHome = new Audio('/audio/classico/abertura.wav');
+                const vol = typeof obterVolumeGlobal === 'function' ? obterVolumeGlobal() : 0.85;
+                musicaHome.volume = vol * 0.70;
+            }
+
+            musicaHome.play().catch(() => {
+                // Se o navegador suspender o autoplay inicial, toca no primeiríssimo gesto (clique/toque)
+                const tocarNoPrimeiroGesto = () => {
+                    if (localStorage.getItem('biblia_show_som') !== 'off' && musicaHome && musicaHome.paused) {
+                        musicaHome.play().catch(() => {});
+                    }
+                };
+                ['click', 'touchstart', 'keydown'].forEach(evt => {
+                    document.addEventListener(evt, tocarNoPrimeiroGesto, { once: true, passive: true });
+                });
+            });
+        }
+
+        window.addEventListener('biblia-som-alterado', (ev) => {
+            if (musicaHome) {
+                if (!ev.detail.ativo) {
+                    musicaHome.pause();
+                } else {
+                    musicaHome.volume = ev.detail.volume * 0.70;
+                    if (musicaHome.paused) {
+                        musicaHome.play().catch(() => {});
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', iniciarAudioHome);
+    </script>
 </body>
 
 </html>

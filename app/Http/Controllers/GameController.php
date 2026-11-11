@@ -43,7 +43,14 @@ class GameController extends Controller
         }
 
         $jogadorNome = (string) $request->session()->get('jogador_nome', $request->user()?->nome ?? '');
-        $precisaIdentificacao = ($jogadorNome === '');
+        $precisaIdentificacao = ($jogadorNome === '' || $jogadorNome === 'Participante');
+        $perguntarContinuarComo = false;
+
+        if ($request->boolean('trocar_nome')) {
+            $precisaIdentificacao = true;
+        } elseif (($novaPartida || $request->boolean('confirmar_nome')) && !$precisaIdentificacao) {
+            $perguntarContinuarComo = true;
+        }
 
         $engine = $this->carregarEngineDaSessao($request);
         $iniciouAgora = false;
@@ -74,6 +81,7 @@ class GameController extends Controller
             'pergunta' => $pergunta,
             'jogador_nome' => $jogadorNome ?: 'Participante',
             'precisa_identificacao' => $precisaIdentificacao,
+            'perguntar_continuar' => $perguntarContinuarComo,
             'ranking_geral' => $this->obterRankingIndividual(),
             'numero_pergunta' => $estado['numero_pergunta'] ?? 1,
             'total_perguntas' => $estado['total_perguntas'] ?? 24,

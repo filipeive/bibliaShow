@@ -84,9 +84,26 @@
 
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Equipe / Célula (Opcional)</label>
-                    <input type="text" id="inputEquipe" name="equipe_nome"
-                           placeholder="Nome da sua equipe ou célula"
-                           class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white focus:ring-2 focus:ring-amber-500 outline-none">
+                    <div id="containerSelecaoEquipe" class="space-y-2 mb-2">
+                        <select id="selectEquipe" name="equipe_id"
+                                onchange="aoMudarSelectEquipe(this)"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white text-sm font-semibold focus:ring-2 focus:ring-amber-500 outline-none">
+                            <option value="">Nenhuma equipe (Jogar individualmente na sala)</option>
+                            @if($sala && $sala->equipes->isNotEmpty())
+                                <optgroup label="Equipes Criadas na Sala">
+                                    @foreach($sala->equipes as $eq)
+                                        <option value="{{ $eq->id }}">{{ $eq->nome }}</option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+                            <option value="__nova__">+ Criar ou Digitar Outra Equipe...</option>
+                        </select>
+                        <div id="campoNovaEquipe" class="hidden">
+                            <input type="text" id="inputEquipe" name="equipe_nome"
+                                   placeholder="Digite o nome da nova equipe ou célula"
+                                   class="w-full px-4 py-2.5 rounded-xl border border-amber-500/50 bg-slate-950 text-amber-300 text-sm font-bold focus:ring-2 focus:ring-amber-500 outline-none">
+                        </div>
+                    </div>
                 </div>
 
                 <button type="submit" id="btnEntrar"
@@ -100,16 +117,42 @@
 
         <!-- ETAPA 2: Tela de Jogo ao Vivo no Smartphone -->
         <div id="etapaJogo" class="hidden space-y-4">
-            <!-- Barra do Jogador -->
-            <div class="bg-slate-900/95 border border-slate-800 rounded-2xl p-4 flex items-center justify-between">
-                <div>
-                    <p class="text-[11px] text-slate-400 uppercase font-bold">Participante</p>
-                    <p class="font-black text-white text-base" id="jogadorNomeDisplay">-</p>
-                    <p class="text-xs text-amber-400 font-semibold" id="jogadorEquipeDisplay"></p>
+            <!-- Barra do Jogador Profissional com Avatar e Equipe -->
+            <div class="bg-slate-900/95 border border-slate-800 rounded-3xl p-4 shadow-xl flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black text-xl flex items-center justify-center shadow-md shadow-amber-500/20 shrink-0" id="jogadorAvatarDisplay">
+                        P
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Participante no Palco</p>
+                        <h3 class="font-black text-white text-base truncate" id="jogadorNomeDisplay">-</h3>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <span class="text-xs text-amber-400 font-bold truncate" id="jogadorEquipeDisplay">Individual</span>
+                            <button type="button" onclick="abrirModalTrocarEquipe()" class="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-blue-600/30 hover:bg-blue-600 text-blue-300 hover:text-white border border-blue-500/40 transition shrink-0">
+                                Equipes ▾
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="text-right">
-                    <p class="text-[11px] text-slate-400 uppercase font-bold">Seus Pontos</p>
-                    <p class="text-2xl font-black text-amber-400"><span id="jogadorPontosDisplay">0</span> <span class="text-xs font-normal text-slate-400">pts</span></p>
+                <div class="text-right shrink-0">
+                    <p class="text-[10px] text-slate-400 uppercase font-black">Seus Pontos</p>
+                    <p class="text-2xl font-black text-amber-400 font-mono"><span id="jogadorPontosDisplay">0</span> <span class="text-xs font-normal text-slate-400">pts</span></p>
+                </div>
+            </div>
+
+            <!-- Placar Clássico de Valores da Pergunta (Errar, Parar, Acertar) -->
+            <div class="grid grid-cols-3 gap-2">
+                <div class="p-2.5 rounded-2xl bg-rose-950/40 border border-rose-500/30 text-center">
+                    <p class="text-[9px] font-black uppercase text-rose-300">Se Errar</p>
+                    <p class="text-sm font-black text-rose-400 font-mono" id="placarErrarDisplay">0 <span class="text-[9px]">pts</span></p>
+                </div>
+                <div class="p-2.5 rounded-2xl bg-slate-900 border border-slate-700 text-center">
+                    <p class="text-[9px] font-black uppercase text-amber-300">Parar (Atual)</p>
+                    <p class="text-sm font-black text-amber-400 font-mono" id="placarPararDisplay">0 <span class="text-[9px]">pts</span></p>
+                </div>
+                <div class="p-2.5 rounded-2xl bg-emerald-950/50 border border-emerald-500/40 text-center">
+                    <p class="text-[9px] font-black uppercase text-emerald-300">Se Acertar</p>
+                    <p class="text-sm font-black text-emerald-400 font-mono" id="placarAcertarDisplay">10 <span class="text-[9px]">pts</span></p>
                 </div>
             </div>
 
@@ -125,20 +168,42 @@
             <!-- Feedback da Resposta na Rodada -->
             <div id="feedbackResposta" class="hidden rounded-2xl p-4 border"></div>
 
-            <!-- Card da Pergunta Ao Vivo -->
-            <div id="cardPerguntaViva" class="bg-slate-900/95 border border-slate-800 rounded-3xl p-5 shadow-2xl">
-                <div class="flex items-center justify-between mb-3">
-                    <span id="progressoPergunta" class="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-amber-500 text-slate-950">
-                        1ª Fase • Pergunta 1
-                    </span>
-                    <span id="nivelPergunta" class="text-xs text-amber-300 font-bold">Vale 10 pts</span>
+            <!-- Card da Pergunta Ao Vivo (Estilo TV Show do Milhão Bíblico) -->
+            <div id="cardPerguntaViva" class="bg-slate-900/95 border-2 border-amber-500/40 rounded-3xl p-5 sm:p-6 shadow-2xl">
+                <!-- Topo Bíblico + Fase + Cronômetro -->
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                    <div class="flex items-center gap-2">
+                        <span id="progressoPergunta" class="text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full bg-amber-500 text-slate-950">
+                            1ª Fase • Pergunta 1
+                        </span>
+                        <span id="nivelPergunta" class="text-xs text-amber-300 font-extrabold px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30">
+                            Vale 10 pts
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[11px] font-mono font-black text-amber-400 bg-slate-950 px-2.5 py-1 rounded-xl border border-slate-800 flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span id="tempoRestanteDisplay">60</span>s
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Crachá das Escrituras Sagradas (Livro / Categoria) -->
+                <div id="badgeBiblicoCard" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-black uppercase tracking-wider mb-3">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                    </svg>
+                    <span id="textoBiblicoCard">Sagradas Escrituras</span>
                 </div>
 
                 <!-- Dica Bíblica / Convidado Bíblico revelados pelo Apresentador -->
-                <div id="dicaBiblicaViva" class="hidden mb-3 p-3 rounded-xl bg-amber-500/20 border border-amber-400/40 text-xs font-bold text-amber-200"></div>
-                <div id="dicaConvidadoViva" class="hidden mb-3 p-3 rounded-xl bg-blue-950/90 border border-blue-400/40 text-xs font-bold text-blue-100"></div>
+                <div id="dicaBiblicaViva" class="hidden mb-3 p-3 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-xs font-bold text-amber-200"></div>
+                <div id="dicaConvidadoViva" class="hidden mb-3 p-3 rounded-2xl bg-blue-950/90 border border-blue-400/40 text-xs font-bold text-blue-100"></div>
 
-                <div class="question-banner rounded-2xl p-4 mb-4 shadow-md">
+                <!-- Banner Clássico Vermelho Escuro com Borda Dourada -->
+                <div class="question-banner rounded-2xl p-4 sm:p-5 mb-4 shadow-xl">
                     <p id="textoPerguntaViva" class="text-base sm:text-lg font-black text-white leading-relaxed">
                         Carregando pergunta da sala...
                     </p>
@@ -147,23 +212,64 @@
                 <div id="opcoesBotoes" class="space-y-2.5"></div>
             </div>
 
-            <!-- Ranking Compacto -->
-            <div class="bg-slate-900/95 border border-slate-800 rounded-2xl p-5">
-                <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-sm font-black text-white flex items-center gap-2">
-                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
-                        </svg>
-                        Classificação da Sala
-                    </h2>
-                    <button type="button" onclick="sairDaSala()" class="text-xs text-slate-400 hover:text-rose-400 font-semibold">
-                        Trocar de jogador
+            <!-- Ranking da Sala com Alternância Jogadores e Equipes -->
+            <div class="bg-slate-900/95 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-3">
+                    <div class="flex items-center gap-2">
+                        <button type="button" id="tabJogadores" onclick="alternarTabRanking('jogadores')"
+                                class="text-xs font-black px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 transition">
+                            Jogadores
+                        </button>
+                        <button type="button" id="tabEquipes" onclick="alternarTabRanking('equipes')"
+                                class="text-xs font-black px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white transition">
+                            Equipes / Células
+                        </button>
+                    </div>
+                    <button type="button" onclick="sairDaSala()" class="text-xs text-slate-400 hover:text-rose-400 font-bold transition">
+                        Sair da Sala
                     </button>
                 </div>
-                <div id="miniRanking" class="space-y-2 text-sm"></div>
+                <div id="miniRankingJogadores" class="space-y-2 text-sm"></div>
+                <div id="miniRankingEquipes" class="hidden space-y-2 text-sm"></div>
             </div>
         </div>
 
+    </div>
+
+    <!-- Modal para Juntar-se ou Trocar de Equipe na Sala -->
+    <div id="modalTrocarEquipe" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-amber-400 rounded-3xl max-w-md w-full p-6 text-slate-100 shadow-2xl relative">
+            <button type="button" onclick="fecharModalTrocarEquipe()" class="absolute top-4 right-4 text-slate-400 hover:text-white font-black text-lg">✕</button>
+            <div class="flex items-center gap-2.5 mb-2">
+                <span class="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                    </svg>
+                </span>
+                <h3 class="text-lg font-black text-white">Equipes / Células da Sala</h3>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">Escolha uma equipe criada pelo apresentador para pontuar em conjunto:</p>
+
+            <div id="listaEquipesModal" class="space-y-2 max-h-56 overflow-y-auto pr-1 mb-4">
+                <p class="text-xs text-slate-500">Carregando equipes...</p>
+            </div>
+
+            <div class="border-t border-slate-800 pt-3 space-y-2">
+                <p class="text-[11px] font-bold text-slate-400 uppercase">Ou crie uma nova equipe:</p>
+                <div class="flex gap-2">
+                    <input type="text" id="inputNovaEquipeModal" placeholder="Ex.: Tribo de Judá"
+                           class="flex-1 px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white outline-none focus:border-amber-400 font-bold">
+                    <button type="button" onclick="criarEquipeModal()"
+                            class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase shadow transition">
+                        Criar & Entrar
+                    </button>
+                </div>
+                <button type="button" onclick="sairEquipeModal()"
+                        class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
+                    Jogar Individualmente (Sem Equipe)
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Modal "Você tem certeza?" estilo Show do Milhão -->
@@ -217,6 +323,17 @@
             } catch (e) {}
         }
 
+        function aoMudarSelectEquipe(sel) {
+            const campo = document.getElementById('campoNovaEquipe');
+            if (!campo) return;
+            if (sel.value === '__nova__') {
+                campo.classList.remove('hidden');
+                document.getElementById('inputEquipe')?.focus();
+            } else {
+                campo.classList.add('hidden');
+            }
+        }
+
         document.getElementById('entrarForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
@@ -228,7 +345,15 @@
 
             const codigo = document.getElementById('inputCodigo').value.trim().toUpperCase();
             const nome = document.getElementById('inputNome').value.trim();
-            const equipe = document.getElementById('inputEquipe').value.trim();
+            const selEq = document.getElementById('selectEquipe');
+            let equipeId = null;
+            let equipeNome = null;
+
+            if (selEq && selEq.value === '__nova__') {
+                equipeNome = document.getElementById('inputEquipe')?.value.trim() || null;
+            } else if (selEq && selEq.value) {
+                equipeId = selEq.value;
+            }
 
             try {
                 const response = await fetch('/api/salas/entrar', {
@@ -241,7 +366,8 @@
                     body: JSON.stringify({
                         codigo_acesso: codigo,
                         nome: nome,
-                        equipe_nome: equipe || null,
+                        equipe_id: equipeId,
+                        equipe_nome: equipeNome,
                     }),
                 });
 
@@ -275,7 +401,11 @@
             document.getElementById('badgeSala').classList.remove('hidden');
             document.getElementById('codigoSalaTexto').innerText = estadoSessao.codigoSala;
             document.getElementById('jogadorNomeDisplay').innerText = estadoSessao.participanteNome;
-            document.getElementById('jogadorEquipeDisplay').innerText = estadoSessao.equipeNome ? 'Equipe: ' + estadoSessao.equipeNome : '';
+            const avatarEl = document.getElementById('jogadorAvatarDisplay');
+            if (avatarEl && estadoSessao.participanteNome) {
+                avatarEl.innerText = estadoSessao.participanteNome.trim().charAt(0).toUpperCase();
+            }
+            document.getElementById('jogadorEquipeDisplay').innerText = estadoSessao.equipeNome ? 'Equipe: ' + estadoSessao.equipeNome : 'Individual';
             document.getElementById('jogadorPontosDisplay').innerText = estadoSessao.pontuacao;
 
             sincronizarEstadoSala();
@@ -297,7 +427,21 @@
                     document.getElementById('premio2Display').innerHTML = data.sala.premio_segundo_lugar ? `2º: <strong>${data.sala.premio_segundo_lugar}</strong>` : '';
                 }
 
-                atualizarRanking(data.ranking || []);
+                if (data.tempo_restante !== undefined) {
+                    const timerEl = document.getElementById('tempoRestanteDisplay');
+                    if (timerEl) timerEl.innerText = data.tempo_restante;
+                }
+
+                const placar = data.placar_milhao || {};
+                const errarEl = document.getElementById('placarErrarDisplay');
+                const pararEl = document.getElementById('placarPararDisplay');
+                const acertarEl = document.getElementById('placarAcertarDisplay');
+                if (errarEl && placar.errar !== undefined) errarEl.innerHTML = `${placar.errar} <span class="text-[9px]">pts</span>`;
+                if (pararEl && placar.parar !== undefined) pararEl.innerHTML = `${placar.parar} <span class="text-[9px]">pts</span>`;
+                if (acertarEl && placar.acertar !== undefined) acertarEl.innerHTML = `${placar.acertar} <span class="text-[9px]">pts</span>`;
+
+                estadoSessao.equipes = data.equipes || [];
+                atualizarRanking(data.ranking || [], data.equipes || []);
 
                 if (data.estado === 'terminado') {
                     document.getElementById('textoPerguntaViva').innerText = 'Partida encerrada pelo apresentador! Confira sua colocação abaixo.';
@@ -370,6 +514,18 @@
 
         function renderizarPergunta(q) {
             document.getElementById('textoPerguntaViva').innerText = q.texto;
+
+            const badgeBiblico = document.getElementById('badgeBiblicoCard');
+            const textoBiblico = document.getElementById('textoBiblicoCard');
+            if (badgeBiblico && textoBiblico) {
+                if (q.livro_nome || q.categoria_nome) {
+                    textoBiblico.textContent = (q.livro_nome ? `LIVRO: ${q.livro_nome}` : 'SAGRADAS ESCRITURAS') + (q.categoria_nome ? ` • ${q.categoria_nome}` : '');
+                    badgeBiblico.classList.remove('hidden');
+                } else {
+                    badgeBiblico.classList.add('hidden');
+                }
+            }
+
             const container = document.getElementById('opcoesBotoes');
 
             const eliminadas = estadoSessao.opcoesEliminadas || [];
@@ -607,32 +763,160 @@
             }
         }
 
-        function atualizarRanking(ranking) {
-            const box = document.getElementById('miniRanking');
-            if (!box) return;
+        function alternarTabRanking(tab) {
+            const tabJ = document.getElementById('tabJogadores');
+            const tabE = document.getElementById('tabEquipes');
+            const boxJ = document.getElementById('miniRankingJogadores');
+            const boxE = document.getElementById('miniRankingEquipes');
+            if (tab === 'jogadores') {
+                if (tabJ) tabJ.className = 'text-xs font-black px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 transition';
+                if (tabE) tabE.className = 'text-xs font-black px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white transition';
+                if (boxJ) boxJ.classList.remove('hidden');
+                if (boxE) boxE.classList.add('hidden');
+            } else {
+                if (tabE) tabE.className = 'text-xs font-black px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 transition';
+                if (tabJ) tabJ.className = 'text-xs font-black px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white transition';
+                if (boxE) boxE.classList.remove('hidden');
+                if (boxJ) boxJ.classList.add('hidden');
+            }
+        }
+
+        function atualizarRanking(ranking, equipes = []) {
+            const boxJ = document.getElementById('miniRankingJogadores');
+            const boxE = document.getElementById('miniRankingEquipes');
 
             const meuItem = ranking.find(r => Number(r.id) === Number(estadoSessao.participanteId));
             if (meuItem) {
                 estadoSessao.pontuacao = meuItem.pontuacao;
                 document.getElementById('jogadorPontosDisplay').innerText = meuItem.pontuacao;
+                if (meuItem.equipe) {
+                    estadoSessao.equipeNome = meuItem.equipe;
+                    document.getElementById('jogadorEquipeDisplay').textContent = meuItem.equipe;
+                }
             }
 
-            if (ranking.length === 0) {
-                box.innerHTML = '<p class="text-slate-500 text-xs">Nenhum participante listado ainda.</p>';
-                return;
+            if (boxJ) {
+                if (ranking.length === 0) {
+                    boxJ.innerHTML = '<p class="text-slate-500 text-xs">Aguardando participantes entrarem...</p>';
+                } else {
+                    boxJ.innerHTML = ranking.slice(0, 8).map((p, idx) => {
+                        const souEu = Number(p.id) === Number(estadoSessao.participanteId);
+                        return `
+                            <div class="flex items-center justify-between p-2.5 rounded-xl ${souEu ? 'bg-amber-500/20 border border-amber-500/40 text-amber-200' : 'bg-slate-950/70 text-slate-200'}">
+                                <span class="font-bold truncate">
+                                    <strong class="text-amber-400 mr-1.5">${idx + 1}º</strong> ${p.nome} ${souEu ? '(Você)' : ''}
+                                    ${p.equipe ? `<span class="text-[10px] text-slate-400 block">${p.equipe}</span>` : ''}
+                                </span>
+                                <span class="font-mono font-black text-amber-300 text-xs">${p.pontuacao} pts</span>
+                            </div>
+                        `;
+                    }).join('');
+                }
             }
 
-            box.innerHTML = ranking.slice(0, 6).map((p, idx) => {
-                const souEu = Number(p.id) === Number(estadoSessao.participanteId);
-                return `
-                    <div class="flex items-center justify-between p-2.5 rounded-xl ${souEu ? 'bg-amber-500/20 border border-amber-500/40' : 'bg-slate-950/70'}">
-                        <span class="font-bold text-white truncate">
-                            <strong class="text-amber-400 mr-1.5">${idx + 1}º</strong> ${p.nome} ${souEu ? '(Você)' : ''}
-                        </span>
-                        <span class="font-mono font-black text-amber-300 text-xs">${p.pontuacao} pts</span>
+            if (boxE) {
+                if (!equipes || equipes.length === 0) {
+                    boxE.innerHTML = '<p class="text-slate-500 text-xs">Nenhuma equipe pontuando nesta sala ainda.</p>';
+                } else {
+                    const equipesOrd = [...equipes].sort((a, b) => (b.pontuacao_total || 0) - (a.pontuacao_total || 0));
+                    boxE.innerHTML = equipesOrd.map((eq, idx) => `
+                        <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
+                            <span class="font-bold text-white truncate">
+                                <strong class="text-emerald-400 mr-1.5">${idx + 1}º</strong> ${eq.nome}
+                            </span>
+                            <span class="font-mono font-black text-emerald-300 text-xs">${eq.pontuacao_total || 0} pts</span>
+                        </div>
+                    `).join('');
+                }
+            }
+        }
+
+        function abrirModalTrocarEquipe() {
+            const m = document.getElementById('modalTrocarEquipe');
+            const list = document.getElementById('listaEquipesModal');
+            if (!m || !list) return;
+
+            const equipes = estadoSessao.equipes || [];
+            if (equipes.length === 0) {
+                list.innerHTML = '<p class="text-xs text-slate-400 p-3 bg-slate-950 rounded-xl">Nenhuma equipe criada na sala ainda. Digite um nome abaixo para fundar a primeira equipe!</p>';
+            } else {
+                list.innerHTML = equipes.map(eq => `
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-amber-400 transition">
+                        <div>
+                            <p class="font-black text-sm text-white">${eq.nome}</p>
+                            <p class="text-[10px] text-amber-400 font-bold">${eq.pontuacao_total || 0} pts acumulados</p>
+                        </div>
+                        <button type="button" onclick="submeterTrocaEquipe(${eq.id}, null)"
+                                class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-black text-xs transition">
+                            Juntar-se →
+                        </button>
                     </div>
-                `;
-            }).join('');
+                `).join('');
+            }
+
+            m.classList.remove('hidden');
+        }
+
+        function fecharModalTrocarEquipe() {
+            const m = document.getElementById('modalTrocarEquipe');
+            if (m) m.classList.add('hidden');
+        }
+
+        async function submeterTrocaEquipe(equipeId, equipeNome) {
+            if (!estadoSessao.salaId || !estadoSessao.participanteId) return;
+
+            try {
+                const resp = await fetch(`/api/salas/${estadoSessao.salaId}/participantes/${estadoSessao.participanteId}/equipe`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        equipe_id: equipeId,
+                        equipe_nome: equipeNome,
+                    }),
+                });
+
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.error || 'Erro ao alterar equipe.');
+
+                estadoSessao.equipeNome = data.equipe_nome || '';
+                document.getElementById('jogadorEquipeDisplay').textContent = data.equipe_nome ? data.equipe_nome : 'Individual';
+                sessionStorage.setItem('biblia_show_participante', JSON.stringify(estadoSessao));
+                fecharModalTrocarEquipe();
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Equipe Atualizada!',
+                        text: data.mensagem,
+                        timer: 2000,
+                        showConfirmButton: false,
+                        background: '#0f172a',
+                        color: '#f8fafc',
+                    });
+                }
+            } catch (e) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({ icon: 'error', title: 'Erro', text: e.message, background: '#0f172a', color: '#f8fafc' });
+                } else {
+                    alert(e.message);
+                }
+            }
+        }
+
+        function criarEquipeModal() {
+            const inp = document.getElementById('inputNovaEquipeModal');
+            const nome = inp ? inp.value.trim() : '';
+            if (!nome) return;
+            submeterTrocaEquipe(null, nome);
+            if (inp) inp.value = '';
+        }
+
+        function sairEquipeModal() {
+            submeterTrocaEquipe(null, null);
         }
 
         function sairDaSala() {

@@ -47,19 +47,37 @@
 
             <!-- Mesa de Áudio Clássico + Telas -->
             <div class="flex flex-wrap items-center gap-2">
-                <button type="button" onclick="tocarSomEstudio('abertura')"
+                <button type="button" onclick="tocarSomEstudio('abertura')" title="Tocar Tema de Abertura"
                         class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-300 text-xs font-bold transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
                     </svg>
                     Abertura
                 </button>
-                <button type="button" onclick="alternarSuspenseEstudio()" id="btnSuspenseEstudio"
+                <button type="button" onclick="alternarSuspenseEstudio()" id="btnSuspenseEstudio" title="Trilha de Suspense"
                         class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-blue-300 text-xs font-bold transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" />
                     </svg>
                     <span id="txtSuspenseEstudio">Suspense</span>
+                </button>
+                <button type="button" onclick="tocarSomEstudio('certa1')" title="Efeito de Acerto / Aplausos"
+                        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 text-xs font-bold transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    Acerto
+                </button>
+                <button type="button" onclick="tocarSomEstudio('errou1')" title="Efeito de Erro"
+                        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-950/60 hover:bg-rose-900 border border-rose-500/40 text-rose-300 text-xs font-bold transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Erro
+                </button>
+                <button type="button" onclick="tocarSomEstudio('inicio')" title="Chime Início"
+                        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-purple-300 text-xs font-bold transition">
+                    Chime
                 </button>
                 <a href="{{ route('entrar.view', $sala->codigo_acesso) }}" target="_blank"
                    class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow">
@@ -73,7 +91,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125z" />
                     </svg>
-                    Abrir Telão (Projeção)
+                    Abrir Telão
                 </a>
             </div>
         </header>
@@ -127,6 +145,24 @@
                         </div>
 
                         @if($pergunta)
+                            <!-- Monitor de Respostas da Rodada em Tempo Real -->
+                            <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3.5 mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-inner">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-black uppercase tracking-wider text-slate-400">Respostas dos Participantes</p>
+                                        <p class="text-xs sm:text-sm font-black text-white" id="txtRespostasMonitor">Aguardando participantes...</p>
+                                    </div>
+                                </div>
+                                <div class="w-full sm:w-48 bg-slate-900 h-3 rounded-full overflow-hidden border border-slate-700/80 p-0.5">
+                                    <div id="barraProgressoRespostas" class="bg-gradient-to-r from-amber-400 via-amber-500 to-emerald-400 h-full rounded-full w-0 transition-all duration-500"></div>
+                                </div>
+                            </div>
+
                             <!-- Enunciado estilo Show do Milhão -->
                             <div class="bg-gradient-to-r from-red-950 via-red-900 to-red-950 border-2 border-amber-400/60 text-white rounded-2xl p-5 mb-5 shadow-lg">
                                 <p id="textoPerguntaEstudio" class="text-lg sm:text-xl font-black leading-relaxed">
@@ -747,33 +783,78 @@
 
                 const list = document.getElementById('participantesList');
                 const contador = document.getElementById('contadorParticipantes');
-                if (!list || !data.ranking) return;
+                const monitorTxt = document.getElementById('txtRespostasMonitor');
+                const barraProgresso = document.getElementById('barraProgressoRespostas');
+
+                const totalPart = data.ranking ? data.ranking.length : 0;
+                const respostasMap = data.respostas_rodada || {};
+                const respondidosCount = Object.keys(respostasMap).length;
+                const pct = totalPart > 0 ? Math.min(100, Math.round((respondidosCount / totalPart) * 100)) : 0;
+
+                if (monitorTxt) {
+                    if (totalPart === 0) {
+                        monitorTxt.textContent = 'Aguardando participantes entrarem com o código {{ $sala->codigo_acesso }}...';
+                    } else if (respondidosCount === 0) {
+                        monitorTxt.textContent = `0 de ${totalPart} responderam (0%) • Aguardando respostas...`;
+                    } else if (respondidosCount < totalPart) {
+                        monitorTxt.textContent = `${respondidosCount} de ${totalPart} responderam (${pct}%) • Bloqueando respostas...`;
+                    } else {
+                        monitorTxt.textContent = `Todos os ${totalPart} responderam! (100%) • Pronto para revelar`;
+                    }
+                }
+                if (barraProgresso) {
+                    barraProgresso.style.width = `${pct}%`;
+                }
 
                 if (contador) {
-                    contador.textContent = data.ranking.length + ' jogadores';
+                    contador.textContent = totalPart + ' jogadores';
                 }
+
+                if (!list || !data.ranking) return;
 
                 if (data.ranking.length === 0) {
                     list.innerHTML = '<div class="p-4 bg-slate-950/60 rounded-2xl text-center text-xs text-slate-400">Aguardando participantes entrarem com o código <strong>{{ $sala->codigo_acesso }}</strong>...</div>';
                     return;
                 }
 
-                list.innerHTML = data.ranking.map((p, idx) => `
-                    <div class="flex items-center justify-between p-3 bg-slate-950/80 rounded-2xl border border-slate-800">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center text-xs font-black shrink-0">
-                                ${idx + 1}º
+                const gabaritoRevelado = data.ajudas && data.ajudas.gabarito_revelado;
+
+                list.innerHTML = data.ranking.map((p, idx) => {
+                    const r = respostasMap[p.id];
+                    let statusBadge = '<span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-lg bg-slate-800 text-slate-400">Pensando...</span>';
+
+                    if (r) {
+                        if (gabaritoRevelado) {
+                            if (r.correta) {
+                                statusBadge = `<span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">Acertou: ${r.letra} (+${r.pontos || 10} pts)</span>`;
+                            } else {
+                                statusBadge = `<span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-rose-500/20 text-rose-400 border border-rose-500/40">Errou: ${r.letra}</span>`;
+                            }
+                        } else {
+                            statusBadge = `<span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse">Bloqueou: ${r.letra}</span>`;
+                        }
+                    }
+
+                    return `
+                        <div class="flex items-center justify-between p-3 bg-slate-950/80 rounded-2xl border border-slate-800">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center text-xs font-black shrink-0">
+                                    ${idx + 1}º
+                                </div>
+                                <div class="truncate">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm font-bold text-white truncate">${p.nome}</span>
+                                        ${statusBadge}
+                                    </div>
+                                    ${p.equipe ? `<span class="text-xs text-slate-400 block">${p.equipe}</span>` : ''}
+                                </div>
                             </div>
-                            <div class="truncate">
-                                <span class="text-sm font-bold text-white block truncate">${p.nome}</span>
-                                ${p.equipe ? `<span class="text-xs text-slate-400">${p.equipe}</span>` : ''}
-                            </div>
+                            <span class="text-xs font-mono font-black text-amber-300 bg-amber-500/15 px-2.5 py-1 rounded-lg shrink-0 ml-2">
+                                ${p.pontuacao} pts
+                            </span>
                         </div>
-                        <span class="text-xs font-mono font-black text-amber-300 bg-amber-500/15 px-2.5 py-1 rounded-lg shrink-0">
-                            ${p.pontuacao} pts
-                        </span>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             } catch (e) {}
         }
 

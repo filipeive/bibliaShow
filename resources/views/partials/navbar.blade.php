@@ -171,6 +171,8 @@
                     </p>
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-amber-300 mb-1">Seu Nome para o Ranking:</label>
                     <input type="text" name="jogador_nome" required maxlength="60"
+                           id="inputNomeJogadorNavbar"
+                           onfocus="anunciarParticipanteNavbar()"
                            value="{{ $nomeJogadorSessao }}"
                            placeholder="Digite seu nome..."
                            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm font-bold focus:border-amber-400 outline-none mb-3">
@@ -448,9 +450,46 @@
         testarEfeitoSonoro('inicio');
     }
 
+    let somAnunciadoNavbar = false;
+    function anunciarParticipanteNavbar() {
+        if (somAnunciadoNavbar) return;
+        somAnunciadoNavbar = true;
+        setTimeout(() => { somAnunciadoNavbar = false; }, 4000);
+
+        const somLigado = typeof somEstaAtivo === 'function' ? somEstaAtivo() : (localStorage.getItem('biblia_show_som') !== 'off');
+        if (!somLigado) return;
+
+        // 1. Chime clássico de início
+        const chime = new Audio('/audio/classico/inicio.wav');
+        chime.volume = obterVolumeGlobal() * 0.85;
+        chime.play().catch(() => {});
+
+        // 2. Apresentador: "Agora vamos ver quem vai participar do Bíblia Show!"
+        if ('speechSynthesis' in window) {
+            try {
+                window.speechSynthesis.cancel();
+                const vozMsg = new SpeechSynthesisUtterance("Agora vamos ver quem vai participar do Bíblia Show!");
+                vozMsg.lang = 'pt-BR';
+                vozMsg.rate = 1.0;
+                vozMsg.pitch = 1.05;
+                const vozes = window.speechSynthesis.getVoices();
+                const vozPt = vozes.find(v => v.lang.startsWith('pt')) || vozes[0];
+                if (vozPt) vozMsg.voice = vozPt;
+                setTimeout(() => {
+                    window.speechSynthesis.speak(vozMsg);
+                }, 300);
+            } catch (e) {}
+        }
+    }
+
     function abrirModalJogarAgora() {
         const m = document.getElementById('modalJogarAgora');
-        if (m) m.classList.remove('hidden');
+        if (m) {
+            m.classList.remove('hidden');
+            anunciarParticipanteNavbar();
+            const inp = document.getElementById('inputNomeJogadorNavbar');
+            if (inp) setTimeout(() => inp.focus(), 250);
+        }
     }
     function fecharModalJogarAgora() {
         const m = document.getElementById('modalJogarAgora');

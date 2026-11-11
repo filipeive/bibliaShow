@@ -447,6 +447,59 @@ class ParticipantController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function juntarEquipe(Request $request, Sala $sala, Participante $participante)
+    {
+        if ((int) $participante->sala_id !== (int) $sala->id) {
+            return response()->json(['error' => 'Participante não pertence a esta sala.'], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'equipe_id' => 'nullable',
+            'equipe_nome' => 'nullable|string|max:100',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $equipeId = $request->input('equipe_id');
+        $equipeNome = trim((string) $request->input('equipe_nome'));
+
+        if (!empty($equipeNome)) {
+            $equipe = Equipe::firstOrCreate(
+                [
+                    'sala_id' => $sala->id,
+                    'nome' => $equipeNome,
+                ],
+                [
+                    'cor' => '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT),
+                ]
+            );
+            $equipeId = $equipe->id;
+        } elseif ($equipeId && is_numeric($equipeId) && (int) $equipeId > 0) {
+            $equipe = Equipe::where('sala_id', $sala->id)->where('id', (int) $equipeId)->first();
+            if (!$equipe) {
+                return response()->json(['error' => 'Equipe não encontrada nesta sala.'], 404);
+            }
+            $equipeId = $equipe->id;
+        } else {
+            $equipeId = null;
+        }
+
+        $participante->update(['equipe_id' => $equipeId]);
+        $participante->load('equipe');
+
+        $this->tentarBroadcast(new RankingAtualizado($sala->id, []));
+
+        return response()->json([
+            'sucesso' => true,
+            'mensagem' => $participante->equipe ? "Você agora faz parte da equipe «{$participante->equipe->nome}»!" : "Você agora joga individualmente na sala.",
+            'equipe_id' => $participante->equipe_id,
+            'equipe_nome' => $participante->equipe?->nome,
+            'participante' => $participante,
+        ]);
+    }
+
     private function tentarBroadcast(object $evento): void
     {
         try {
