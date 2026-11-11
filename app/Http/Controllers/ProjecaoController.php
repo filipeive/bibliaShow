@@ -16,14 +16,14 @@ class ProjecaoController extends Controller
         $engine = null;
 
         if ($jogo && $jogo->dados_motor) {
-            $unserialized = @unserialize($jogo->dados_motor);
+            $unserialized = GameEngine::desserializarSeguro($jogo->dados_motor);
             if ($unserialized instanceof GameEngine) {
                 $engine = $unserialized;
             }
         }
 
         if (!$engine && session('game_engine_' . $salaId)) {
-            $unserialized = @unserialize(session('game_engine_' . $salaId));
+            $unserialized = GameEngine::desserializarSeguro(session('game_engine_' . $salaId));
             if ($unserialized instanceof GameEngine) {
                 $engine = $unserialized;
             }

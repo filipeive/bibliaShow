@@ -133,6 +133,159 @@ class GameEngine
         ];
     }
 
+    public function toStateArray(): array
+    {
+        $timerRef = new \ReflectionClass($this->timer);
+        $limiteProp = $timerRef->hasProperty('limite') ? $timerRef->getProperty('limite') : null;
+        $inicioProp = $timerRef->hasProperty('inicio') ? $timerRef->getProperty('inicio') : null;
+        $ativoProp = $timerRef->hasProperty('ativo') ? $timerRef->getProperty('ativo') : null;
+
+        $stateRef = new \ReflectionClass($this->state);
+        $historicoProp = $stateRef->hasProperty('historicoPerguntas') ? $stateRef->getProperty('historicoPerguntas') : null;
+
+        return [
+            'version' => 1,
+            'questions' => $this->questions,
+            'currentIndex' => $this->currentIndex,
+            'participants' => $this->participants,
+            'answers' => $this->answers,
+            'pulosRestantes' => $this->pulosRestantes,
+            'dicasRestantes' => $this->dicasRestantes,
+            'ajudasConvidadosRestantes' => $this->ajudasConvidadosRestantes,
+            'ajudaCartasUsada' => $this->ajudaCartasUsada,
+            'opcoesEliminadasAtual' => $this->opcoesEliminadasAtual,
+            'dicaConvidadoAtual' => $this->dicaConvidadoAtual,
+            'dicaBiblicaAtual' => $this->dicaBiblicaAtual,
+            'convidadoConsultadoNaPergunta' => $this->convidadoConsultadoNaPergunta,
+            'gabaritoReveladoAtual' => $this->gabaritoReveladoAtual,
+            'errosCount' => $this->errosCount,
+            'maxErros' => $this->maxErros,
+            'temposEsgotadosCount' => $this->temposEsgotadosCount,
+            'maxTemposEsgotados' => $this->maxTemposEsgotados,
+            'state_data' => [
+                'estado' => $this->state->getEstado(),
+                'perguntaAtual' => $this->state->getPerguntaAtual(),
+                'pontuacao' => $this->state->getPontuacao(),
+                'ranking' => $this->state->getRanking(),
+                'historicoPerguntas' => $historicoProp ? $historicoProp->getValue($this->state) : [],
+            ],
+            'timer_data' => [
+                'limite' => $limiteProp ? $limiteProp->getValue($this->timer) : 60,
+                'inicio' => $inicioProp ? $inicioProp->getValue($this->timer) : time(),
+                'ativo' => $ativoProp ? (bool) $ativoProp->getValue($this->timer) : false,
+            ],
+        ];
+    }
+
+    public function toJsonState(): string
+    {
+        return json_encode($this->toStateArray(), JSON_UNESCAPED_UNICODE);
+    }
+
+    public static function fromJsonState(string $json): ?self
+    {
+        $data = json_decode($json, true);
+        if (!is_array($data) || empty($data['version'])) {
+            return null;
+        }
+
+        return self::fromStateArray($data);
+    }
+
+    public static function fromStateArray(array $data): self
+    {
+        $engine = new self(
+            new \App\Game\Engine\Selectors\RandomSelector(),
+            new \App\Game\Engine\Scoring\StandardScoring(),
+            new \App\Game\Engine\Timers\CountdownTimer(),
+            new \App\Game\Engine\State\GameState()
+        );
+
+        $engine->questions = $data['questions'] ?? [];
+        $engine->currentIndex = (int) ($data['currentIndex'] ?? -1);
+        $engine->participants = $data['participants'] ?? [];
+        $engine->answers = $data['answers'] ?? [];
+        $engine->pulosRestantes = (int) ($data['pulosRestantes'] ?? 3);
+        $engine->dicasRestantes = (int) ($data['dicasRestantes'] ?? 3);
+        $engine->ajudasConvidadosRestantes = (int) ($data['ajudasConvidadosRestantes'] ?? 3);
+        $engine->ajudaCartasUsada = (bool) ($data['ajudaCartasUsada'] ?? false);
+        $engine->opcoesEliminadasAtual = $data['opcoesEliminadasAtual'] ?? [];
+        $engine->dicaConvidadoAtual = $data['dicaConvidadoAtual'] ?? null;
+        $engine->dicaBiblicaAtual = $data['dicaBiblicaAtual'] ?? null;
+        $engine->convidadoConsultadoNaPergunta = (bool) ($data['convidadoConsultadoNaPergunta'] ?? false);
+        $engine->gabaritoReveladoAtual = (bool) ($data['gabaritoReveladoAtual'] ?? false);
+        $engine->errosCount = (int) ($data['errosCount'] ?? 0);
+        $engine->maxErros = (int) ($data['maxErros'] ?? 3);
+        $engine->temposEsgotadosCount = (int) ($data['temposEsgotadosCount'] ?? 0);
+        $engine->maxTemposEsgotados = (int) ($data['maxTemposEsgotados'] ?? 3);
+
+        if (!empty($data['state_data']) && is_array($data['state_data'])) {
+            $sd = $data['state_data'];
+            $engine->state->setEstado($sd['estado'] ?? 'aguardando');
+            $engine->state->setPerguntaAtual($sd['perguntaAtual'] ?? null);
+            $engine->state->setPontuacao((int) ($sd['pontuacao'] ?? 0));
+            $engine->state->setRanking($sd['ranking'] ?? []);
+
+            if (!empty($sd['historicoPerguntas']) && is_array($sd['historicoPerguntas'])) {
+                $stateRef = new \ReflectionClass($engine->state);
+                if ($stateRef->hasProperty('historicoPerguntas')) {
+                    $prop = $stateRef->getProperty('historicoPerguntas');
+                    $prop->setValue($engine->state, $sd['historicoPerguntas']);
+                }
+            }
+        }
+
+        if (!empty($data['timer_data']) && is_array($data['timer_data'])) {
+            $td = $data['timer_data'];
+            $timerRef = new \ReflectionClass($engine->timer);
+            if ($timerRef->hasProperty('limite')) {
+                $timerRef->getProperty('limite')->setValue($engine->timer, (int) ($td['limite'] ?? 60));
+            }
+            if ($timerRef->hasProperty('inicio')) {
+                $timerRef->getProperty('inicio')->setValue($engine->timer, (int) ($td['inicio'] ?? time()));
+            }
+            if ($timerRef->hasProperty('ativo')) {
+                $timerRef->getProperty('ativo')->setValue($engine->timer, (bool) ($td['ativo'] ?? false));
+            }
+        }
+
+        return $engine;
+    }
+
+    public static function desserializarSeguro(?string $conteudo): ?self
+    {
+        if (!$conteudo || trim($conteudo) === '') {
+            return null;
+        }
+
+        $trimmed = trim($conteudo);
+
+        // Se for JSON estruturado (inicia com { e tem version)
+        if (str_starts_with($trimmed, '{')) {
+            $engine = self::fromJsonState($trimmed);
+            if ($engine instanceof self) {
+                return $engine;
+            }
+        }
+
+        // Se for objeto serializado legado (PHP serialize), desserializa com restrição estrita de classes permitidas
+        if (str_starts_with($trimmed, 'O:') || str_starts_with($trimmed, 'a:') || str_starts_with($trimmed, 'C:')) {
+            $allowedClasses = [
+                self::class,
+                \App\Game\Engine\State\GameState::class,
+                \App\Game\Engine\Timers\CountdownTimer::class,
+                \App\Game\Engine\Scoring\StandardScoring::class,
+                \App\Game\Engine\Selectors\RandomSelector::class,
+            ];
+            $obj = @unserialize($trimmed, ['allowed_classes' => $allowedClasses]);
+            if ($obj instanceof self) {
+                return $obj;
+            }
+        }
+
+        return null;
+    }
+
     private function encontrarIndiceCorreto($question): ?int
     {
         if (!$question) {
@@ -536,6 +689,11 @@ class GameEngine
         } catch (\Throwable $e) {
             // Event dispatching unavailable outside Laravel context; safe to ignore.
         }
+    }
+
+    public function getCurrentQuestion(): ?array
+    {
+        return $this->state->getPerguntaAtual();
     }
 
     public function getState(): array

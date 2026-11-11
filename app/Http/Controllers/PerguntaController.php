@@ -14,7 +14,17 @@ class PerguntaController extends Controller
 {
     public function index(Request $request)
     {
+        $user = $request->user();
         $query = Questao::with(['livro', 'capitulo', 'dificuldade', 'categoria']);
+
+        // Se for admin de igreja ou editor, visualiza o acervo global/clássico mais o específico da sua igreja
+        if ($user && $user->papel !== 'admin_geral' && $user->igreja_id) {
+            $query->where(function ($q) use ($user) {
+                $q->whereNull('igreja_id')
+                    ->orWhere('igreja_id', $user->igreja_id)
+                    ->orWhereNotNull('codigo_classico');
+            });
+        }
 
         if ($request->filled('aprovada')) {
             $query->where('aprovada', filter_var($request->aprovada, FILTER_VALIDATE_BOOLEAN));
@@ -105,14 +115,24 @@ class PerguntaController extends Controller
             ->with('success', 'Pergunta criada com sucesso e adicionada ao banco do Bíblia Show.');
     }
 
-    public function show(Questao $questao)
+    private function verificarAcessoQuestao(Request $request, Questao $questao): void
     {
+        $user = $request->user();
+        if ($user && $user->papel !== 'admin_geral' && $questao->igreja_id && (int) $user->igreja_id !== (int) $questao->igreja_id) {
+            abort(403, 'Acesso negado: questão pertence a outra igreja.');
+        }
+    }
+
+    public function show(Request $request, Questao $questao)
+    {
+        $this->verificarAcessoQuestao($request, $questao);
         $questao->load(['livro', 'capitulo', 'dificuldade', 'categoria', 'submetidaPor', 'revisadaPor']);
         return view('perguntas.show', compact('questao'));
     }
 
-    public function edit(Questao $questao)
+    public function edit(Request $request, Questao $questao)
     {
+        $this->verificarAcessoQuestao($request, $questao);
         $livros = LivroBiblico::orderBy('ordem')->get();
         $categorias = Categoria::orderBy('nome')->get();
         $dificuldades = NivelDificuldade::orderBy('nivel')->get();
@@ -123,6 +143,7 @@ class PerguntaController extends Controller
 
     public function update(Request $request, Questao $questao)
     {
+        $this->verificarAcessoQuestao($request, $questao);
         $opcoesInput = $request->input('opcoes', []);
         if (is_string($opcoesInput)) {
             $decoded = json_decode($opcoesInput, true);
@@ -167,8 +188,9 @@ class PerguntaController extends Controller
             ->with('success', 'Pergunta atualizada com sucesso.');
     }
 
-    public function destroy(Questao $questao)
+    public function destroy(Request $request, Questao $questao)
     {
+        $this->verificarAcessoQuestao($request, $questao);
         $questao->delete();
         return redirect()->route('perguntas.index')
             ->with('success', 'Pergunta removida com sucesso.');
@@ -176,6 +198,7 @@ class PerguntaController extends Controller
 
     public function aprovar(Request $request, Questao $questao)
     {
+        $this->verificarAcessoQuestao($request, $questao);
         $questao->update([
             'aprovada' => true,
             'referencia_verificada' => true,
@@ -188,6 +211,7 @@ class PerguntaController extends Controller
 
     public function rejeitar(Request $request, Questao $questao)
     {
+        $this->verificarAcessoQuestao($request, $questao);
         $request->validate([
             'notas' => 'nullable|string',
         ]);

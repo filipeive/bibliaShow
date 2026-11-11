@@ -57,14 +57,28 @@ class ParticipantController extends Controller
 
         $participanteCodigo = Str::upper(Str::random(6));
 
-        $participante = Participante::create([
-            'sala_id' => $sala->id,
-            'equipe_id' => $equipeId,
-            'nome' => trim($validated['nome']),
-            'codigo_acesso' => $participanteCodigo,
-            'conectado' => true,
-            'pontuacao_total' => 0,
-        ]);
+        // Reutilizar participante se já existe na sala com mesmo nome e reconectar
+        $participante = Participante::where('sala_id', $sala->id)
+            ->where('nome', trim($validated['nome']))
+            ->first();
+
+        if ($participante) {
+            $participante->update([
+                'conectado' => true,
+                'equipe_id' => $equipeId ?: $participante->equipe_id,
+            ]);
+        } else {
+            $participante = Participante::create([
+                'sala_id' => $sala->id,
+                'equipe_id' => $equipeId,
+                'nome' => trim($validated['nome']),
+                'codigo_acesso' => $participanteCodigo,
+                'conectado' => true,
+                'pontuacao_total' => 0,
+            ]);
+        }
+
+        session(['participante_id_' . $sala->id => $participante->id]);
 
         $participante->load('equipe');
 
@@ -132,7 +146,7 @@ class ParticipantController extends Controller
         $tempoRestante = 60;
 
         if ($jogo && $jogo->dados_motor) {
-            $engine = @unserialize($jogo->dados_motor);
+            $engine = GameEngine::desserializarSeguro($jogo->dados_motor);
             if ($engine instanceof GameEngine) {
                 $st = $engine->getState();
                 $estadoJogo = $st['estado'];
@@ -294,6 +308,20 @@ class ParticipantController extends Controller
             ]);
         }
 
+        // Validação de estado e cronômetro da pergunta atual
+        if ($jogo && $jogo->dados_motor) {
+            $engine = GameEngine::desserializarSeguro($jogo->dados_motor);
+            if ($engine instanceof GameEngine) {
+                $estadoMotor = $engine->getState();
+                if ($estadoMotor['estado'] !== 'em_curso') {
+                    return response()->json(['error' => 'A rodada está pausada ou já foi encerrada.'], 403);
+                }
+                if (!empty($estadoMotor['tempo_esgotado'])) {
+                    return response()->json(['error' => 'Tempo esgotado para esta pergunta! Resposta não computada.'], 408);
+                }
+            }
+        }
+
         // Resolução resiliente da Questão para garantir integridade referencial com sqlite
         $questaoId = $validated['questao_id'] ?? null;
         $questao = null;
@@ -302,7 +330,7 @@ class ParticipantController extends Controller
         }
 
         if (!$questao && $jogo && $jogo->dados_motor) {
-            $engine = @unserialize($jogo->dados_motor);
+            $engine = GameEngine::desserializarSeguro($jogo->dados_motor);
             if ($engine instanceof GameEngine) {
                 $curQ = $engine->getCurrentQuestion();
                 if ($curQ) {
@@ -368,27 +396,37 @@ class ParticipantController extends Controller
         };
         $pontos = $acertou ? $pontosBaseFase : 0;
 
-        Resposta::create([
-            'jogo_id' => $jogo->id,
-            'questao_id' => $questaoIdReal,
-            'participante_id' => $participante->id,
-            'equipe_id' => $participante->equipe_id,
-            'resposta' => $respostaTexto,
-            'correta' => $acertou,
-            'tempo_resposta' => $tempo,
-            'pontos_ganhos' => $pontos,
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use (
+            $jogo,
+            $questaoIdReal,
+            $participante,
+            $respostaTexto,
+            $acertou,
+            $tempo,
+            $pontos
+        ) {
+            Resposta::create([
+                'jogo_id' => $jogo->id,
+                'questao_id' => $questaoIdReal,
+                'participante_id' => $participante->id,
+                'equipe_id' => $participante->equipe_id,
+                'resposta' => $respostaTexto,
+                'correta' => $acertou,
+                'tempo_resposta' => $tempo,
+                'pontos_ganhos' => $pontos,
+            ]);
 
-        if ($acertou) {
-            $participante->increment('pontuacao_total', $pontos);
-            $participante->refresh();
+            if ($acertou) {
+                $participante->increment('pontuacao_total', $pontos);
+                $participante->refresh();
 
-            if ($participante->equipe_id) {
-                $participante->equipe()->increment('pontuacao_total', $pontos);
+                if ($participante->equipe_id) {
+                    $participante->equipe()->increment('pontuacao_total', $pontos);
+                }
+
+                $jogo->increment('pontuacao_total', $pontos);
             }
-
-            $jogo->increment('pontuacao_total', $pontos);
-        }
+        });
 
         $this->tentarBroadcast(new RespostaEnviada(
             $sala->id,

@@ -12,9 +12,11 @@ class IgrejaScope
     {
         $user = $request->user();
 
-        if ($user && method_exists($user, 'igreja_id')) {
-            // Scope queries to user's church for models that support it
-            $request->merge(['igreja_id' => $user->igreja_id]);
+        if ($user && isset($user->igreja_id)) {
+            // Injeta o igreja_id no request apenas se o usuário for membro/admin da igreja (evita impersonação)
+            if ($user->papel !== 'admin_geral' || !$request->has('igreja_id')) {
+                $request->merge(['igreja_id' => $user->igreja_id]);
+            }
         }
 
         return $next($request);

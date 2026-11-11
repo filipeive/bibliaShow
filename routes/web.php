@@ -13,6 +13,18 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// PWA Manifest e Service Worker
+Route::get('/manifest.json', function () {
+    return response()->file(public_path('manifest.json'), [
+        'Content-Type' => 'application/json',
+    ]);
+});
+Route::get('/sw.js', function () {
+    return response()->file(public_path('sw.js'), [
+        'Content-Type' => 'application/javascript',
+    ]);
+});
+
 // Autenticação
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
@@ -20,8 +32,8 @@ Route::get('/registro', [AuthController::class, 'showRegister'])->name('register
 Route::post('/registro', [AuthController::class, 'register'])->name('register.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Painel de Administração (Protegido por Autenticação)
-Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+// Painel de Administração (Protegido por Autenticação e Perfis Administrativos)
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin_geral,admin_igreja'])->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::post('/igrejas', [AdminController::class, 'criarIgreja'])->name('igrejas.criar');
     Route::post('/usuarios', [AdminController::class, 'salvarUsuario'])->name('usuarios.salvar');
@@ -49,7 +61,7 @@ Route::prefix('jogar')->name('game.')->group(function () {
 });
 
 // Modo Apresentador & Salas Ao Vivo
-Route::prefix('apresentador')->name('apresentador.')->group(function () {
+Route::prefix('apresentador')->name('apresentador.')->middleware(['auth', 'role:admin_geral,admin_igreja,apresentador'])->group(function () {
     Route::get('/', [ApresentadorController::class, 'painel'])->name('painel');
     Route::post('/criar', [ApresentadorController::class, 'criarSala'])->name('criar');
     Route::get('/control/{sala}', [ApresentadorController::class, 'control'])->name('control');
@@ -65,13 +77,13 @@ Route::prefix('apresentador')->name('apresentador.')->group(function () {
     Route::post('/salas/{sala}/excluir', [ApresentadorController::class, 'eliminarSala'])->name('salas.excluir');
 });
 
-// Projeção para Telão / TV
+// Projeção para Telão / TV (Aberto para exibição pública na congregação)
 Route::prefix('projecao')->name('projecao.')->group(function () {
     Route::get('/{sala}', [ProjecaoController::class, 'tela'])->name('tela');
 });
 
-// Gestão de Perguntas
-Route::prefix('perguntas')->name('perguntas.')->group(function () {
+// Gestão de Perguntas (Protegido por Autenticação e Perfis Editoriais)
+Route::prefix('perguntas')->name('perguntas.')->middleware(['auth', 'role:admin_geral,admin_igreja,editor'])->group(function () {
     Route::get('/', [PerguntaController::class, 'index'])->name('index');
     Route::get('/criar', [PerguntaController::class, 'create'])->name('create');
     Route::post('/', [PerguntaController::class, 'store'])->name('store');

@@ -312,17 +312,32 @@ class QuestoesClassicoSeeder extends Seeder
         $versAte = null;
         $refBiblica = null;
 
-        if ($comentario && preg_match('/^Ler\s+(.+?)\s+(\d+)(?:\s*[:.,]\s*(\d+)(?:\s*[-a]\s*(\d+))?)?/iu', $comentario, $m)) {
-            $nomeLivroRaw = trim($m[1]);
-            $chave = $this->normalizarNomeLivro($nomeLivroRaw);
-            if (isset($livrosMap[$chave])) {
-                $livroId = $livrosMap[$chave];
+        if ($comentario && $comentario !== '.' && $comentario !== 'x') {
+            // Normalizar prefixos como "Ler,", "Ler:", "Leia", "Lei", e juntar letras com números colados (ex: "I Reis10:1")
+            $limpo = preg_replace('/^(?:Ler|Leia|Lei)\s*[,.:]?\s*/iu', '', trim($comentario));
+            $limpo = preg_replace('/([a-zA-Záàâãéêíóôõúç])(\d+)/u', '$1 $2', $limpo);
+
+            if (preg_match('/^([a-zA-Z0-9\sáàâãéêíóôõúç]+?)\s*[,.:]?\s*(\d+)(?:\s*[:.,]\s*(\d+)(?:\s*[-a]\s*(\d+))?)?/iu', $limpo, $m)) {
+                $nomeLivroRaw = trim($m[1]);
+                $chave = $this->normalizarNomeLivro($nomeLivroRaw);
+                if (isset($livrosMap[$chave])) {
+                    $livroId = $livrosMap[$chave];
+                }
+                $capitulo = isset($m[2]) ? (int) $m[2] : null;
+                $versDe = isset($m[3]) && $m[3] !== '' ? (int) $m[3] : null;
+                $versAte = isset($m[4]) && $m[4] !== '' ? (int) $m[4] : $versDe;
+                $refBiblica = trim(preg_replace('/^(?:Ler|Leia|Lei)\s*[,.:]?\s*/iu', '', $comentario));
+            } elseif (preg_match('/^(?:Ler|Leia|Lei)?\s*([a-zA-Z0-9\sáàâãéêíóôõúç]+)$/iu', $comentario, $m)) {
+                // Caso em que só há o nome do livro (ex: "Ler Filemon", "Isaías", "Ler Obadias")
+                $chave = $this->normalizarNomeLivro($m[1]);
+                if (isset($livrosMap[$chave])) {
+                    $livroId = $livrosMap[$chave];
+                    $refBiblica = trim(preg_replace('/^(?:Ler|Leia|Lei)\s*[,.:]?\s*/iu', '', $comentario));
+                }
             }
-            $capitulo = isset($m[2]) ? (int) $m[2] : null;
-            $versDe = isset($m[3]) && $m[3] !== '' ? (int) $m[3] : null;
-            $versAte = isset($m[4]) && $m[4] !== '' ? (int) $m[4] : $versDe;
-            $refBiblica = trim(preg_replace('/^Ler\s+/iu', '', $comentario));
-        } else {
+        }
+
+        if ($refBiblica === null) {
             // Tentar identificar livro citado no texto da pergunta
             $perguntaNorm = $this->normalizarNomeLivro($pergunta);
             foreach ($livrosMap as $nomeNorm => $id) {

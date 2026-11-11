@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#f59e0b">
     <title>{{ config('app.name', 'Bíblia Show') }} — O Jogo Bíblico Estilo Show do Milhão</title>
     <meta name="description"
         content="Bíblia Show 2.0 — O clássico jogo de perguntas e respostas bíblicas recriado com 1.000 questões originais, locuções clássicas, 4 fases, salas multiplayer por QR Code e projeção para igrejas.">
@@ -424,6 +426,12 @@
         });
 
         document.addEventListener('DOMContentLoaded', iniciarAudioHome);
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
     </script>
 </body>
 

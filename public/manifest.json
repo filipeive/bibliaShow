@@ -1,0 +1,18 @@
+{
+  "name": "Bíblia Show 2.0",
+  "short_name": "Bíblia Show",
+  "description": "Show do Milhão Bíblico: Jogo clássico recriado com 1.000 perguntas, 4 fases, multiplayer ao vivo e estúdio do apresentador.",
+  "start_url": "/jogar",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#f59e0b",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["games", "education"]
+}

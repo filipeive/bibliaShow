@@ -22,11 +22,16 @@ use Illuminate\Support\Str;
 
 class ApresentadorController extends Controller
 {
-    public function painel()
+    public function painel(Request $request)
     {
-        $salas = Sala::where('status', '!=', 'terminada')
-            ->withCount('participantes')
-            ->orderByDesc('updated_at')
+        $user = $request->user();
+        $query = Sala::where('status', '!=', 'terminada')->withCount('participantes');
+
+        if ($user && $user->papel !== 'admin_geral') {
+            $query->where('igreja_id', $user->igreja_id);
+        }
+
+        $salas = $query->orderByDesc('updated_at')
             ->limit(15)
             ->get();
 
@@ -73,9 +78,25 @@ class ApresentadorController extends Controller
             ->with('success', "Sala «{$sala->nome}» criada! Código de entrada: {$sala->codigo_acesso}");
     }
 
+    private function verificarAcessoSala(Request $request, $salaId): Sala
+    {
+        $sala = Sala::findOrFail($salaId);
+        $user = $request->user();
+
+        if ($user && $user->papel !== 'admin_geral' && (int) $user->igreja_id !== (int) $sala->igreja_id) {
+            if ($request->expectsJson() || $request->ajax()) {
+                abort(response()->json(['error' => 'Acesso negado: sala pertence a outra igreja.'], 403));
+            }
+            abort(403, 'Acesso negado: esta sala pertence a outra igreja.');
+        }
+
+        return $sala;
+    }
+
     public function control(Request $request, $salaId)
     {
-        $sala = Sala::with(['participantes.equipe', 'equipes'])->findOrFail($salaId);
+        $sala = $this->verificarAcessoSala($request, $salaId);
+        $sala->load(['participantes.equipe', 'equipes']);
 
         if ($request->boolean('nova_partida')) {
             session()->forget('game_engine_' . $salaId);
@@ -149,6 +170,8 @@ class ApresentadorController extends Controller
 
     public function usarAjuda(Request $request, $salaId)
     {
+        $this->verificarAcessoSala($request, $salaId);
+
         $request->validate([
             'tipo' => 'required|in:dica,convidado,cartas,pulo,revelar',
             'indice_convidado' => 'nullable|integer|min:0|max:2',
@@ -222,12 +245,13 @@ class ApresentadorController extends Controller
 
     public function atualizarPremios(Request $request, $salaId)
     {
+        $sala = $this->verificarAcessoSala($request, $salaId);
+
         $request->validate([
             'premio_primeiro_lugar' => 'nullable|string|max:255',
             'premio_segundo_lugar' => 'nullable|string|max:255',
         ]);
 
-        $sala = Sala::findOrFail($salaId);
         $sala->update([
             'premio_primeiro_lugar' => $request->input('premio_primeiro_lugar'),
             'premio_segundo_lugar' => $request->input('premio_segundo_lugar'),
@@ -247,6 +271,8 @@ class ApresentadorController extends Controller
 
     public function criarEquipe(Request $request, $salaId)
     {
+        $this->verificarAcessoSala($request, $salaId);
+
         $request->validate([
             'nome' => 'required|string|max:100',
             'cor' => 'nullable|string|size:7',
@@ -271,6 +297,7 @@ class ApresentadorController extends Controller
 
     public function proximaPergunta(Request $request, $salaId)
     {
+        $this->verificarAcessoSala($request, $salaId);
         $engine = $this->carregarEngineDaSala($salaId);
         if (!$engine) {
             if ($request->wantsJson() || $request->ajax()) {
@@ -332,6 +359,7 @@ class ApresentadorController extends Controller
 
     public function pausar(Request $request, $salaId)
     {
+        $this->verificarAcessoSala($request, $salaId);
         $engine = $this->carregarEngineDaSala($salaId);
         if (!$engine) {
             if ($request->wantsJson() || $request->ajax()) {
@@ -364,6 +392,7 @@ class ApresentadorController extends Controller
 
     public function retomar(Request $request, $salaId)
     {
+        $this->verificarAcessoSala($request, $salaId);
         $engine = $this->carregarEngineDaSala($salaId);
         if (!$engine) {
             if ($request->wantsJson() || $request->ajax()) {
@@ -396,16 +425,15 @@ class ApresentadorController extends Controller
 
     public function finalizar(Request $request, $salaId)
     {
+        $sala = $this->verificarAcessoSala($request, $salaId);
+
         $engine = $this->carregarEngineDaSala($salaId);
         if ($engine) {
             $engine->finishGame();
             $this->salvarEngineNaSala($salaId, $engine);
         }
 
-        $sala = Sala::find($salaId);
-        if ($sala) {
-            $sala->update(['status' => 'terminada']);
-        }
+        $sala->update(['status' => 'terminada']);
 
         $this->tentarBroadcast(new JogoEstadoAlterado((int) $salaId, 'terminado'));
 
@@ -422,7 +450,7 @@ class ApresentadorController extends Controller
 
     public function eliminarSala(Request $request, $salaId)
     {
-        $sala = Sala::findOrFail($salaId);
+        $sala = $this->verificarAcessoSala($request, $salaId);
         $nome = $sala->nome;
         $codigo = $sala->codigo_acesso;
 
@@ -451,17 +479,17 @@ class ApresentadorController extends Controller
         return redirect()->route('apresentador.painel')->with('success', "Sala «{$nome}» ({$codigo}) excluída.");
     }
 
-    public function resultado($salaId)
+    public function resultado(Request $request, $salaId)
     {
+        $sala = $this->verificarAcessoSala($request, $salaId);
+
         $engine = $this->carregarEngineDaSala($salaId);
         if (!$engine) {
             return redirect()->route('apresentador.control', $salaId);
         }
 
         $resultados = $engine->getResults();
-
-        $sala = Sala::find($salaId);
-        $participantes = $sala?->participantes()->with('equipe')->orderByDesc('pontuacao_total')->get() ?? collect();
+        $participantes = $sala->participantes()->with('equipe')->orderByDesc('pontuacao_total')->get();
 
         return view('apresentador.resultado', compact(
             'salaId',
@@ -536,25 +564,20 @@ class ApresentadorController extends Controller
     {
         $jogo = Jogo::where('sala_id', $salaId)->latest()->first();
         if ($jogo && $jogo->dados_motor) {
-            $engine = @unserialize($jogo->dados_motor);
+            $engine = GameEngine::desserializarSeguro($jogo->dados_motor);
             if ($engine instanceof GameEngine) {
                 return $engine;
             }
         }
 
         $dados = session('game_engine_' . $salaId);
-        if (!$dados) {
-            return null;
-        }
-        $engine = @unserialize($dados);
-
-        return $engine instanceof GameEngine ? $engine : null;
+        return GameEngine::desserializarSeguro($dados);
     }
 
     private function salvarEngineNaSala($salaId, GameEngine $engine): void
     {
-        $serializado = serialize($engine);
-        session(['game_engine_' . $salaId => $serializado]);
+        $jsonState = $engine->toJsonState();
+        session(['game_engine_' . $salaId => $jsonState]);
 
         $estado = $engine->getState();
         $perguntaId = $estado['pergunta_atual']['id'] ?? null;
@@ -570,13 +593,13 @@ class ApresentadorController extends Controller
                 'estado' => $estado['estado'],
                 'pergunta_atual_id' => $perguntaId,
                 'pontuacao_total' => $estado['pontuacao'] ?? 0,
-                'dados_motor' => $serializado,
+                'dados_motor' => $jsonState,
             ]);
         } else {
             $jogo->update([
                 'estado' => $estado['estado'],
                 'pergunta_atual_id' => $perguntaId,
-                'dados_motor' => $serializado,
+                'dados_motor' => $jsonState,
             ]);
         }
     }

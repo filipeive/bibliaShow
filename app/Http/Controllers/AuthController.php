@@ -24,21 +24,19 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Garantir que o usuário administrador padrão exista caso o banco tenha sido recém-criado
-        if ($credentials['email'] === 'admin@igreja.com') {
+        // Garantir que o usuário administrador padrão exista apenas em ambiente local se ainda não configurado
+        if (app()->environment('local') && $credentials['email'] === 'admin@igreja.com' && !Usuario::where('email', 'admin@igreja.com')->exists()) {
             $igreja = Igreja::firstOrCreate(
                 ['slug' => 'igreja-exemplo'],
                 ['nome' => 'Igreja Bíblia Show Central', 'plano' => 'premium']
             );
-            Usuario::firstOrCreate(
-                ['email' => 'admin@igreja.com'],
-                [
-                    'igreja_id' => $igreja->id,
-                    'nome' => 'Administrador Geral',
-                    'password' => Hash::make('password'),
-                    'papel' => 'admin_geral',
-                ]
-            );
+            Usuario::create([
+                'igreja_id' => $igreja->id,
+                'nome' => 'Administrador Geral',
+                'email' => 'admin@igreja.com',
+                'password' => Hash::make('password'),
+                'papel' => 'admin_geral',
+            ]);
         }
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {

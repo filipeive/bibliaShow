@@ -10,10 +10,10 @@ return new class extends Migration
     {
         Schema::create('livros_biblicos', function (Blueprint $table) {
             $table->id();
-            $table->string('abreviacao')->unique();
+            $table->string('codigo_osis', 16)->unique();
+            $table->string('abreviacao', 16);
             $table->string('nome');
             $table->string('testamento');
-            $table->string('codigo_osis')->nullable();
             $table->timestamps();
         });
     }

@@ -457,7 +457,6 @@
                 }
 
                 const fase = data.fase_atual || 1;
-                const placar = data.placar_milhao || {};
                 document.getElementById('progressoPergunta').innerText = `${fase}ª Fase • Pergunta ${data.numero_pergunta || 1}/${data.total_perguntas || 24}`;
                 document.getElementById('nivelPergunta').innerText = `Vale ${placar.valor_pergunta || 10} pts`;
 

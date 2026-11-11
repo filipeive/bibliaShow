@@ -462,17 +462,11 @@ class GameController extends Controller
     {
         $dados = $request->session()->get('game_engine');
 
-        if (!$dados) {
-            return null;
-        }
-
-        $engine = @unserialize($dados);
-
-        return $engine instanceof GameEngine ? $engine : null;
+        return GameEngine::desserializarSeguro($dados);
     }
 
     private function salvarEngineNaSessao(Request $request, GameEngine $engine): void
     {
-        $request->session()->put('game_engine', serialize($engine));
+        $request->session()->put('game_engine', $engine->toJsonState());
     }
 }

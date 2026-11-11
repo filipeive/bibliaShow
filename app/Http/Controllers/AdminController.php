@@ -130,9 +130,30 @@ class AdminController extends Controller
     public function exportarPerguntas(Request $request)
     {
         $formato = $request->query('formato', 'json');
-        $questoes = Questao::with(['livro', 'dificuldade', 'categoria'])->orderBy('id')->get();
+        $user = $request->user();
+        $query = Questao::with(['livro', 'dificuldade', 'categoria']);
+
+        // Se for admin de igreja, exporta acervo da sua igreja + perguntas clássicas
+        if ($user && $user->papel !== 'admin_geral' && $user->igreja_id) {
+            $query->where(function ($q) use ($user) {
+                $q->whereNull('igreja_id')
+                    ->orWhere('igreja_id', $user->igreja_id)
+                    ->orWhereNotNull('codigo_classico');
+            });
+        }
+
+        $questoes = $query->orderBy('id')->get();
 
         if ($formato === 'csv') {
+            $sanitizarCsv = function ($val): string {
+                $v = trim((string) $val);
+                // Previne Formula/CSV Injection se a célula começar com =, +, -, @ ou tab
+                if ($v !== '' && in_array($v[0], ['=', '+', '-', '@', "\t", "\r"])) {
+                    $v = "'" . $v;
+                }
+                return str_replace([';', "\r", "\n"], [',', ' ', ' '], $v);
+            };
+
             $linhas = ["ID;Codigo_Classico;Fase;Livro;Referencia;Pergunta;Opcao_A;Opcao_B;Opcao_C;Opcao_D;Resposta_Correta"];
             foreach ($questoes as $q) {
                 $opcoes = is_array($q->opcoes) ? $q->opcoes : (json_decode((string) $q->opcoes, true) ?: []);
@@ -140,14 +161,14 @@ class AdminController extends Controller
                     $q->id,
                     $q->codigo_classico ?? '',
                     $q->dificuldade?->nivel ?? 1,
-                    $q->livro?->nome ?? '',
-                    $q->referencia_biblica ?? '',
-                    str_replace([';', "\r", "\n"], [',', ' ', ' '], $q->texto),
-                    str_replace(';', ',', $opcoes[0] ?? ''),
-                    str_replace(';', ',', $opcoes[1] ?? ''),
-                    str_replace(';', ',', $opcoes[2] ?? ''),
-                    str_replace(';', ',', $opcoes[3] ?? ''),
-                    str_replace(';', ',', $q->resposta_correta),
+                    $sanitizarCsv($q->livro?->nome ?? ''),
+                    $sanitizarCsv($q->referencia_biblica ?? ''),
+                    $sanitizarCsv($q->texto),
+                    $sanitizarCsv($opcoes[0] ?? ''),
+                    $sanitizarCsv($opcoes[1] ?? ''),
+                    $sanitizarCsv($opcoes[2] ?? ''),
+                    $sanitizarCsv($opcoes[3] ?? ''),
+                    $sanitizarCsv($q->resposta_correta),
                 ];
                 $linhas[] = implode(';', $campos);
             }
@@ -169,6 +190,11 @@ class AdminController extends Controller
 
     public function eliminarSala(Request $request, Sala $sala)
     {
+        $user = $request->user();
+        if ($user && $user->papel !== 'admin_geral' && (int) $user->igreja_id !== (int) $sala->igreja_id) {
+            abort(403, 'Acesso negado: você só pode excluir salas da sua própria igreja.');
+        }
+
         $nome = $sala->nome;
         $codigo = $sala->codigo_acesso;
 
