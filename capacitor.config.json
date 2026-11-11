@@ -1,0 +1,29 @@
+{
+  "appId": "com.bibliashow.arena",
+  "appName": "Bíblia Show 2.0",
+  "webDir": "public",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "http://146.235.224.99/bibliashow/",
+    "cleartext": true,
+    "allowNavigation": [
+      "*"
+    ]
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 3000,
+      "launchAutoHide": true,
+      "backgroundColor": "#020617",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": true,
+      "androidSpinnerStyle": "small",
+      "spinnerColor": "#eab308"
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#020617"
+    }
+  }
+}

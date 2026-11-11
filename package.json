@@ -4,7 +4,12 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "desktop:start": "cd electron && npm start",
+        "desktop:build:linux": "cd electron && npm run build:linux",
+        "desktop:build:win": "cd electron && npm run build:win",
+        "cap:sync": "npx cap sync",
+        "cap:open:android": "npx cap open android"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
