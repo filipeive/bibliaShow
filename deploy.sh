@@ -73,27 +73,34 @@ ssh -i "$KEY" "$SERVER" "
         sed -i 's|# DB_PORT=3306|DB_PORT=3306|g' .env && \
         sed -i 's|# DB_DATABASE=laravel|DB_DATABASE=biblia_show|g' .env && \
         sed -i 's|# DB_USERNAME=root|DB_USERNAME=fdsms|g' .env && \
-        sed -i 's|# DB_PASSWORD=|DB_PASSWORD=fdsadmin|g' .env && \
-        php artisan key:generate --force
+        sed -i 's|# DB_PASSWORD=|DB_PASSWORD=fdsadmin|g' .env
     fi
 
+    PHP_CMD=\$(which php8.4 || which php)
+    COMPOSER_BIN=\$(which composer)
+
+    echo \"[INFO] Utilizando PHP: \$(\$PHP_CMD -v | head -n 1)...\" && \
+
+    echo '[INFO] Gerando APP_KEY se ausente...' && \
+    grep -q 'APP_KEY=base64:' .env || \$PHP_CMD artisan key:generate --force && \
+
     echo '[INFO] Instalando dependencias PHP otimizadas...' && \
-    composer install --optimize-autoloader --no-dev --no-interaction && \
+    \$PHP_CMD \$COMPOSER_BIN install --optimize-autoloader --no-dev --no-interaction && \
     echo '[INFO] Executando migracoes e seeders de base de dados...' && \
-    php artisan migrate --force && \
-    php artisan db:seed --force || true && \
+    \$PHP_CMD artisan migrate --force && \
+    \$PHP_CMD artisan db:seed --force || true && \
     echo '[INFO] Assegurando link simbolico de storage/public...' && \
-    php artisan storage:link || true && \
+    \$PHP_CMD artisan storage:link || true && \
     echo '[INFO] Limpando caches obsoletos...' && \
-    php artisan optimize:clear && \
+    \$PHP_CMD artisan optimize:clear && \
     echo '[INFO] Regerando caches de producao (config, route, view)...' && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache && \
+    \$PHP_CMD artisan config:cache && \
+    \$PHP_CMD artisan route:cache && \
+    \$PHP_CMD artisan view:cache && \
     echo '[INFO] Protegendo permissoes de storage e bootstrap/cache...' && \
     sudo chown -R ubuntu:www-data storage bootstrap/cache && \
     sudo chmod -R 775 storage bootstrap/cache && \
     echo '[INFO] Recarregando PHP-FPM e Nginx...' && \
-    sudo systemctl reload php8.3-fpm nginx || sudo systemctl reload php8.2-fpm nginx && \
+    sudo systemctl reload php8.4-fpm php8.3-fpm nginx || sudo systemctl reload nginx && \
     echo '[OK] Deploy do Bíblia Show 2.0 concluido com sucesso!'
 "
