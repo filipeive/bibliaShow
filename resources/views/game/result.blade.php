@@ -35,8 +35,8 @@
                 <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-4 border-amber-200 shadow-2xl shadow-amber-500/50">
                     <span class="text-4xl sm:text-5xl">🏆</span>
                 </div>
-                <div class="absolute -bottom-2 px-3 py-0.5 rounded-full bg-emerald-600 border border-emerald-300 text-[10px] font-black text-white uppercase tracking-wider shadow">
-                    🌿 LOUROS DA VITÓRIA 🌿
+                <div class="absolute -top-2 -right-2 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-amber-500/80 border border-amber-300 flex items-center justify-center text-xs sm:text-sm font-bold text-slate-950 shadow-lg shadow-amber-500/30">
+                    {{ $totalAcertos }} / {{ $totalRespondidas }}
                 </div>
             </div>
 
@@ -92,7 +92,11 @@
 
                 <button type="button" onclick="abrirModalJogarAgora()"
                         class="w-full sm:w-auto px-6 py-3 rounded-full bg-blue-900/80 hover:bg-blue-800 border-2 border-blue-400/50 text-blue-100 font-bold text-xs uppercase tracking-wider transition shadow">
-                    Trocar Jogador / Modo
+                    <!-- Icone de reinicio -->
+                    <svg class="w-4 h-4 mr-2 fill-current" viewBox="0 0 24 24">
+                        <path d="M12 2a10 10 0 00-9.95 11.11l-1.45.-1.45A12 12 0 1112 24v-3a9 9 0 100-18z" />
+                    </svg>
+                    Jogar Agora
                 </button>
 
                 <a href="/"

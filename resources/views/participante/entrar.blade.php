@@ -67,53 +67,53 @@
         <!-- ============================================================== -->
         <!-- ETAPA 1: Formulário de Entrada na Sala (Antes do Jogo)        -->
         <!-- ============================================================== -->
-        <div id="etapaEntrada" class="my-auto bg-slate-900/95 border border-slate-700/80 rounded-3xl shadow-2xl p-5 sm:p-7">
+        <div id="etapaEntrada" class="my-auto sm-panel p-5 sm:p-7 relative z-10">
             <div class="text-center mb-5">
-                <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center mx-auto mb-3 text-amber-400 shadow-lg shadow-amber-500/10">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
-                    </svg>
+                <div class="inline-flex items-center justify-center mb-2">
+                    <span class="sm-pill text-xs uppercase tracking-wider">
+                        ★ Arena Ao Vivo ★
+                    </span>
                 </div>
-                <h1 class="text-xl sm:text-2xl font-black text-white">Entrar na Arena Ao Vivo</h1>
-                <p class="text-slate-400 text-xs sm:text-sm mt-1">
-                    {{ $sala ? $sala->nome : 'Digite o código da sala exibido no projetor' }}
+                <h1 class="text-xl sm:text-3xl font-black text-white sm-logo-title">Entrar na Arena</h1>
+                <p class="text-blue-200 text-xs sm:text-sm mt-1">
+                    {{ $sala ? $sala->nome : 'Digite o código da sala exibido no telão' }}
                 </p>
             </div>
 
             @if($sala && ($sala->premio_primeiro_lugar || $sala->premio_segundo_lugar))
-                <div class="mb-4 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs space-y-1">
-                    <p class="text-[10px] font-black uppercase tracking-wider text-amber-400">Prêmios em Disputa:</p>
+                <div class="mb-4 p-3 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-xs space-y-1">
+                    <p class="text-[10px] font-black uppercase tracking-wider text-amber-300">Prêmios em Disputa:</p>
                     @if($sala->premio_primeiro_lugar)
                         <p class="text-white font-bold"><strong class="text-amber-300">1º Lugar:</strong> {{ $sala->premio_primeiro_lugar }}</p>
                     @endif
                     @if($sala->premio_segundo_lugar)
-                        <p class="text-slate-300 font-semibold"><strong class="text-slate-200">2º Lugar:</strong> {{ $sala->premio_segundo_lugar }}</p>
+                        <p class="text-blue-200 font-semibold"><strong class="text-blue-100">2º Lugar:</strong> {{ $sala->premio_segundo_lugar }}</p>
                     @endif
                 </div>
             @endif
 
-            <form id="entrarForm" class="space-y-3.5">
+            <form id="entrarForm" class="space-y-4">
                 <div>
-                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Código da Sala (PIN)</label>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-amber-300 mb-1">Código da Sala (PIN)</label>
                     <input type="text" id="inputCodigo" name="codigo_acesso" required maxlength="6"
                            value="{{ $sala?->codigo_acesso ?? $codigo ?? '' }}"
                            placeholder="Ex.: AB12CD"
-                           class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-amber-400 font-mono font-black uppercase text-xl tracking-widest text-center focus:ring-2 focus:ring-amber-500 outline-none">
+                           class="w-full px-4 py-3 rounded-xl border border-amber-400/60 bg-blue-950/90 text-amber-300 font-mono font-black uppercase text-xl sm:text-2xl tracking-widest text-center focus:ring-2 focus:ring-amber-400 outline-none shadow-inner">
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Seu Nome / Apelido</label>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-amber-300 mb-1">Seu Nome / Apelido</label>
                     <input type="text" id="inputNome" name="nome" required
                            placeholder="Como quer ser chamado no telão?"
-                           class="w-full px-4 py-3 rounded-xl border border-slate-700 bg-slate-950 text-white font-bold text-base focus:ring-2 focus:ring-amber-500 outline-none">
+                           class="w-full px-4 py-3 rounded-xl border border-blue-400/40 bg-blue-950/80 text-white font-bold text-sm sm:text-base focus:ring-2 focus:ring-amber-400 outline-none transition">
                 </div>
 
                 <div>
-                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Equipe / Célula (Opcional)</label>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-amber-300 mb-1">Equipe / Célula (Opcional)</label>
                     <div id="containerSelecaoEquipe" class="space-y-2">
                         <select id="selectEquipe" name="equipe_id"
                                 onchange="aoMudarSelectEquipe(this)"
-                                class="w-full px-4 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-white text-xs font-semibold focus:ring-2 focus:ring-amber-500 outline-none">
+                                class="w-full px-4 py-2.5 rounded-xl border border-blue-400/40 bg-blue-950/80 text-white text-xs font-semibold focus:ring-2 focus:ring-amber-400 outline-none transition">
                             <option value="">Nenhuma equipe (Jogar individualmente)</option>
                             @if($sala && $sala->equipes->isNotEmpty())
                                 <optgroup label="Equipes Criadas na Sala">
@@ -127,18 +127,18 @@
                         <div id="campoNovaEquipe" class="hidden">
                             <input type="text" id="inputEquipe" name="equipe_nome"
                                    placeholder="Nome da sua nova equipe"
-                                   class="w-full px-4 py-2 rounded-xl border border-amber-500/50 bg-slate-950 text-amber-300 text-xs font-bold focus:ring-2 focus:ring-amber-500 outline-none">
+                                   class="w-full px-4 py-2 rounded-xl border border-amber-400/60 bg-blue-950 text-amber-300 text-xs font-bold focus:ring-2 focus:ring-amber-400 outline-none transition">
                         </div>
                     </div>
                 </div>
 
                 <button type="submit" id="btnEntrar"
-                        class="w-full bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black py-3.5 rounded-xl transition shadow-lg shadow-amber-500/20 text-base active:scale-95">
-                    Entrar na Sala →
+                        class="sm-arcade-btn is-gold w-full text-base py-3.5 mt-2 cursor-pointer">
+                    <span>Entrar na Arena Ao Vivo →</span>
                 </button>
             </form>
 
-            <div id="errorEntrada" class="hidden bg-rose-950/80 border border-rose-500/40 p-3 rounded-xl text-rose-200 text-xs mt-3 text-center"></div>
+            <div id="errorEntrada" class="hidden bg-rose-950/90 border border-rose-500/50 p-3 rounded-xl text-rose-200 text-xs mt-3 text-center font-bold"></div>
         </div>
 
         <!-- ============================================================== -->
