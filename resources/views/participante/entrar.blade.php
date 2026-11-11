@@ -475,7 +475,8 @@
 
                 const data = await resp.json();
                 if (!resp.ok) {
-                    throw new Error(data.error || 'Não foi possível enviar a resposta.');
+                    const msgErro = data.error || (data.errors ? Object.values(data.errors).flat()[0] : null) || 'Não foi possível enviar a resposta.';
+                    throw new Error(msgErro);
                 }
 
                 // 2. Após pausa dramática (1.2s), revelar verde/vermelho nas opções e tocar som se ativo nas Definições!
@@ -511,6 +512,16 @@
             } catch (err) {
                 estadoSessao.jaRespondeuAtual = false;
                 estadoSessao.reveladoNaPerguntaAtual = false;
+                document.querySelectorAll('.btn-opcao-mobile').forEach(btn => {
+                    const idx = Number(btn.dataset.indice);
+                    const isEliminada = (estadoSessao.opcoesEliminadas || []).includes(idx);
+                    if (!isEliminada) {
+                        btn.disabled = false;
+                        btn.classList.remove('opcao-bloqueada', 'opacity-50');
+                        const tag = document.getElementById(`tagMobile_${idx}`);
+                        if (tag) tag.classList.add('hidden');
+                    }
+                });
                 alert(err.message);
             }
         }

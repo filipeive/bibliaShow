@@ -158,8 +158,23 @@ class ParticipantController extends Controller
                         $opcoes = json_decode($opcoes, true) ?: [];
                     }
 
+                    // Resolver ID real se desajustado por migração ou reseed
+                    $qId = $q['id'] ?? null;
+                    if ($qId && !Questao::where('id', $qId)->exists()) {
+                        $qReal = null;
+                        if (!empty($q['codigo_classico'])) {
+                            $qReal = Questao::where('codigo_classico', $q['codigo_classico'])->first();
+                        }
+                        if (!$qReal && !empty($q['texto'])) {
+                            $qReal = Questao::where('texto', $q['texto'])->first();
+                        }
+                        if ($qReal) {
+                            $qId = $qReal->id;
+                        }
+                    }
+
                     $perguntaPublica = [
-                        'id' => $q['id'] ?? null,
+                        'id' => $qId,
                         'texto' => $q['texto'] ?? '',
                         'opcoes' => $opcoes,
                         'livro_nome' => $q['livro_nome'] ?? null,
@@ -216,9 +231,9 @@ class ParticipantController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'participante_id' => 'required|exists:participantes,id',
-            'questao_id' => 'required|exists:questoes,id',
+            'questao_id' => 'required',
             'resposta' => 'required|string',
-            'tempo_resposta' => 'required|integer|min:0',
+            'tempo_resposta' => 'nullable|integer|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -241,8 +256,36 @@ class ParticipantController extends Controller
             ]);
         }
 
+        // Resolução resiliente da Questão para garantir integridade referencial com sqlite
+        $questao = Questao::with('dificuldade')->find($validated['questao_id']);
+        if (!$questao && $jogo && $jogo->dados_motor) {
+            $engine = @unserialize($jogo->dados_motor);
+            if ($engine instanceof GameEngine) {
+                $curQ = $engine->getCurrentQuestion();
+                if ($curQ) {
+                    if (!empty($curQ['codigo_classico'])) {
+                        $questao = Questao::with('dificuldade')->where('codigo_classico', $curQ['codigo_classico'])->first();
+                    }
+                    if (!$questao && !empty($curQ['texto'])) {
+                        $questao = Questao::with('dificuldade')->where('texto', $curQ['texto'])->first();
+                    }
+                }
+            }
+        }
+        if (!$questao) {
+            $questao = Questao::with('dificuldade')->where('id', ((int) $validated['questao_id']) + 1000)->first();
+        }
+        if (!$questao) {
+            return response()->json(['error' => 'Questão não encontrada no banco de dados.'], 404);
+        }
+
+        $questaoIdReal = $questao->id;
+
         $jaRespondeu = Resposta::where('jogo_id', $jogo->id)
-            ->where('questao_id', $validated['questao_id'])
+            ->where(function ($query) use ($questaoIdReal, $validated) {
+                $query->where('questao_id', $questaoIdReal)
+                      ->orWhere('questao_id', $validated['questao_id']);
+            })
             ->where('participante_id', $participante->id)
             ->exists();
 
@@ -250,7 +293,6 @@ class ParticipantController extends Controller
             return response()->json(['error' => 'Você já respondeu esta pergunta!'], 409);
         }
 
-        $questao = Questao::with('dificuldade')->findOrFail($validated['questao_id']);
         $opcoes = is_array($questao->opcoes) ? $questao->opcoes : (json_decode((string) $questao->opcoes, true) ?: []);
 
         $respostaTexto = trim($validated['resposta']);
@@ -266,7 +308,7 @@ class ParticipantController extends Controller
                 break;
             }
         }
-        $tempo = (int) $validated['tempo_resposta'];
+        $tempo = (int) ($validated['tempo_resposta'] ?? 10);
 
         // Pontuação clássica por fase (10, 20, 30 ou 50 pontos)
         $nivel = $questao->dificuldade?->nivel ?? 1;
@@ -280,7 +322,7 @@ class ParticipantController extends Controller
 
         Resposta::create([
             'jogo_id' => $jogo->id,
-            'questao_id' => $validated['questao_id'],
+            'questao_id' => $questaoIdReal,
             'participante_id' => $participante->id,
             'equipe_id' => $participante->equipe_id,
             'resposta' => $respostaTexto,
