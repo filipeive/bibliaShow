@@ -79,8 +79,6 @@
             $somAutomatico = null;
             if (!empty($ajudaFeedback['som_efeito'])) {
                 $somAutomatico = $ajudaFeedback['som_efeito'];
-            } elseif (!empty($iniciou_agora)) {
-                $somAutomatico = 'fase1';
             }
             $novaFaseSom = $resultado['nova_fase'] ?? null;
         @endphp
@@ -722,19 +720,58 @@
                     }
                 }
 
-                // "so fala uma vez e comeca de seguida o som de suspense..."
+                const audioFase1 = new Audio('/audio/classico/fase1.wav');
+                audioFase1.loop = false;
+
+                let fase1JaTocou = false;
+
+                function tocarFase1ESuspense() {
+                    if (fase1JaTocou) {
+                        iniciarSomSuspense();
+                        return;
+                    }
+                    fase1JaTocou = true;
+
+                    const somLigado = typeof somEstaAtivo === 'function' ? somEstaAtivo() : true;
+                    if (!somLigado) {
+                        iniciarSomSuspense();
+                        return;
+                    }
+
+                    aplicarVolume(audioFase1, 0.95);
+                    audioFase1.currentTime = 0;
+
+                    let finalizou = false;
+                    const concluirFase1 = () => {
+                        if (!finalizou) {
+                            finalizou = true;
+                            iniciarSomSuspense();
+                        }
+                    };
+
+                    audioFase1.addEventListener('ended', concluirFase1, { once: true });
+                    audioFase1.addEventListener('error', concluirFase1, { once: true });
+                    setTimeout(concluirFase1, 4000);
+
+                    const prom = audioFase1.play();
+                    if (prom && typeof prom.catch === 'function') {
+                        prom.catch(concluirFase1);
+                    }
+                }
+
+                // "O audio fase1.wav deve vir logo depois que a locucao acabar"
                 audioLocucao.addEventListener('ended', () => {
-                    iniciarSomSuspense();
+                    tocarFase1ESuspense();
                 });
 
-                // "eh interrompido se o usuario clicar em iniciar, mas so fala uma vez e comeca de seguida o som de suspense..."
-                function pararLocucaoEIniciarSuspense() {
+                // "ou se for interrompido com inicio do jogo"
+                function pararLocucaoETocarFase1() {
                     locucaoInterrompida = true;
                     try {
                         audioLocucao.pause();
                         audioLocucao.currentTime = 0;
                     } catch (e) {}
-                    iniciarSomSuspense();
+                    tocarFase1ESuspense();
                 }
 
                 function iniciarSomSuspense() {
@@ -803,7 +840,7 @@
                 }
 
                 async function confirmarContinuarComo() {
-                    pararLocucaoEIniciarSuspense();
+                    pararLocucaoETocarFase1();
 
                     const m = document.getElementById('modalContinuarComo');
                     if (m) {
@@ -833,7 +870,7 @@
                     const nome = input ? input.value.trim() : '';
                     if (!nome) return;
 
-                    pararLocucaoEIniciarSuspense();
+                    pararLocucaoETocarFase1();
 
                     const btn = document.getElementById('btnIniciarPartidaModal');
                     if (btn) {
@@ -896,9 +933,15 @@
                             }
                         }, 400);
                     } else if (ativo) {
-                        setTimeout(() => {
-                            iniciarSomSuspense();
-                        }, 900);
+                        @if(($numero_pergunta ?? 1) == 1)
+                            setTimeout(() => {
+                                tocarFase1ESuspense();
+                            }, 400);
+                        @else
+                            setTimeout(() => {
+                                iniciarSomSuspense();
+                            }, 900);
+                        @endif
                     }
 
                     // Garante que o suspense seja tocado no primeiro toque caso bloqueado pelo navegador
