@@ -38,7 +38,7 @@
 
         @if(session('success'))
             <div class="bg-emerald-950/80 border border-emerald-500/50 p-4 rounded-2xl mb-6 text-emerald-200 text-sm font-semibold flex items-center gap-2">
-                <span>✓</span>
+                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                 <span>{{ session('success') }}</span>
             </div>
         @endif
@@ -96,8 +96,9 @@
                                 </span>
                                 <span class="font-bold text-sm flex-1">{{ $opcao }}</span>
                                 @if($ehCorreta)
-                                    <span class="text-[10px] font-black bg-emerald-500 text-slate-950 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                        ✓ Resposta Correta
+                                    <span class="text-[10px] font-black bg-emerald-500 text-slate-950 px-2.5 py-0.5 rounded-full uppercase tracking-wider inline-flex items-center gap-1">
+                                        <svg class="w-3 h-3 stroke-current" fill="none" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                                        <span>Correta</span>
                                     </span>
                                 @endif
                             </div>
@@ -115,8 +116,9 @@
                     <p class="text-[10px] font-black uppercase tracking-wider text-amber-300 mb-2">Convidados Bíblicos (Ajuda Clássica)</p>
                     <div class="flex flex-wrap gap-2">
                         @foreach($ajudas['convidados'] as $i => $conv)
-                            <span class="px-3 py-1 rounded-xl bg-blue-900/60 border border-blue-400/30 text-blue-200 text-xs font-semibold">
-                                👤 {{ $conv['nome'] ?? 'Convidado ' . ($i+1) }}: <strong class="text-amber-300">{{ $conv['palpite'] ?? '-' }}</strong>
+                            <span class="px-3 py-1 rounded-xl bg-blue-900/60 border border-blue-400/30 text-blue-200 text-xs font-semibold inline-flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+                                <span>{{ $conv['nome'] ?? 'Convidado ' . ($i+1) }}: <strong class="text-amber-300">{{ $conv['palpite'] ?? '-' }}</strong></span>
                             </span>
                         @endforeach
                     </div>

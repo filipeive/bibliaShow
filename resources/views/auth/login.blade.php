@@ -19,8 +19,9 @@
         <div class="w-full max-w-md sm-panel p-7 sm:p-8 relative">
             <div class="text-center mb-6">
                 <div class="inline-flex items-center justify-center mb-3">
-                    <span class="sm-pill text-xs uppercase tracking-wider">
-                        ★ Bíblia Show 2.0 ★
+                    <span class="sm-pill text-xs uppercase tracking-wider flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-amber-300 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <span>Bíblia Show 2.0</span>
                     </span>
                 </div>
                 <h1 class="text-2xl font-black text-white sm-logo-title">Acesso ao Painel</h1>

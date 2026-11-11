@@ -20,8 +20,9 @@
         <header class="flex flex-wrap items-center justify-between gap-4 mb-8">
             <div>
                 <div class="inline-flex items-center gap-2 mb-2">
-                    <span class="sm-pill text-xs uppercase tracking-wider">
-                        ★ Manual Oficial de Regras ★
+                    <span class="sm-pill text-xs uppercase tracking-wider flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-amber-300 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <span>Manual Oficial de Regras</span>
                     </span>
                 </div>
                 <h1 class="text-2xl sm:text-4xl font-black text-white sm-logo-title">Enciclopédia & Regras do Show</h1>
@@ -49,8 +50,10 @@
         <!-- Regras Oficiais do Show do Milhão Bíblico -->
         <section class="sm-panel p-6 sm:p-8 mb-10 relative overflow-hidden">
             <div class="flex items-center gap-3 mb-6">
-                <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-400 text-xl font-black shadow-lg">
-                    📜
+                <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-400 shrink-0 shadow-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                    </svg>
                 </div>
                 <div>
                     <h2 class="text-xl sm:text-2xl font-black text-white sm-logo-title">Estrutura das 4 Fases Clássicas</h2>
@@ -100,7 +103,9 @@
             <!-- Mecânicas de Jogo -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm">
                 <div class="bg-blue-950/50 p-4 rounded-2xl border border-blue-400/25 flex items-start gap-3">
-                    <span class="text-2xl">⏱️</span>
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
                     <div>
                         <strong class="text-white block font-bold text-sm mb-1">Tempo de 60 Segundos</strong>
                         <span class="text-blue-200 text-xs leading-relaxed">
@@ -110,7 +115,9 @@
                 </div>
 
                 <div class="bg-blue-950/50 p-4 rounded-2xl border border-blue-400/25 flex items-start gap-3">
-                    <span class="text-2xl">🛑</span>
+                    <div class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-300 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z"/></svg>
+                    </div>
                     <div>
                         <strong class="text-white block font-bold text-sm mb-1">Errar vs Parar</strong>
                         <span class="text-blue-200 text-xs leading-relaxed">
@@ -120,7 +127,9 @@
                 </div>
 
                 <div class="bg-blue-950/50 p-4 rounded-2xl border border-blue-400/25 flex items-start gap-3">
-                    <span class="text-2xl">🃏</span>
+                    <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0119.5 9v.878m-15 0a2.246 2.246 0 00-.75.128m16.5 0a2.246 2.246 0 01.75-.128m-16.5 0A2.25 2.25 0 003 12v6a2.25 2.25 0 002.25 2.25h13.5A2.25 2.25 0 0021 18v-6a2.25 2.25 0 00-1.5-2.122"/></svg>
+                    </div>
                     <div>
                         <strong class="text-white block font-bold text-sm mb-1">4 Ajudas do Show</strong>
                         <span class="text-blue-200 text-xs leading-relaxed">
@@ -138,8 +147,9 @@
                     <h2 class="text-xl sm:text-3xl font-black text-white sm-logo-title">Enciclopédia & Curiosidades da Bíblia</h2>
                     <p class="text-xs sm:text-sm text-blue-200 mt-0.5">Artigos históricos e ilustrações restauradas do acervo clássico</p>
                 </div>
-                <span class="sm-pill text-xs">
-                    ★ {{ count($artigos) }} Estudos Bíblicos ★
+                <span class="sm-pill text-xs flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-amber-300 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <span>{{ count($artigos) }} Estudos Bíblicos</span>
                 </span>
             </div>
 

@@ -40,7 +40,8 @@
         <div class="sm-panel p-6 sm:p-8 mb-8">
             <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-3 border-b border-blue-400/20">
                 <h2 class="text-lg font-black text-amber-300 flex items-center gap-2 uppercase tracking-wider">
-                    <span>🏆</span> Classificação Oficial & Premiação
+                    <svg class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0011 15.9V19H7v2h10v-2h-4v-3.1c1.94-.37 3.5-1.99 3.61-3.96C19.08 11.63 21 9.55 21 7V5c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
+                    <span>Classificação Oficial & Premiação</span>
                 </h2>
                 @if($sala && ($sala->premio_primeiro_lugar || $sala->premio_segundo_lugar))
                     <div class="flex flex-wrap gap-2 text-xs">

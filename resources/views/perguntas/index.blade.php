@@ -17,8 +17,9 @@
         <header class="flex flex-wrap justify-between items-center gap-4 mb-8">
             <div>
                 <div class="inline-flex items-center gap-2 mb-2">
-                    <span class="sm-pill text-xs uppercase tracking-wider">
-                        ★ Acervo Oficial de Fases ★
+                    <span class="sm-pill text-xs uppercase tracking-wider flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-amber-300 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <span>Acervo Oficial de Fases</span>
                     </span>
                 </div>
                 <h1 class="text-2xl sm:text-4xl font-black text-white sm-logo-title">Banco de Perguntas Bíblicas</h1>
@@ -34,7 +35,7 @@
 
         @if(session('success'))
             <div class="bg-emerald-950/80 border border-emerald-500/50 p-4 rounded-2xl mb-6 text-emerald-200 text-sm font-semibold flex items-center gap-2">
-                <span>✓</span>
+                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                 <span>{{ session('success') }}</span>
             </div>
         @endif

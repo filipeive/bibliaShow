@@ -52,11 +52,11 @@
             @endauth
 
             <!-- Right Side Actions -->
-            <div class="flex items-center gap-2 sm:gap-2.5 shrink-0 whitespace-nowrap">
+            <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0 whitespace-nowrap">
                 @if(!request()->routeIs('game.*') && !request()->is('jogar*') && !request()->is('entrar*') && !($hideJogarAgora ?? false))
-                    <!-- Botão Principal Destacado: JOGAR AGORA (Pílula Ouro Show) -->
+                    <!-- Botão Principal Destacado: JOGAR AGORA (Apenas em telas sm ou superiores, para liberar espaço no mobile) -->
                     <button type="button" onclick="abrirModalJogarAgora()"
-                            class="sm-cta !w-auto !py-2 !px-4 sm:!px-5 !text-xs sm:!text-sm cursor-pointer shadow-lg">
+                            class="sm-cta !w-auto !py-2 !px-4 sm:!px-5 !text-xs sm:!text-sm cursor-pointer shadow-lg hidden sm:inline-flex">
                         <svg class="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
                             <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
                         </svg>
@@ -140,14 +140,15 @@
 <div id="modalJogarAgora" class="hidden fixed inset-0 z-[60] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
     <div class="sm-panel max-w-2xl w-full p-6 sm:p-8 relative text-white">
         <button type="button" onclick="fecharModalJogarAgora()" title="Fechar"
-                class="absolute top-4 right-4 sm-lifeline !w-9 !h-9 !text-sm cursor-pointer z-10">
-            ✕
+                class="absolute top-4 right-4 sm-lifeline !w-9 !h-9 cursor-pointer z-10 flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
 
         <div class="text-center mb-6">
             <div class="inline-flex items-center justify-center mb-2">
-                <span class="sm-pill text-xs uppercase tracking-wider">
-                    ★ ARENA BÍBLIA SHOW 2.0 ★
+                <span class="sm-pill text-xs uppercase tracking-wider flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-amber-300 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <span>Arena Bíblia Show 2.0</span>
                 </span>
             </div>
             <h2 class="text-2xl sm:text-3xl font-black text-white sm-logo-title">Escolha Como Deseja Jogar</h2>
@@ -211,8 +212,10 @@
         <div class="bg-blue-950/90 border-2 border-blue-400/60 rounded-2xl p-4 sm:p-5">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-start gap-3.5">
-                    <div class="sm-lifeline !w-11 !h-11 shrink-0 !text-lg">
-                        📱
+                    <div class="sm-lifeline !w-11 !h-11 shrink-0 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                        </svg>
                     </div>
                     <div>
                         <h3 class="text-base font-black text-white">Entrar numa Sala no Celular</h3>
@@ -237,13 +240,14 @@
 <div id="modalDefinicoes" class="hidden fixed inset-0 z-[65] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
     <div class="sm-panel max-w-lg w-full p-6 sm:p-7 relative text-white">
         <button type="button" onclick="fecharModalDefinicoes()" title="Fechar"
-                class="absolute top-4 right-4 sm-lifeline !w-9 !h-9 !text-sm cursor-pointer z-10">
-            ✕
+                class="absolute top-4 right-4 sm-lifeline !w-9 !h-9 cursor-pointer z-10 flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
 
         <div class="mb-4">
-            <span class="sm-pill !px-3 !py-0.5 !text-[10px] uppercase mb-1">
-                ⚙ AJUSTES DO AUDITÓRIO
+            <span class="sm-pill !px-3 !py-0.5 !text-[10px] uppercase mb-1 inline-flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                <span>Ajustes do Auditório</span>
             </span>
             <h3 class="text-xl font-black text-white sm-logo-title mt-1 flex items-center gap-2">
                 Definições de Som e Jogo

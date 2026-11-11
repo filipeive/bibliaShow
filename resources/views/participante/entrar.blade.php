@@ -70,8 +70,9 @@
         <div id="etapaEntrada" class="my-auto sm-panel p-5 sm:p-7 relative z-10">
             <div class="text-center mb-5">
                 <div class="inline-flex items-center justify-center mb-2">
-                    <span class="sm-pill text-xs uppercase tracking-wider">
-                        ★ Arena Ao Vivo ★
+                    <span class="sm-pill text-xs uppercase tracking-wider flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-amber-300 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <span>Arena Ao Vivo</span>
                     </span>
                 </div>
                 <h1 class="text-xl sm:text-3xl font-black text-white sm-logo-title">Entrar na Arena</h1>
@@ -150,14 +151,14 @@
             <header class="flex items-center justify-between gap-2 px-1">
                 <!-- Botão Sair / Portinha -->
                 <button type="button" onclick="sairDaSala()" title="Sair da sala"
-                        class="sm-lifeline !w-10 !h-10 !text-base" title="Sair da Sala">
-                    🚪
+                        class="sm-lifeline !w-10 !h-10 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
                 </button>
 
                 <!-- Pílula Dourada Central do Show do Milhão -->
                 <div class="sm-pill text-xs">
                     <span>
-                        ◆ <span id="valorPontosBadge">10 pts</span> ◆
+                        <span id="valorPontosBadge">10 pts</span> • 
                         <small id="perguntaContadorBadge">1 / 24 • 1ª FASE</small>
                     </span>
                 </div>
@@ -165,9 +166,13 @@
                 <!-- Lado Direito: Pontos + Ranking + Toggle Som -->
                 <div class="flex items-center gap-1.5 shrink-0">
                     <button type="button" onclick="alternarSomMobile()" id="btnToggleSomMobile" title="Som e Vibração"
-                            class="sm-lifeline !w-10 !h-10 !text-sm">
-                        <span id="iconeSomLigado">🔊</span>
-                        <span id="iconeSomMudo" class="hidden">🔇</span>
+                            class="sm-lifeline !w-10 !h-10 flex items-center justify-center">
+                        <span id="iconeSomLigado" class="flex items-center justify-center">
+                            <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"/></svg>
+                        </span>
+                        <span id="iconeSomMudo" class="hidden items-center justify-center">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-7.5l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"/></svg>
+                        </span>
                     </button>
                     <button type="button" onclick="abrirDrawerRanking()" title="Ver Ranking da Sala"
                             class="sm-timer !w-10 !h-10 !text-[10px] !border-amber-400 leading-none flex flex-col items-center justify-center">
@@ -179,7 +184,10 @@
 
             <!-- Participante + Equipe Subtítulo Discreto -->
             <div class="flex items-center justify-between px-2 text-[10px] text-slate-400">
-                <span class="truncate max-w-[180px]">👤 <strong class="text-white" id="jogadorNomeDisplay">-</strong> (<span id="codigoSalaBadge">-</span>)</span>
+                <span class="truncate max-w-[180px] inline-flex items-center gap-1">
+                    <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+                    <strong class="text-white" id="jogadorNomeDisplay">-</strong> (<span id="codigoSalaBadge">-</span>)
+                </span>
                 <span class="text-amber-400 font-bold truncate" id="jogadorEquipeDisplay">Individual</span>
             </div>
 
@@ -195,7 +203,9 @@
 
             <!-- 3. BALÃO DO CONVIDADO / DICA (se ativos) -->
             <div id="dicaConvidadoViva" class="hidden flex items-center gap-2 px-1">
-                <div class="sm-avatar !w-9 !h-9 text-xs">👥</div>
+                <div class="sm-avatar !w-9 !h-9 text-xs flex items-center justify-center">
+                    <svg class="w-4 h-4 text-blue-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
+                </div>
                 <div class="sm-speech flex-1 text-xs">
                     <span class="block text-[9px] uppercase tracking-wider text-blue-700 font-black" id="nomeConvidadoViva">Convidado Bíblico:</span>
                     <span id="conteudoConvidadoTexto">-</span>
@@ -203,7 +213,9 @@
             </div>
 
             <div id="dicaBiblicaViva" class="hidden flex items-center gap-2 px-1">
-                <div class="sm-avatar !w-9 !h-9 text-xs">📖</div>
+                <div class="sm-avatar !w-9 !h-9 text-xs flex items-center justify-center">
+                    <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>
+                </div>
                 <div class="sm-speech flex-1 text-xs bg-amber-50 text-amber-900 border border-amber-300">
                     <span class="block text-[9px] uppercase tracking-wider text-amber-700 font-black">Referência Bíblica:</span>
                     <span id="conteudoDicaBiblicaTexto">-</span>
@@ -222,14 +234,14 @@
                 </button>
 
                 <!-- Convidados -->
-                <button type="button" id="btnAjudaMobileConvidado" onclick="abrirModalConvidadoMobile()" class="sm-lifeline" title="Convidados Bíblicos">
-                    👥
+                <button type="button" id="btnAjudaMobileConvidado" onclick="abrirModalConvidadoMobile()" class="sm-lifeline flex items-center justify-center" title="Convidados Bíblicos">
+                    <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
                     <span id="badgeConvidadosRestantesMobile" class="sm-badge">3</span>
                 </button>
 
                 <!-- Dica -->
-                <button type="button" id="btnAjudaMobileDica" onclick="usarAjudaMobile('dica')" class="sm-lifeline" title="Dica Bíblica">
-                    📖
+                <button type="button" id="btnAjudaMobileDica" onclick="usarAjudaMobile('dica')" class="sm-lifeline flex items-center justify-center" title="Dica Bíblica">
+                    <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>
                     <span id="badgeDicasRestantesMobile" class="sm-badge">3</span>
                 </button>
 
@@ -281,11 +293,11 @@
         <div class="bg-slate-900 border-t-2 sm:border-2 border-amber-400 rounded-t-3xl sm:rounded-3xl max-w-md w-full p-5 text-slate-100 shadow-2xl relative max-h-[85vh] flex flex-col">
             <div class="flex items-center justify-between pb-3 border-b border-slate-800">
                 <div class="flex items-center gap-2">
-                    <span class="text-xl">🏆</span>
+                    <svg class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0011 15.9V19H7v2h10v-2h-4v-3.1c1.94-.37 3.5-1.99 3.61-3.96C19.08 11.63 21 9.55 21 7V5c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
                     <h3 class="text-base sm:text-lg font-black text-white">Placar da Sala Ao Vivo</h3>
                 </div>
                 <button type="button" onclick="fecharDrawerRanking()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-black">
-                    ✕
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
 
@@ -341,9 +353,11 @@
     <!-- Modal Escolha de Convidado Bíblico -->
     <div id="modalConvidadoMobile" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-slate-900 border-2 border-amber-400 rounded-3xl max-w-sm w-full p-5 text-slate-100 shadow-2xl relative">
-            <button type="button" onclick="fecharModalConvidadoMobile()" class="absolute top-4 right-4 text-slate-400 hover:text-white font-black text-lg">✕</button>
+            <button type="button" onclick="fecharModalConvidadoMobile()" class="absolute top-4 right-4 text-slate-400 hover:text-white font-black text-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
             <div class="flex items-center gap-2 mb-2">
-                <span class="text-xl">👥</span>
+                <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
                 <h3 class="text-base font-black text-white">Consultar Convidado Bíblico</h3>
             </div>
             <p class="text-xs text-slate-400 mb-3">Escolha um dos personagens para obter ajuda na pergunta:</p>
@@ -1160,7 +1174,8 @@
                     fb.className = 'rounded-2xl p-2.5 border bg-amber-500/15 border-amber-500/40 text-amber-200 text-xs text-center';
                     fb.innerHTML = `
                         <div class="font-black flex items-center justify-center gap-1.5">
-                            <span>🔒 Resposta Bloqueada!</span>
+                            <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+                            <span>Resposta Bloqueada!</span>
                         </div>
                         <p class="text-[10px] text-slate-300 mt-0.5">Aguardando a revelação oficial do apresentador no telão...</p>
                     `;

@@ -104,8 +104,8 @@
         <div class="sm-panel p-6 mb-8">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
                 <h2 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                    <span class="text-amber-400 text-lg">⚡</span>
-                    Distribuição das Questões pelas 4 Fases Clássicas
+                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+                    <span>Distribuição das Questões pelas 4 Fases Clássicas</span>
                 </h2>
                 <a href="{{ route('perguntas.index') }}" class="text-xs font-bold text-amber-300 hover:text-amber-200 hover:underline">
                     Ver Acervo Completo →
@@ -132,8 +132,8 @@
                 <div class="sm-panel p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                            <span class="text-xl">🎙️</span>
-                            Salas de Apresentação Ao Vivo
+                            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/></svg>
+                            <span>Salas de Apresentação Ao Vivo</span>
                         </h2>
                         <a href="{{ route('apresentador.painel') }}" class="sm-arcade-btn is-gold text-xs py-1.5 px-3">
                             <span>+ Criar Sala</span>
@@ -193,8 +193,8 @@
                 <div class="sm-panel p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                            <span class="text-xl">✍️</span>
-                            Fila Editorial ({{ $stats['questoes_pendentes'] }} pendentes)
+                            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg>
+                            <span>Fila Editorial ({{ $stats['questoes_pendentes'] }} pendentes)</span>
                         </h2>
                         <a href="{{ route('perguntas.index', ['aprovada' => 0]) }}" class="text-xs font-bold text-amber-300 hover:text-amber-200 hover:underline">
                             Ver Todas →
@@ -202,8 +202,9 @@
                     </div>
 
                     @if($questoesPendentes->isEmpty())
-                        <div class="p-6 rounded-2xl bg-blue-950/50 border border-blue-400/20 text-center text-xs sm:text-sm text-blue-200">
-                            ✨ Todas as {{ $stats['questoes_aprovadas'] }} questões estão revisadas e prontas para o jogo ao vivo!
+                        <div class="p-6 rounded-2xl bg-blue-950/50 border border-blue-400/20 text-center text-xs sm:text-sm text-blue-200 flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                            <span>Todas as {{ $stats['questoes_aprovadas'] }} questões estão revisadas e prontas para o jogo ao vivo!</span>
                         </div>
                     @else
                         <div class="space-y-3">
@@ -236,8 +237,8 @@
                 <!-- Cadastrar Novo Apresentador / Editor -->
                 <div class="sm-panel p-6">
                     <h2 class="text-base font-black text-white mb-4 flex items-center gap-2">
-                        <span class="text-amber-400">👤</span>
-                        Adicionar Apresentador / Editor
+                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+                        <span>Adicionar Apresentador / Editor</span>
                     </h2>
                     <form action="{{ route('admin.usuarios.salvar') }}" method="POST" class="space-y-3">
                         @csrf
@@ -281,8 +282,8 @@
                 <!-- Congregações Cadastradas -->
                 <div class="sm-panel p-6">
                     <h2 class="text-base font-black text-white mb-4 flex items-center gap-2">
-                        <span class="text-emerald-400">⛪</span>
-                        Congregações Cadastradas
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.333A48.243 48.243 0 0012 9.75c-2.551 0-5.056.2-7.5.583V21"/></svg>
+                        <span>Congregações Cadastradas</span>
                     </h2>
                     <form action="{{ route('admin.igrejas.criar') }}" method="POST" class="flex gap-2 mb-4">
                         @csrf

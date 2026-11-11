@@ -32,18 +32,22 @@
         <div class="sm-panel p-6 sm:p-10 mb-8 text-center relative overflow-hidden">
             <!-- Troféu Dourado com Louros -->
             <div class="relative inline-flex flex-col items-center justify-center mb-3">
-                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-4 border-amber-200 shadow-2xl shadow-amber-500/50">
-                    <span class="text-4xl sm:text-5xl">🏆</span>
+                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-4 border-amber-200 shadow-2xl shadow-amber-500/50 text-slate-950">
+                    <svg class="w-10 h-10 sm:w-12 sm:h-12 fill-current" viewBox="0 0 24 24">
+                        <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0011 15.9V19H7v2h10v-2h-4v-3.1c1.94-.37 3.5-1.99 3.61-3.96C19.08 11.63 21 9.55 21 7V5c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/>
+                    </svg>
                 </div>
-                <div class="absolute -top-2 -right-2 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-amber-500/80 border border-amber-300 flex items-center justify-center text-xs sm:text-sm font-bold text-slate-950 shadow-lg shadow-amber-500/30">
-                    {{ $totalAcertos }} / {{ $totalRespondidas }}
+                <div class="absolute -top-2 -right-2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-500 border border-amber-200 flex items-center justify-center text-xs sm:text-sm font-black text-slate-950 shadow-lg shadow-amber-500/40">
+                    {{ $totalAcertos }}
                 </div>
             </div>
 
             <!-- Pílula Ouro de Pontuação Final -->
             <div class="mt-4 mb-3">
-                <span class="sm-pill !px-6 !py-2 !text-base sm:!text-lg">
-                    ★ {{ $pontosTotal }} PONTOS ACUMULADOS ★
+                <span class="sm-pill !px-6 !py-2 !text-base sm:!text-lg inline-flex items-center gap-2">
+                    <svg class="w-4 h-4 text-amber-300 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <span>{{ $pontosTotal }} PONTOS ACUMULADOS</span>
+                    <svg class="w-4 h-4 text-amber-300 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                 </span>
             </div>
 
@@ -111,7 +115,8 @@
             <div class="lg:col-span-2 sm-panel p-5 sm:p-6 shadow-xl h-fit">
                 <div class="flex items-center justify-between mb-4 pb-3 border-b border-blue-400/20">
                     <h2 class="text-sm font-black text-amber-300 flex items-center gap-2 uppercase tracking-wider">
-                        <span>🏆</span> Hall da Fama (Top 10)
+                        <svg class="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0011 15.9V19H7v2h10v-2h-4v-3.1c1.94-.37 3.5-1.99 3.61-3.96C19.08 11.63 21 9.55 21 7V5c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
+                        <span>Hall da Fama (Top 10)</span>
                     </h2>
                     <span class="sm-pill !px-2.5 !py-0.5 !text-[10px]">OFICIAL</span>
                 </div>
@@ -147,7 +152,8 @@
             <div class="lg:col-span-3 sm-panel p-5 sm:p-6 shadow-xl">
                 <div class="flex items-center justify-between mb-4 pb-3 border-b border-blue-400/20">
                     <h2 class="text-sm font-black text-amber-300 flex items-center gap-2 uppercase tracking-wider">
-                        <span>📖</span> Gabarito & Estudos da Partida
+                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+                        <span>Gabarito & Estudos da Partida</span>
                     </h2>
                     <span class="text-xs text-blue-200 font-bold">{{ count($respostas) }} respondida(s)</span>
                 </div>

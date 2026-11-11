@@ -60,10 +60,16 @@
                         <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-left">
                             <span class="text-[11px] font-black uppercase tracking-wider text-amber-400 block mb-1">Prêmios da Partida:</span>
                             @if($sala->premio_primeiro_lugar)
-                                <p class="text-xs text-white font-bold">🥇 1º: <span class="text-amber-300">{{ $sala->premio_primeiro_lugar }}</span></p>
+                                <p class="text-xs text-white font-bold flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-md bg-amber-500 text-slate-950 text-[10px] font-black flex items-center justify-center">1º</span>
+                                    <span class="text-amber-300">{{ $sala->premio_primeiro_lugar }}</span>
+                                </p>
                             @endif
                             @if($sala->premio_segundo_lugar)
-                                <p class="text-xs text-slate-300 font-semibold mt-0.5">🥈 2º: {{ $sala->premio_segundo_lugar }}</p>
+                                <p class="text-xs text-slate-300 font-semibold mt-1 flex items-center gap-1.5">
+                                    <span class="w-5 h-5 rounded-md bg-slate-300 text-slate-950 text-[10px] font-black flex items-center justify-center">2º</span>
+                                    <span>{{ $sala->premio_segundo_lugar }}</span>
+                                </p>
                             @endif
                         </div>
                     @endif

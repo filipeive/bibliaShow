@@ -203,8 +203,9 @@
                             <p class="text-[11px] text-slate-400">Disputa em tempo real rumo ao topo</p>
                         </div>
                     </div>
-                    <span class="text-xs font-mono font-bold text-amber-400 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30">
-                        🏁 Rumo ao Milhão
+                    <span class="text-xs font-mono font-bold text-amber-400 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 inline-flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-amber-400 fill-none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5"/></svg>
+                        <span>Rumo ao Topo</span>
                     </span>
                 </div>
 
@@ -366,13 +367,13 @@
             container.innerHTML = ranking.slice(0, 5).map((p, idx) => {
                 const pts = Number(p.pontuacao) || 0;
                 const perc = Math.min(100, Math.max(5, Math.round((pts / maxPontos) * 94)));
-                const medalhas = ['🥇 1º', '🥈 2º', '🥉 3º', '4º', '5º'];
+                const medalhas = ['1º Lugar', '2º Lugar', '3º Lugar', '4º Lugar', '5º Lugar'];
 
                 return `
                     <div class="space-y-1">
                         <div class="flex items-center justify-between text-xs font-bold">
                             <span class="text-white flex items-center gap-1.5 truncate">
-                                <span class="font-black text-amber-400">${medalhas[idx] || (idx + 1 + 'º')}</span>
+                                <span class="font-black ${idx === 0 ? 'text-amber-300' : 'text-blue-300'}">${medalhas[idx] || (idx + 1 + 'º')}</span>
                                 <span class="truncate">${p.nome || 'Participante'}</span>
                                 ${p.equipe ? `<span class="text-[10px] text-slate-400">(${p.equipe})</span>` : ''}
                             </span>
@@ -381,9 +382,6 @@
                         <div class="h-4 w-full bg-slate-950/80 rounded-full overflow-hidden p-0.5 border border-slate-800 relative">
                             <div class="h-full bg-gradient-to-r ${idx === 0 ? 'from-amber-500 to-yellow-400 shadow-md shadow-amber-500/40' : 'from-blue-600 to-indigo-500'} rounded-full transition-all duration-700 relative"
                                  style="width: ${perc}%">
-                                <span class="absolute right-1 top-0 bottom-0 flex items-center text-[9px] font-black text-slate-950 select-none">
-                                    🏃
-                                </span>
                             </div>
                         </div>
                     </div>
