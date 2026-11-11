@@ -23,32 +23,58 @@ class GameController extends Controller
 
         $nome = trim($request->input('jogador_nome'));
         $request->session()->put('jogador_nome', $nome);
+        $request->session()->put('jogador_confirmado', true);
 
         if ($request->boolean('novo')) {
             $request->session()->forget(['game_engine', 'resultados']);
         }
 
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'sucesso' => true,
+                'jogador_nome' => $nome,
+            ]);
+        }
+
         return redirect()->route('game.play');
+    }
+
+    public function confirmarJogador(Request $request)
+    {
+        $request->session()->put('jogador_confirmado', true);
+        return response()->json([
+            'sucesso' => true,
+            'jogador_nome' => (string) $request->session()->get('jogador_nome', 'Participante'),
+        ]);
     }
 
     public function jogar(Request $request)
     {
         if ($request->filled('jogador_nome')) {
             $request->session()->put('jogador_nome', trim((string) $request->input('jogador_nome')));
+            $request->session()->put('jogador_confirmado', true);
         }
 
         $novaPartida = $request->boolean('novo');
         if ($novaPartida) {
-            $request->session()->forget(['game_engine', 'resultados']);
+            $request->session()->forget(['game_engine', 'resultados', 'jogador_confirmado']);
         }
 
         $jogadorNome = (string) $request->session()->get('jogador_nome', $request->user()?->nome ?? '');
         $precisaIdentificacao = ($jogadorNome === '' || $jogadorNome === 'Participante');
+        $jogadorConfirmado = (bool) $request->session()->get('jogador_confirmado', false);
         $perguntarContinuarComo = false;
 
         if ($request->boolean('trocar_nome')) {
             $precisaIdentificacao = true;
-        } elseif (($novaPartida || $request->boolean('confirmar_nome')) && !$precisaIdentificacao) {
+            $request->session()->forget('jogador_confirmado');
+        } elseif (!$jogadorConfirmado) {
+            if (!$precisaIdentificacao) {
+                $perguntarContinuarComo = true;
+            } else {
+                $precisaIdentificacao = true;
+            }
+        } elseif ($request->boolean('confirmar_nome') && !$precisaIdentificacao) {
             $perguntarContinuarComo = true;
         }
 
@@ -171,7 +197,7 @@ class GameController extends Controller
             $this->registrarNoRankingIndividual($nomeJogador, $resultadosPartida);
 
             $request->session()->put('resultados', $resultadosPartida);
-            $request->session()->forget('game_engine');
+            $request->session()->forget(['game_engine', 'jogador_confirmado']);
 
             if ($request->expectsJson()) {
                 return response()->json(array_merge($resultado, [
@@ -198,7 +224,7 @@ class GameController extends Controller
             $this->registrarNoRankingIndividual($nomeJogador, $resultadosPartida);
 
             $request->session()->put('resultados', $resultadosPartida);
-            $request->session()->forget('game_engine');
+            $request->session()->forget(['game_engine', 'jogador_confirmado']);
 
             if ($request->expectsJson()) {
                 return response()->json(array_merge($resultado, [
@@ -287,7 +313,7 @@ class GameController extends Controller
             $this->registrarNoRankingIndividual($nomeJogador, $resultados);
 
             $request->session()->put('resultados', $resultados);
-            $request->session()->forget('game_engine');
+            $request->session()->forget(['game_engine', 'jogador_confirmado']);
             return redirect()->route('game.result');
         }
 

@@ -105,12 +105,12 @@
                     <!-- 1. Card do Participante no Palco -->
                     <div class="bg-slate-900/95 border border-slate-800 rounded-3xl p-5 shadow-xl">
                         <div class="flex items-center gap-3.5 mb-4">
-                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black text-xl flex items-center justify-center shadow-md shadow-amber-500/20 shrink-0">
+                            <div id="sidebarJogadorAvatar" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black text-xl flex items-center justify-center shadow-md shadow-amber-500/20 shrink-0">
                                 {{ mb_strtoupper(mb_substr($jogador_nome ?? 'P', 0, 1)) }}
                             </div>
                             <div class="min-w-0">
                                 <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Participante no Palco</p>
-                                <h3 class="font-black text-white text-base sm:text-lg truncate">{{ $jogador_nome ?? 'Participante' }}</h3>
+                                <h3 id="sidebarJogadorNome" class="font-black text-white text-base sm:text-lg truncate">{{ $jogador_nome ?? 'Participante' }}</h3>
                                 <button type="button" onclick="abrirModalNomeJogador()" class="text-xs font-bold text-amber-400 hover:text-amber-300 hover:underline inline-flex items-center gap-1 mt-0.5">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
@@ -575,7 +575,7 @@
                         Você deseja continuar jogando como <strong class="text-amber-400 text-base font-black">{{ $jogador_nome }}</strong> ou deseja entrar com outro nome?
                     </p>
                     <div class="space-y-3">
-                        <button type="button" onclick="confirmarContinuarComo()"
+                        <button type="button" id="btnContinuarComoAtual" onclick="confirmarContinuarComo()"
                                 class="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm uppercase tracking-wider shadow-lg transition transform hover:-translate-y-0.5">
                             Continuar como {{ $jogador_nome }} →
                         </button>
@@ -600,14 +600,13 @@
                     <p class="text-xs sm:text-sm text-slate-300 mb-5">
                         Seu nome aparecerá no palco e será registrado no <strong>Ranking Geral do Bíblia Show</strong> ao final da partida!
                     </p>
-                    <form action="{{ route('game.player') }}" method="POST" class="space-y-4">
+                    <form id="formDefinirJogador" action="{{ route('game.player') }}" method="POST" onsubmit="submeterNomeJogador(event)" class="space-y-4">
                         @csrf
-                        <input type="text" name="jogador_nome" required maxlength="60"
-                               onfocus="if(!this.dataset.somTocado) { anunciarParticipante(); this.dataset.somTocado = '1'; }"
+                        <input type="text" name="jogador_nome" id="inputNomeJogadorModal" required maxlength="60"
                                value="{{ ($jogador_nome ?? '') !== 'Participante' ? ($jogador_nome ?? '') : '' }}"
                                placeholder="Digite seu nome ou apelido..."
                                class="w-full px-4 py-3.5 rounded-xl bg-slate-950 border border-amber-500/40 text-white font-bold text-center text-base focus:ring-2 focus:ring-amber-400 outline-none">
-                        <button type="submit"
+                        <button type="submit" id="btnIniciarPartidaModal"
                                 class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm uppercase tracking-wider shadow-lg transition">
                             Começar Partida! →
                         </button>
@@ -666,6 +665,11 @@
             <script>
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
                 let precisaIdentificar = {{ !empty($precisa_identificacao) ? 'true' : 'false' }};
+                let perguntarContinuar = {{ !empty($perguntar_continuar) ? 'true' : 'false' }};
+                let jogoIniciado = !precisaIdentificar && !perguntarContinuar;
+
+                const audioLocucao = new Audio('/audio/classico/locucao.wav');
+                audioLocucao.loop = false; // "so fala uma vez"
 
                 const audioSuspense = new Audio('/audio/classico/suspense.wav');
                 audioSuspense.loop = true;
@@ -681,11 +685,65 @@
                 window.addEventListener('biblia-som-alterado', (ev) => {
                     if (!ev.detail.ativo) {
                         audioSuspense.pause();
-                    } else if (!enviado && !precisaIdentificar) {
+                        audioLocucao.pause();
+                    } else if (!enviado && jogoIniciado) {
                         aplicarVolume(audioSuspense, 0.28);
                         audioSuspense.play().catch(() => {});
                     }
                 });
+
+                let locucaoJaTocou = false;
+                let locucaoInterrompida = false;
+
+                function tocarLocucao() {
+                    const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : (localStorage.getItem('biblia_show_som') !== 'off');
+                    if (!ativo || locucaoJaTocou) return;
+                    locucaoJaTocou = true;
+
+                    aplicarVolume(audioLocucao, 0.95);
+                    audioLocucao.currentTime = 0;
+
+                    const prom = audioLocucao.play();
+                    if (prom && typeof prom.catch === 'function') {
+                        prom.catch(() => {
+                            // Desbloqueia na primeira interação caso o navegador barre autoplay sem clique
+                            const desbloquear = () => {
+                                if (!locucaoInterrompida && !jogoIniciado) {
+                                    audioLocucao.play().catch(() => {});
+                                }
+                                document.removeEventListener('click', desbloquear);
+                                document.removeEventListener('touchstart', desbloquear);
+                                document.removeEventListener('keydown', desbloquear);
+                            };
+                            document.addEventListener('click', desbloquear, { passive: true });
+                            document.addEventListener('touchstart', desbloquear, { passive: true });
+                            document.addEventListener('keydown', desbloquear, { passive: true });
+                        });
+                    }
+                }
+
+                // "so fala uma vez e comeca de seguida o som de suspense..."
+                audioLocucao.addEventListener('ended', () => {
+                    iniciarSomSuspense();
+                });
+
+                // "eh interrompido se o usuario clicar em iniciar, mas so fala uma vez e comeca de seguida o som de suspense..."
+                function pararLocucaoEIniciarSuspense() {
+                    locucaoInterrompida = true;
+                    try {
+                        audioLocucao.pause();
+                        audioLocucao.currentTime = 0;
+                    } catch (e) {}
+                    iniciarSomSuspense();
+                }
+
+                function iniciarSomSuspense() {
+                    const somLigado = typeof somEstaAtivo === 'function' ? somEstaAtivo() : true;
+                    if (somLigado && !enviado && audioSuspense.paused) {
+                        aplicarVolume(audioSuspense, 0.28);
+                        audioSuspense.play().catch(() => {});
+                    }
+                }
 
                 function tocarEfeitoComPromise(nome) {
                     return new Promise((resolve) => {
@@ -712,51 +770,30 @@
 
                 function tocarHover() {
                     const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : true;
-                    if (!ativo || enviado) return;
+                    if (!ativo || !jogoIniciado || enviado) return;
                     aplicarVolume(audioHover, 0.45);
                     audioHover.currentTime = 0;
                     audioHover.play().catch(() => {});
                 }
 
-                let perguntarContinuar = {{ !empty($perguntar_continuar) ? 'true' : 'false' }};
-
-                function anunciarParticipante() {
-                    const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : (localStorage.getItem('biblia_show_som') !== 'off');
-                    if (!ativo) return;
-
-                    // 1. Toca o chime clássico de abertura do Bíblia Show
-                    const chime = new Audio('/audio/classico/inicio.wav');
-                    aplicarVolume(chime, 0.85);
-                    chime.play().catch(() => {});
-
-                    // 2. Apresentador vocal clássico: "Agora vamos ver quem vai participar do Bíblia Show!"
-                    if ('speechSynthesis' in window) {
-                        try {
-                            window.speechSynthesis.cancel();
-                            const vozMsg = new SpeechSynthesisUtterance("Agora vamos ver quem vai participar do Bíblia Show!");
-                            vozMsg.lang = 'pt-BR';
-                            vozMsg.rate = 1.0;
-                            vozMsg.pitch = 1.05;
-                            const vozes = window.speechSynthesis.getVoices();
-                            const vozPt = vozes.find(v => v.lang.startsWith('pt')) || vozes[0];
-                            if (vozPt) vozMsg.voice = vozPt;
-                            setTimeout(() => {
-                                window.speechSynthesis.speak(vozMsg);
-                            }, 350);
-                        } catch (e) {}
-                    }
-                }
-
                 function abrirModalNomeJogador() {
                     const mCont = document.getElementById('modalContinuarComo');
-                    if (mCont) mCont.classList.add('hidden');
+                    if (mCont) {
+                        mCont.classList.add('hidden');
+                        mCont.classList.remove('flex');
+                    }
                     const m = document.getElementById('modalNomeJogador');
                     if (m) {
                         m.classList.remove('hidden');
                         m.classList.add('flex');
-                        anunciarParticipante();
-                        const inputNome = m.querySelector('input[name="jogador_nome"]');
-                        if (inputNome) setTimeout(() => inputNome.focus(), 250);
+                        const inputNome = document.getElementById('inputNomeJogadorModal');
+                        if (inputNome) {
+                            inputNome.value = '';
+                            setTimeout(() => inputNome.focus(), 250);
+                        }
+                    }
+                    if (!locucaoJaTocou) {
+                        tocarLocucao();
                     }
                 }
 
@@ -765,15 +802,79 @@
                     abrirModalNomeJogador();
                 }
 
-                function confirmarContinuarComo() {
-                    perguntarContinuar = false;
+                async function confirmarContinuarComo() {
+                    pararLocucaoEIniciarSuspense();
+
                     const m = document.getElementById('modalContinuarComo');
-                    if (m) m.classList.add('hidden');
-                    const somLigado = typeof somEstaAtivo === 'function' ? somEstaAtivo() : true;
-                    if (somLigado && !enviado) {
-                        aplicarVolume(audioSuspense, 0.28);
-                        audioSuspense.play().catch(() => {});
+                    if (m) {
+                        m.classList.add('hidden');
+                        m.classList.remove('flex');
                     }
+
+                    precisaIdentificar = false;
+                    perguntarContinuar = false;
+                    jogoIniciado = true;
+
+                    try {
+                        await fetch("{{ route('game.confirmar-jogador') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                            }
+                        });
+                    } catch (e) {}
+                }
+
+                async function submeterNomeJogador(e) {
+                    e.preventDefault();
+                    const input = document.getElementById('inputNomeJogadorModal');
+                    const nome = input ? input.value.trim() : '';
+                    if (!nome) return;
+
+                    pararLocucaoEIniciarSuspense();
+
+                    const btn = document.getElementById('btnIniciarPartidaModal');
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.textContent = 'Iniciando Partida...';
+                    }
+
+                    try {
+                        const resp = await fetch("{{ route('game.player') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                            },
+                            body: JSON.stringify({ jogador_nome: nome })
+                        });
+
+                        if (resp.ok) {
+                            const data = await resp.json().catch(() => ({}));
+                            const nomeFinal = data.jogador_nome || nome;
+
+                            const elNome = document.getElementById('sidebarJogadorNome');
+                            if (elNome) elNome.textContent = nomeFinal;
+                            const elAvatar = document.getElementById('sidebarJogadorAvatar');
+                            if (elAvatar) elAvatar.textContent = nomeFinal.charAt(0).toUpperCase();
+
+                            const m = document.getElementById('modalNomeJogador');
+                            if (m) {
+                                m.classList.add('hidden');
+                                m.classList.remove('flex');
+                            }
+
+                            precisaIdentificar = false;
+                            perguntarContinuar = false;
+                            jogoIniciado = true;
+                            return;
+                        }
+                    } catch (err) {}
+
+                    e.target.submit();
                 }
 
                 window.addEventListener('DOMContentLoaded', () => {
@@ -784,28 +885,28 @@
                     @if($novaFaseSom)
                         if (ativo) setTimeout(() => tocarEfeitoComPromise('fase{{ $novaFaseSom }}'), 1500);
                     @endif
-                    if (ativo && !precisaIdentificar && !perguntarContinuar) {
+
+                    if (!jogoIniciado) {
+                        // O jogo NÃO inicia sem antes colocar nome ou confirmar continuar
                         setTimeout(() => {
-                            aplicarVolume(audioSuspense, 0.28);
-                            audioSuspense.play().catch(() => {});
+                            tocarLocucao();
+                            if (precisaIdentificar) {
+                                const inputNome = document.getElementById('inputNomeJogadorModal');
+                                if (inputNome) inputNome.focus();
+                            }
+                        }, 400);
+                    } else if (ativo) {
+                        setTimeout(() => {
+                            iniciarSomSuspense();
                         }, 900);
-                    } else if (precisaIdentificar) {
-                        setTimeout(() => {
-                            anunciarParticipante();
-                            const inputNome = document.querySelector('#modalNomeJogador input[name="jogador_nome"]');
-                            if (inputNome) inputNome.focus();
-                        }, 500);
-                    } else if (perguntarContinuar) {
-                        // Quando está no modal perguntando se continua como X, aguarda confirmação antes do suspense
                     }
 
-                    // Garante que o áudio seja iniciado na primeira interação caso o navegador bloqueie autoplay
+                    // Garante que o suspense seja tocado no primeiro toque caso bloqueado pelo navegador
                     ['click', 'touchstart', 'keydown'].forEach(evt => {
                         document.addEventListener(evt, () => {
                             const somLigado = typeof somEstaAtivo === 'function' ? somEstaAtivo() : true;
-                            if (somLigado && !enviado && !precisaIdentificar && !perguntarContinuar && audioSuspense.paused) {
-                                aplicarVolume(audioSuspense, 0.28);
-                                audioSuspense.play().catch(() => {});
+                            if (somLigado && !enviado && jogoIniciado && audioSuspense.paused) {
+                                iniciarSomSuspense();
                             }
                         }, { once: true, passive: true });
                     });
@@ -815,7 +916,7 @@
                 let enviado = false;
 
                 function pedirConfirmacao(indice, letra, texto) {
-                    if (enviado) return;
+                    if (!jogoIniciado || enviado) return;
                     const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : true;
                     if (ativo) {
                         aplicarVolume(audioTecla, 0.7);
@@ -1031,7 +1132,7 @@
                 const hiddenTempo = document.getElementById('tempo_resposta');
 
                 let timerInterval = setInterval(() => {
-                    if (precisaIdentificar) return;
+                    if (!jogoIniciado) return;
                     tempo--;
                     if (timerEl) {
                         timerEl.textContent = Math.max(0, tempo);

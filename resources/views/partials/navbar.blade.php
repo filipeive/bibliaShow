@@ -155,7 +155,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
             <!-- Opção 1: Jogo Individual com Nome do Participante -->
-            <form action="{{ route('game.player') }}" method="POST"
+            <form action="{{ route('game.player') }}" method="POST" onsubmit="pararLocucaoNavbar()"
                   class="bg-slate-950/90 border-2 border-amber-500/40 hover:border-amber-400 rounded-2xl p-5 flex flex-col justify-between transition shadow-lg">
                 @csrf
                 <input type="hidden" name="novo" value="1">
@@ -450,34 +450,31 @@
         testarEfeitoSonoro('inicio');
     }
 
+    let audioLocucaoNavbar = null;
     let somAnunciadoNavbar = false;
+
     function anunciarParticipanteNavbar() {
         if (somAnunciadoNavbar) return;
         somAnunciadoNavbar = true;
-        setTimeout(() => { somAnunciadoNavbar = false; }, 4000);
+        setTimeout(() => { somAnunciadoNavbar = false; }, 9000);
 
         const somLigado = typeof somEstaAtivo === 'function' ? somEstaAtivo() : (localStorage.getItem('biblia_show_som') !== 'off');
         if (!somLigado) return;
 
-        // 1. Chime clássico de início
-        const chime = new Audio('/audio/classico/inicio.wav');
-        chime.volume = obterVolumeGlobal() * 0.85;
-        chime.play().catch(() => {});
+        if (!audioLocucaoNavbar) {
+            audioLocucaoNavbar = new Audio('/audio/classico/locucao.wav');
+            audioLocucaoNavbar.loop = false;
+        }
+        audioLocucaoNavbar.volume = obterVolumeGlobal() * 0.95;
+        audioLocucaoNavbar.currentTime = 0;
+        audioLocucaoNavbar.play().catch(() => {});
+    }
 
-        // 2. Apresentador: "Agora vamos ver quem vai participar do Bíblia Show!"
-        if ('speechSynthesis' in window) {
+    function pararLocucaoNavbar() {
+        if (audioLocucaoNavbar) {
             try {
-                window.speechSynthesis.cancel();
-                const vozMsg = new SpeechSynthesisUtterance("Agora vamos ver quem vai participar do Bíblia Show!");
-                vozMsg.lang = 'pt-BR';
-                vozMsg.rate = 1.0;
-                vozMsg.pitch = 1.05;
-                const vozes = window.speechSynthesis.getVoices();
-                const vozPt = vozes.find(v => v.lang.startsWith('pt')) || vozes[0];
-                if (vozPt) vozMsg.voice = vozPt;
-                setTimeout(() => {
-                    window.speechSynthesis.speak(vozMsg);
-                }, 300);
+                audioLocucaoNavbar.pause();
+                audioLocucaoNavbar.currentTime = 0;
             } catch (e) {}
         }
     }
@@ -492,6 +489,7 @@
         }
     }
     function fecharModalJogarAgora() {
+        pararLocucaoNavbar();
         const m = document.getElementById('modalJogarAgora');
         if (m) m.classList.add('hidden');
     }

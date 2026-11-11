@@ -41,6 +41,7 @@ Route::get('/sobre', function () {
 Route::prefix('jogar')->name('game.')->group(function () {
     Route::get('/', [GameController::class, 'jogar'])->name('play');
     Route::post('/jogador', [GameController::class, 'definirJogador'])->name('player');
+    Route::post('/confirmar-jogador', [GameController::class, 'confirmarJogador'])->name('confirmar-jogador');
     Route::post('/responder', [GameController::class, 'responder'])->name('answer');
     Route::post('/ajuda', [GameController::class, 'usarAjuda'])->name('lifeline');
     Route::post('/encerrar', [GameController::class, 'encerrar'])->name('finish');
