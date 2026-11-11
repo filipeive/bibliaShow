@@ -81,11 +81,10 @@ ssh -i "$KEY" "$SERVER" "
 
     echo \"[INFO] Utilizando PHP: \$(\$PHP_CMD -v | head -n 1)...\" && \
 
-    echo '[INFO] Gerando APP_KEY se ausente...' && \
-    grep -q 'APP_KEY=base64:' .env || \$PHP_CMD artisan key:generate --force && \
-
     echo '[INFO] Instalando dependencias PHP otimizadas...' && \
     \$PHP_CMD \$COMPOSER_BIN install --optimize-autoloader --no-dev --no-interaction && \
+    echo '[INFO] Gerando APP_KEY se ausente...' && \
+    grep -q 'APP_KEY=base64:' .env || \$PHP_CMD artisan key:generate --force && \
     echo '[INFO] Executando migracoes e seeders de base de dados...' && \
     \$PHP_CMD artisan migrate --force && \
     \$PHP_CMD artisan db:seed --force || true && \
