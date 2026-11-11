@@ -25,3 +25,15 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Electron & Desktop builds
+/electron/dist
+/electron/node_modules
+
+# Android builds
+/android/.gradle
+/android/build
+/android/app/build
+/android/local.properties
+/android/.idea
+
