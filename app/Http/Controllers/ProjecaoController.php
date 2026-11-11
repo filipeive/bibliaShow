@@ -50,6 +50,42 @@ class ProjecaoController extends Controller
 
         $pontuacaoTotal = max((int) $estado['pontuacao'], (int) $participantes->sum('pontuacao_total'));
 
+        $respostasRodada = [];
+        $curQ = $estado['pergunta_atual'] ?? null;
+        if ($curQ && !empty($curQ['id']) && $jogo) {
+            $todasRespostas = \App\Models\Resposta::where('jogo_id', $jogo->id)
+                ->where('questao_id', $curQ['id'])
+                ->get();
+            $letras = ['A', 'B', 'C', 'D'];
+            $opcoesQ = is_string($curQ['opcoes'] ?? []) ? json_decode($curQ['opcoes'], true) : ($curQ['opcoes'] ?? []);
+
+            foreach ($todasRespostas as $r) {
+                $letra = null;
+                $idxEscolhido = null;
+                foreach ($opcoesQ as $idx => $opTxt) {
+                    if (mb_strtolower(trim((string) $opTxt), 'UTF-8') === mb_strtolower(trim((string) $r->resposta), 'UTF-8')) {
+                        $idxEscolhido = (int) $idx;
+                        $letra = $letras[$idx] ?? (string) ($idx + 1);
+                        break;
+                    }
+                }
+                if ($letra === null && is_numeric($r->resposta)) {
+                    $idxNum = (int) $r->resposta;
+                    $idxEscolhido = $idxNum;
+                    $letra = $letras[$idxNum] ?? '?';
+                }
+
+                $respostasRodada[$r->participante_id] = [
+                    'participante_id' => $r->participante_id,
+                    'resposta' => $r->resposta,
+                    'letra' => $letra ?? '?',
+                    'indice' => $idxEscolhido,
+                    'correta' => (bool) $r->correta,
+                    'tempo' => $r->tempo_resposta,
+                ];
+            }
+        }
+
         return view('projecao.tela', [
             'sala' => $sala,
             'estado' => $estado['estado'],
@@ -62,6 +98,8 @@ class ProjecaoController extends Controller
             'pontuacao' => $pontuacaoTotal,
             'tempo_restante' => $estado['tempo_restante'],
             'tempo_esgotado' => $estado['tempo_esgotado'],
+            'participantes' => $participantes,
+            'respostas_rodada' => $respostasRodada,
             'ranking' => $ranking,
         ]);
     }

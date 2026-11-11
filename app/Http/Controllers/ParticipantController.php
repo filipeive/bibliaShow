@@ -189,11 +189,48 @@ class ParticipantController extends Controller
         }
 
         $jaRespondeu = false;
-        if ($request->filled('participante_id') && $jogo && $perguntaPublica && !empty($perguntaPublica['id'])) {
-            $jaRespondeu = Resposta::where('jogo_id', $jogo->id)
-                ->where('questao_id', $perguntaPublica['id'])
-                ->where('participante_id', $request->integer('participante_id'))
-                ->exists();
+        $respostasRodada = [];
+        if ($jogo && $perguntaPublica && !empty($perguntaPublica['id'])) {
+            $todasRespostas = Resposta::where('jogo_id', $jogo->id)
+                ->where(function ($query) use ($perguntaPublica) {
+                    $query->where('questao_id', $perguntaPublica['id']);
+                })
+                ->get();
+
+            $letras = ['A', 'B', 'C', 'D'];
+            $opcoesQ = $perguntaPublica['opcoes'] ?? [];
+
+            foreach ($todasRespostas as $r) {
+                $letra = null;
+                $idxEscolhido = null;
+                foreach ($opcoesQ as $idx => $opTxt) {
+                    if (mb_strtolower(trim((string) $opTxt), 'UTF-8') === mb_strtolower(trim((string) $r->resposta), 'UTF-8')) {
+                        $idxEscolhido = (int) $idx;
+                        $letra = $letras[$idx] ?? (string) ($idx + 1);
+                        break;
+                    }
+                }
+                if ($letra === null && is_numeric($r->resposta)) {
+                    $idxNum = (int) $r->resposta;
+                    $idxEscolhido = $idxNum;
+                    $letra = $letras[$idxNum] ?? '?';
+                }
+
+                $respostasRodada[$r->participante_id] = [
+                    'participante_id' => $r->participante_id,
+                    'resposta' => $r->resposta,
+                    'letra' => $letra ?? '?',
+                    'indice' => $idxEscolhido,
+                    'correta' => (bool) $r->correta,
+                    'tempo' => $r->tempo_resposta,
+                    'pontos' => $r->pontos_ganhos,
+                ];
+            }
+
+            if ($request->filled('participante_id')) {
+                $partId = $request->integer('participante_id');
+                $jaRespondeu = isset($respostasRodada[$partId]);
+            }
         }
 
         $ranking = $participantes->map(fn ($p) => [
@@ -221,6 +258,7 @@ class ParticipantController extends Controller
             'tempo_restante' => $tempoRestante,
             'pergunta_atual' => $perguntaPublica,
             'ja_respondeu' => $jaRespondeu,
+            'respostas_rodada' => $respostasRodada,
             'participantes' => $participantes,
             'equipes' => $equipes,
             'ranking' => $ranking,
@@ -231,7 +269,7 @@ class ParticipantController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'participante_id' => 'required|exists:participantes,id',
-            'questao_id' => 'required',
+            'questao_id' => 'nullable',
             'resposta' => 'required|string',
             'tempo_resposta' => 'nullable|integer|min:0',
         ]);
@@ -257,13 +295,21 @@ class ParticipantController extends Controller
         }
 
         // Resolução resiliente da Questão para garantir integridade referencial com sqlite
-        $questao = Questao::with('dificuldade')->find($validated['questao_id']);
+        $questaoId = $validated['questao_id'] ?? null;
+        $questao = null;
+        if ($questaoId && $questaoId !== 'null' && is_numeric($questaoId) && (int) $questaoId > 0) {
+            $questao = Questao::with('dificuldade')->find($questaoId);
+        }
+
         if (!$questao && $jogo && $jogo->dados_motor) {
             $engine = @unserialize($jogo->dados_motor);
             if ($engine instanceof GameEngine) {
                 $curQ = $engine->getCurrentQuestion();
                 if ($curQ) {
-                    if (!empty($curQ['codigo_classico'])) {
+                    if (!empty($curQ['id'])) {
+                        $questao = Questao::with('dificuldade')->find($curQ['id']);
+                    }
+                    if (!$questao && !empty($curQ['codigo_classico'])) {
                         $questao = Questao::with('dificuldade')->where('codigo_classico', $curQ['codigo_classico'])->first();
                     }
                     if (!$questao && !empty($curQ['texto'])) {
@@ -272,8 +318,8 @@ class ParticipantController extends Controller
                 }
             }
         }
-        if (!$questao) {
-            $questao = Questao::with('dificuldade')->where('id', ((int) $validated['questao_id']) + 1000)->first();
+        if (!$questao && $questaoId && is_numeric($questaoId)) {
+            $questao = Questao::with('dificuldade')->where('id', ((int) $questaoId) + 1000)->first();
         }
         if (!$questao) {
             return response()->json(['error' => 'Questão não encontrada no banco de dados.'], 404);
@@ -282,9 +328,11 @@ class ParticipantController extends Controller
         $questaoIdReal = $questao->id;
 
         $jaRespondeu = Resposta::where('jogo_id', $jogo->id)
-            ->where(function ($query) use ($questaoIdReal, $validated) {
-                $query->where('questao_id', $questaoIdReal)
-                      ->orWhere('questao_id', $validated['questao_id']);
+            ->where(function ($query) use ($questaoIdReal, $questaoId) {
+                $query->where('questao_id', $questaoIdReal);
+                if ($questaoId && is_numeric($questaoId)) {
+                    $query->orWhere('questao_id', (int) $questaoId);
+                }
             })
             ->where('participante_id', $participante->id)
             ->exists();

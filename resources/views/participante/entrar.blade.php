@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Participar ao Vivo — Bíblia Show</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -29,7 +30,7 @@
 
     @include('partials.navbar', ['dark' => true])
 
-    <div class="max-w-lg mx-auto px-4 py-6 sm:py-8">
+    <div class="max-w-2xl sm:max-w-3xl lg:max-w-4xl mx-auto px-4 py-6 sm:py-8">
 
         <!-- Badge da Sala Ativa -->
         <div class="flex items-center justify-between mb-4">
@@ -197,6 +198,7 @@
             pontuacao: 0,
             questaoAtualId: null,
             jaRespondeuAtual: false,
+            opcaoEscolhida: null,
             reveladoNaPerguntaAtual: false,
             inicioPerguntaTimestamp: Date.now(),
             opcoesEliminadas: [],
@@ -336,70 +338,127 @@
                 const mudouEliminadas = eliminadasStr !== JSON.stringify(estadoSessao.opcoesEliminadas);
                 estadoSessao.opcoesEliminadas = ajudas.opcoes_eliminadas || [];
 
+                // Atualiza se o servidor já registrou a resposta desta rodada
+                if (data.respostas_rodada && estadoSessao.participanteId && data.respostas_rodada[estadoSessao.participanteId]) {
+                    const minhaResp = data.respostas_rodada[estadoSessao.participanteId];
+                    estadoSessao.jaRespondeuAtual = true;
+                    if (estadoSessao.opcaoEscolhida === null && typeof minhaResp.indice !== 'undefined' && minhaResp.indice !== null) {
+                        estadoSessao.opcaoEscolhida = minhaResp.indice;
+                    }
+                }
+
                 if (estadoSessao.questaoAtualId !== q.id) {
                     estadoSessao.questaoAtualId = q.id;
                     estadoSessao.jaRespondeuAtual = !!data.ja_respondeu;
+                    estadoSessao.opcaoEscolhida = null;
                     estadoSessao.reveladoNaPerguntaAtual = false;
                     estadoSessao.inicioPerguntaTimestamp = Date.now();
                     document.getElementById('feedbackResposta').classList.add('hidden');
                     fecharModalCerteza();
-                    renderizarPergunta(q, estadoSessao.jaRespondeuAtual);
-                } else if (mudouEliminadas && !estadoSessao.jaRespondeuAtual) {
-                    renderizarPergunta(q, false);
+                    renderizarPergunta(q);
+                } else {
+                    const gabaritoRevelado = !!(data.ajudas && data.ajudas.gabarito_revelado);
+                    if (gabaritoRevelado && !estadoSessao.reveladoNaPerguntaAtual) {
+                        estadoSessao.reveladoNaPerguntaAtual = true;
+                        revelarCoresOpcaoMobile(estadoSessao.opcaoEscolhida, data.pergunta_atual?.resposta_correta, null, q);
+                    } else if (mudouEliminadas && !estadoSessao.jaRespondeuAtual) {
+                        renderizarPergunta(q);
+                    }
                 }
             } catch (e) {}
         }
 
-        function renderizarPergunta(q, bloqueado) {
+        function renderizarPergunta(q) {
             document.getElementById('textoPerguntaViva').innerText = q.texto;
             const container = document.getElementById('opcoesBotoes');
-
-            if (bloqueado && !estadoSessao.reveladoNaPerguntaAtual) {
-                container.innerHTML = `
-                    <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800 text-center text-sm text-slate-300">
-                        Resposta registrada! Aguarde o apresentador chamar a próxima pergunta.
-                    </div>
-                `;
-                return;
-            }
 
             const eliminadas = estadoSessao.opcoesEliminadas || [];
             container.innerHTML = (q.opcoes || []).map((opcao, idx) => {
                 const isEliminada = eliminadas.includes(idx);
+                const isEscolhida = estadoSessao.opcaoEscolhida !== null && Number(estadoSessao.opcaoEscolhida) === idx;
+                const estaBloqueada = estadoSessao.jaRespondeuAtual || (estadoSessao.opcaoEscolhida !== null);
+
+                let classesBtn = 'btn-opcao-mobile w-full text-left p-4 rounded-2xl border-2 transition flex items-center justify-between gap-3.5 ';
+                let tagHtml = '';
+
+                if (isEliminada) {
+                    classesBtn += 'opacity-30 border-slate-800 bg-slate-950 line-through cursor-not-allowed';
+                } else if (isEscolhida) {
+                    classesBtn += 'opcao-bloqueada cursor-not-allowed';
+                    tagHtml = '<span class="shrink-0 text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-400 text-slate-950">BLOQUEADA</span>';
+                } else if (estaBloqueada) {
+                    classesBtn += 'opacity-40 border-slate-800 bg-slate-950 cursor-not-allowed';
+                } else {
+                    classesBtn += 'border-blue-500/40 bg-blue-950/70 hover:border-amber-400 active:scale-[0.99] cursor-pointer';
+                }
+
                 return `
                     <button type="button"
                             id="btnOpcaoMobile_${idx}"
                             data-indice="${idx}"
-                            ${isEliminada ? 'disabled' : ''}
+                            ${isEliminada || estaBloqueada ? 'disabled' : ''}
                             onclick="confirmarOpcao(${idx}, '${String(opcao).replace(/'/g, "\\'")}')"
-                            class="btn-opcao-mobile w-full text-left p-4 rounded-2xl border-2 transition flex items-center justify-between gap-3.5 ${isEliminada ? 'opacity-30 border-slate-800 bg-slate-950 line-through' : 'border-blue-500/40 bg-blue-950/70 hover:border-amber-400 active:scale-[0.99]'}">
+                            class="${classesBtn}">
                         <div class="flex items-center gap-3.5 min-w-0">
-                            <span id="badgeMobile_${idx}" class="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 font-black flex items-center justify-center shrink-0 text-sm">
+                            <span id="badgeMobile_${idx}" class="w-8 h-8 rounded-xl ${isEscolhida ? 'bg-amber-400 text-slate-950' : 'bg-amber-500 text-slate-950'} font-black flex items-center justify-center shrink-0 text-sm">
                                 ${letras[idx] || (idx + 1)}
                             </span>
                             <span class="font-bold text-white text-sm sm:text-base">${opcao}</span>
                         </div>
-                        <span id="tagMobile_${idx}" class="hidden shrink-0 text-[10px] font-black uppercase px-2 py-0.5 rounded"></span>
+                        <span id="tagMobile_${idx}" class="shrink-0">${tagHtml}</span>
                     </button>
                 `;
             }).join('');
         }
 
-        function confirmarOpcao(idx, textoOpcao) {
+        async function confirmarOpcao(idx, textoOpcao) {
             if (estadoSessao.jaRespondeuAtual) return;
             new Audio('/audio/classico/tecla.wav').play().catch(() => {});
-            indicePendenteConfirmacao = idx;
-            document.getElementById('textoOpcaoConfirmar').innerText = `${letras[idx] || (idx + 1)}) ${textoOpcao}`;
-            document.getElementById('modalCerteza').classList.remove('hidden');
-            document.getElementById('btnConfirmarFinal').onclick = () => {
-                const escolhido = indicePendenteConfirmacao;
-                fecharModalCerteza();
-                enviarResposta(escolhido);
-            };
+            const letra = letras[idx] || (idx + 1);
+
+            if (typeof Swal !== 'undefined') {
+                const result = await Swal.fire({
+                    title: 'Você tem certeza?',
+                    html: `
+                        <p class="text-xs text-slate-300 uppercase tracking-wider font-bold mb-2">Alternativa Escolhida:</p>
+                        <div class="p-3.5 rounded-2xl bg-slate-950 border-2 border-amber-400 text-amber-300 font-black text-base text-left flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 font-black flex items-center justify-center shrink-0">${letra}</span>
+                            <span>${textoOpcao}</span>
+                        </div>
+                    `,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'SIM, CONFIRMAR!',
+                    cancelButtonText: 'Trocar Opção',
+                    confirmButtonColor: '#f59e0b',
+                    cancelButtonColor: '#334155',
+                    background: '#0f172a',
+                    color: '#f8fafc',
+                    customClass: {
+                        popup: 'rounded-3xl border-2 border-amber-400/80 shadow-2xl',
+                        confirmButton: 'font-black rounded-xl px-5 py-3 text-slate-950 text-sm shadow-lg',
+                        cancelButton: 'font-bold rounded-xl px-4 py-3 text-sm'
+                    }
+                });
+
+                if (result.isConfirmed) {
+                    enviarResposta(idx);
+                }
+            } else {
+                indicePendenteConfirmacao = idx;
+                document.getElementById('textoOpcaoConfirmar').innerText = `${letra}) ${textoOpcao}`;
+                document.getElementById('modalCerteza').classList.remove('hidden');
+                document.getElementById('btnConfirmarFinal').onclick = () => {
+                    const escolhido = indicePendenteConfirmacao;
+                    fecharModalCerteza();
+                    enviarResposta(escolhido);
+                };
+            }
         }
 
         function fecharModalCerteza() {
-            document.getElementById('modalCerteza').classList.add('hidden');
+            const m = document.getElementById('modalCerteza');
+            if (m) m.classList.add('hidden');
             indicePendenteConfirmacao = null;
         }
 
@@ -409,52 +468,56 @@
                 const idx = String(btn.dataset.indice);
                 const tag = document.getElementById(`tagMobile_${idx}`);
                 if (idx === String(indiceEscolhido)) {
-                    btn.classList.add('opcao-bloqueada');
+                    btn.className = 'btn-opcao-mobile w-full text-left p-4 rounded-2xl border-2 transition flex items-center justify-between gap-3.5 opcao-bloqueada cursor-not-allowed';
                     if (tag) {
-                        tag.textContent = 'BLOQUEADA';
-                        tag.className = 'shrink-0 text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-400 text-slate-950';
+                        tag.innerHTML = '<span class="shrink-0 text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-400 text-slate-950">BLOQUEADA</span>';
                     }
                 } else {
-                    btn.classList.add('opacity-50');
+                    btn.classList.add('opacity-40');
                 }
             });
         }
 
-        function revelarCoresOpcaoMobile(indiceEscolhido, indiceCorreto, acertou) {
+        function revelarCoresOpcaoMobile(indiceEscolhido, respostaCorreta, acertouParam, questaoObj) {
+            const corretaTexto = String(respostaCorreta || (questaoObj?.resposta_correta ?? '')).trim().toLowerCase();
+
             document.querySelectorAll('.btn-opcao-mobile').forEach(btn => {
                 const idx = String(btn.dataset.indice);
-                btn.classList.remove('opcao-bloqueada', 'opacity-50');
+                btn.classList.remove('opcao-bloqueada', 'opacity-40', 'opacity-50');
                 const tag = document.getElementById(`tagMobile_${idx}`);
                 const badge = document.getElementById(`badgeMobile_${idx}`);
+                const textoBtn = String(btn.querySelector('.font-bold')?.textContent || '').trim().toLowerCase();
 
-                if (idx === String(indiceCorreto)) {
-                    btn.classList.add('opcao-correta-reveal');
+                const ehCorreta = corretaTexto && textoBtn === corretaTexto;
+                const ehEscolhida = indiceEscolhido !== null && idx === String(indiceEscolhido);
+                const acertou = acertouParam !== null ? acertouParam : (ehEscolhida && ehCorreta);
+
+                if (ehCorreta) {
+                    btn.className = 'btn-opcao-mobile w-full text-left p-4 rounded-2xl border-2 transition flex items-center justify-between gap-3.5 opcao-correta-reveal';
                     if (badge) badge.className = 'w-8 h-8 rounded-xl bg-white text-emerald-700 font-black flex items-center justify-center shrink-0 text-sm';
                     if (tag) {
-                        tag.textContent = acertou ? 'CERTA!' : 'CORRETA';
-                        tag.className = 'shrink-0 text-[10px] font-black uppercase px-2 py-0.5 rounded bg-white text-emerald-800';
+                        tag.innerHTML = '<span class="shrink-0 text-[10px] font-black uppercase px-2 py-0.5 rounded bg-white text-emerald-800">' + (acertou ? 'CERTA!' : 'CORRETA') + '</span>';
                     }
-                } else if (idx === String(indiceEscolhido) && !acertou) {
-                    btn.classList.add('opcao-errada-reveal');
+                } else if (ehEscolhida && !acertou) {
+                    btn.className = 'btn-opcao-mobile w-full text-left p-4 rounded-2xl border-2 transition flex items-center justify-between gap-3.5 opcao-errada-reveal';
                     if (badge) badge.className = 'w-8 h-8 rounded-xl bg-white text-rose-700 font-black flex items-center justify-center shrink-0 text-sm';
                     if (tag) {
-                        tag.textContent = 'ERROU';
-                        tag.className = 'shrink-0 text-[10px] font-black uppercase px-2 py-0.5 rounded bg-white text-rose-800';
+                        tag.innerHTML = '<span class="shrink-0 text-[10px] font-black uppercase px-2 py-0.5 rounded bg-white text-rose-800">ERROU</span>';
                     }
                 } else {
-                    btn.classList.add('opacity-35');
+                    btn.classList.add('opacity-30');
                 }
             });
         }
 
         async function enviarResposta(indiceOpcao) {
-            if (estadoSessao.jaRespondeuAtual || !estadoSessao.questaoAtualId) return;
+            if (estadoSessao.jaRespondeuAtual) return;
             estadoSessao.jaRespondeuAtual = true;
-            estadoSessao.reveladoNaPerguntaAtual = true;
+            estadoSessao.opcaoEscolhida = indiceOpcao;
 
             const tempoSegundos = Math.max(1, Math.min(60, Math.round((Date.now() - estadoSessao.inicioPerguntaTimestamp) / 1000)));
 
-            // 1. Bloquear imediatamente a opção escolhida
+            // 1. Bloquear imediatamente a opção escolhida na tela (permanece na tela)
             bloquearOpcaoMobile(indiceOpcao);
 
             try {
@@ -467,7 +530,7 @@
                     },
                     body: JSON.stringify({
                         participante_id: estadoSessao.participanteId,
-                        questao_id: estadoSessao.questaoAtualId,
+                        questao_id: estadoSessao.questaoAtualId || null,
                         resposta: String(indiceOpcao),
                         tempo_resposta: tempoSegundos,
                     }),
@@ -488,7 +551,7 @@
                         fx.play().catch(() => {});
                     }
 
-                    revelarCoresOpcaoMobile(indiceOpcao, data.indice_correto, !!data.acertou);
+                    revelarCoresOpcaoMobile(indiceOpcao, data.resposta_correta, !!data.acertou);
 
                     estadoSessao.pontuacao = data.participante?.pontuacao_total ?? estadoSessao.pontuacao;
                     document.getElementById('jogadorPontosDisplay').innerText = estadoSessao.pontuacao;
@@ -503,26 +566,44 @@
                         <div class="font-black text-base mb-1">
                             ${data.acertou ? `Certa Resposta! (+${data.pontos} pts)` : `Que pena, você errou!`}
                         </div>
-                        ${!data.acertou ? `<div class="text-xs text-rose-200">Correta: <strong class="text-emerald-300 underline">${data.resposta_correta}</strong></div>` : ''}
+                        ${!data.acertou && data.resposta_correta ? `<div class="text-xs text-rose-200">Correta: <strong class="text-emerald-300 underline">${data.resposta_correta}</strong></div>` : ''}
                         ${data.referencia_biblica || data.explicacao ? `<div class="text-xs mt-1.5 text-slate-300">${data.referencia_biblica ? '[' + data.referencia_biblica + '] ' : ''}${data.explicacao || ''}</div>` : ''}
-                        <div class="text-[11px] mt-2 text-amber-300 font-semibold">Aguardando o apresentador avançar para a próxima pergunta...</div>
+                        <div class="text-[11px] mt-2 text-amber-300 font-semibold">Sua resposta prevalece na tela até o apresentador chamar a próxima pergunta.</div>
                     `;
                     fb.classList.remove('hidden');
                 }, 1200);
             } catch (err) {
+                // Em caso de erro, reabilita as opções e notifica via SweetAlert2
                 estadoSessao.jaRespondeuAtual = false;
-                estadoSessao.reveladoNaPerguntaAtual = false;
+                estadoSessao.opcaoEscolhida = null;
                 document.querySelectorAll('.btn-opcao-mobile').forEach(btn => {
                     const idx = Number(btn.dataset.indice);
                     const isEliminada = (estadoSessao.opcoesEliminadas || []).includes(idx);
                     if (!isEliminada) {
                         btn.disabled = false;
-                        btn.classList.remove('opcao-bloqueada', 'opacity-50');
+                        btn.className = 'btn-opcao-mobile w-full text-left p-4 rounded-2xl border-2 transition flex items-center justify-between gap-3.5 border-blue-500/40 bg-blue-950/70 hover:border-amber-400 active:scale-[0.99] cursor-pointer';
                         const tag = document.getElementById(`tagMobile_${idx}`);
-                        if (tag) tag.classList.add('hidden');
+                        if (tag) tag.innerHTML = '';
                     }
                 });
-                alert(err.message);
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Falha no Envio',
+                        text: err.message,
+                        confirmButtonText: 'Tentar Novamente',
+                        confirmButtonColor: '#f59e0b',
+                        background: '#0f172a',
+                        color: '#f8fafc',
+                        customClass: {
+                            popup: 'rounded-3xl border-2 border-rose-500 shadow-2xl',
+                            confirmButton: 'font-black rounded-xl px-5 py-3 text-slate-950 text-sm'
+                        }
+                    });
+                } else {
+                    alert(err.message);
+                }
             }
         }
 

@@ -73,6 +73,15 @@
                     <span class="hidden md:inline" id="badgeStatusSomNav">Definições</span>
                 </button>
 
+                <!-- Link Sobre o Jogo -->
+                <a href="{{ route('sobre') }}" title="Sobre o Bíblia Show e Créditos"
+                   class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold {{ request()->routeIs('sobre') ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : ($dark ? 'bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700' : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200') }} transition">
+                    <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                    </svg>
+                    <span class="hidden md:inline">Sobre</span>
+                </a>
+
                 @auth
                     <a href="{{ route('admin.dashboard') }}"
                        class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold {{ $dark ? 'bg-slate-800 text-amber-300 border border-slate-700' : 'bg-slate-100 text-slate-800 border border-slate-200' }}">

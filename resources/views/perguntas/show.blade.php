@@ -11,7 +11,7 @@
 <body class="bg-slate-50 min-h-screen text-slate-900">
     @include('partials.navbar')
 
-    <div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <header class="flex items-center justify-between mb-8">
             <div>
                 <a href="{{ route('perguntas.index') }}" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-800 font-medium">

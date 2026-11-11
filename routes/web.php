@@ -33,6 +33,9 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
 
 // Enciclopédia Bíblica & Regras Clássicas
 Route::get('/curiosidades', [GameController::class, 'curiosidades'])->name('curiosidades');
+Route::get('/sobre', function () {
+    return view('sobre');
+})->name('sobre');
 
 // Modo Individual Clássico (Show do Milhão Bíblico)
 Route::prefix('jogar')->name('game.')->group(function () {

@@ -27,7 +27,7 @@
         $dicaConvidadoAtiva = $ajudasMotor['dica_convidado'] ?? null;
     @endphp
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <!-- Barra de Comando Superior da Sala -->
         <header class="flex flex-wrap justify-between items-center gap-4 mb-6 bg-slate-900/95 p-5 rounded-3xl shadow-xl border border-amber-500/30">
             <div>

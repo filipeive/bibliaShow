@@ -187,6 +187,55 @@
                 </div>
             </div>
         </div>
+
+        <!-- ======================================================== -->
+        <!-- SEÇÃO INFERIOR DO TELÃO: CORRIDA AO VIVO & RESPOSTAS     -->
+        <!-- ======================================================== -->
+        <div class="mt-7 grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
+            <!-- 1. Corrida do Bíblia Show (Disputa de Posições estilo Race Track) -->
+            <div class="lg:col-span-6 bg-slate-900/90 backdrop-blur-md rounded-3xl p-6 border border-white/15 shadow-2xl">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z"/></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-black text-white uppercase tracking-wider">Corrida do Bíblia Show</h3>
+                            <p class="text-[11px] text-slate-400">Disputa em tempo real rumo ao topo</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono font-bold text-amber-400 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30">
+                        🏁 Rumo ao Milhão
+                    </span>
+                </div>
+
+                <div id="corridaContainer" class="space-y-3">
+                    <p class="text-xs text-slate-400 text-center py-4">Carregando posições da corrida...</p>
+                </div>
+            </div>
+
+            <!-- 2. Participantes na Rodada & Letra Escolhida (Ao Bloquear / Revelar) -->
+            <div class="lg:col-span-6 bg-slate-900/90 backdrop-blur-md rounded-3xl p-6 border border-white/15 shadow-2xl">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-500/40 text-blue-400 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-black text-white uppercase tracking-wider">Respostas dos Jogadores na Rodada</h3>
+                            <p class="text-[11px] text-slate-400">Letras bloqueadas ao vivo pelos participantes</p>
+                        </div>
+                    </div>
+                    <span id="contadorRespostasRodada" class="text-xs font-bold text-amber-300">
+                        0 responderam
+                    </span>
+                </div>
+
+                <div id="gridParticipantesRodada" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-72 overflow-y-auto pr-1">
+                    <p class="text-xs text-slate-400 col-span-2 text-center py-4">Aguardando participantes...</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -259,6 +308,109 @@
                     <span class="font-mono font-black text-amber-300">${p.pontuacao} pts</span>
                 </div>
             `).join('');
+        }
+
+        function renderizarCorrida(ranking) {
+            const container = document.getElementById('corridaContainer');
+            if (!container) return;
+
+            if (!ranking || ranking.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Aguardando participantes entrarem na corrida...</p>';
+                return;
+            }
+
+            const maxPontos = Math.max(100, ...ranking.map(r => Number(r.pontuacao) || 0));
+
+            container.innerHTML = ranking.slice(0, 5).map((p, idx) => {
+                const pts = Number(p.pontuacao) || 0;
+                const perc = Math.min(100, Math.max(5, Math.round((pts / maxPontos) * 94)));
+                const medalhas = ['🥇 1º', '🥈 2º', '🥉 3º', '4º', '5º'];
+
+                return `
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between text-xs font-bold">
+                            <span class="text-white flex items-center gap-1.5 truncate">
+                                <span class="font-black text-amber-400">${medalhas[idx] || (idx + 1 + 'º')}</span>
+                                <span class="truncate">${p.nome || 'Participante'}</span>
+                                ${p.equipe ? `<span class="text-[10px] text-slate-400">(${p.equipe})</span>` : ''}
+                            </span>
+                            <span class="font-mono text-amber-300 font-black">${pts} pts</span>
+                        </div>
+                        <div class="h-4 w-full bg-slate-950/80 rounded-full overflow-hidden p-0.5 border border-slate-800 relative">
+                            <div class="h-full bg-gradient-to-r ${idx === 0 ? 'from-amber-500 to-yellow-400 shadow-md shadow-amber-500/40' : 'from-blue-600 to-indigo-500'} rounded-full transition-all duration-700 relative"
+                                 style="width: ${perc}%">
+                                <span class="absolute right-1 top-0 bottom-0 flex items-center text-[9px] font-black text-slate-950 select-none">
+                                    🏃
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderizarRespostasRodada(participantes, respostas, gabaritoRevelado) {
+            const grid = document.getElementById('gridParticipantesRodada');
+            const contadorEl = document.getElementById('contadorRespostasRodada');
+            if (!grid) return;
+
+            if (!participantes || participantes.length === 0) {
+                grid.innerHTML = '<p class="text-xs text-slate-400 col-span-2 text-center py-4">Nenhum jogador conectado no momento.</p>';
+                if (contadorEl) contadorEl.textContent = '0 responderam';
+                return;
+            }
+
+            const total = participantes.length;
+            let respCount = 0;
+
+            grid.innerHTML = participantes.map(p => {
+                const resp = respostas && respostas[p.id];
+                const jaRespondeu = !!resp;
+                if (jaRespondeu) respCount++;
+
+                let badgeHtml = '';
+                if (!jaRespondeu) {
+                    badgeHtml = `
+                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 animate-pulse">
+                            Pensando...
+                        </span>
+                    `;
+                } else if (gabaritoRevelado) {
+                    const acertou = !!resp.correta;
+                    badgeHtml = `
+                        <span class="text-xs font-black px-2.5 py-1 rounded-lg ${acertou ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/40' : 'bg-rose-600 text-white shadow-md shadow-rose-600/40'}">
+                            ${acertou ? '✓ Letra ' + resp.letra : '✗ Letra ' + resp.letra}
+                        </span>
+                    `;
+                } else {
+                    badgeHtml = `
+                        <span class="text-xs font-black px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-md shadow-amber-500/30">
+                            Bloqueou [ ${resp.letra} ]
+                        </span>
+                    `;
+                }
+
+                return `
+                    <div class="flex items-center justify-between p-2.5 rounded-2xl bg-slate-950/70 border border-slate-800/80">
+                        <div class="flex items-center gap-2.5 min-w-0 pr-2">
+                            <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-300 font-black text-xs flex items-center justify-center shrink-0">
+                                ${(p.nome || 'P').charAt(0).toUpperCase()}
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-xs font-bold text-white truncate">${p.nome || 'Participante'}</p>
+                                ${p.equipe ? `<p class="text-[10px] text-slate-400 truncate">${p.equipe.nome || p.equipe}</p>` : ''}
+                            </div>
+                        </div>
+                        <div class="shrink-0">
+                            ${badgeHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            if (contadorEl) {
+                contadorEl.textContent = `${respCount} de ${total} responderam`;
+            }
         }
 
         function atualizarPergunta(data) {
@@ -370,11 +522,14 @@
                 const data = await resp.json();
 
                 renderizarRanking(data.ranking || []);
+                renderizarCorrida(data.ranking || []);
+                renderizarRespostasRodada(data.participantes || [], data.respostas_rodada || {}, !!data.ajudas?.gabarito_revelado);
                 atualizarPergunta(data);
             } catch (e) {}
         }
 
-        // Sincronização contínua de alta fidelidade em tempo real (1.2 segundos)
+        // Execução imediata e sincronização contínua de alta fidelidade em tempo real (1.2 segundos)
+        sincronizarProjecao();
         setInterval(sincronizarProjecao, 1200);
     </script>
 </body>

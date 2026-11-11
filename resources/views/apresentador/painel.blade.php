@@ -16,7 +16,7 @@
 
     @include('partials.navbar', ['dark' => true])
 
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <header class="flex flex-wrap justify-between items-center gap-4 mb-8">
             <div>
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-black uppercase tracking-wider mb-2">

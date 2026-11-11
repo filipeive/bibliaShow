@@ -387,6 +387,7 @@
                 <a href="{{ route('entrar.view') }}" class="hover:text-amber-400">Entrar em Sala</a>
                 <a href="{{ route('apresentador.painel') }}" class="hover:text-amber-400">Apresentador</a>
                 <a href="{{ route('curiosidades') }}" class="hover:text-amber-400">Enciclopédia</a>
+                <a href="{{ route('sobre') }}" class="hover:text-amber-400 text-amber-300">Sobre o Projeto</a>
                 <a href="{{ route('perguntas.index') }}" class="hover:text-amber-400">Perguntas</a>
                 <a href="{{ route('admin.dashboard') }}" class="hover:text-amber-400">Admin</a>
             </div>
