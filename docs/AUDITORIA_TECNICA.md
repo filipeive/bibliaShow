@@ -208,7 +208,38 @@ A aplicação foi executada e homologada em ambiente real de navegador através 
 
 ---
 
-## 9. Conclusão e Prontidão para Produção
+## 9. Novas Funcionalidades de UX, Suspense e Deploy em Produção
 
-O **Bíblia Show 2.0** encontra-se estabilizado, seguro contra ataques de injeção e manipulação de permissões, com isolamento multi-tenant garantido, integridade de 100% do acervo bíblico clássico de 1.000 questões preservada, e sincronização multiplayer testada tanto em suíte automatizada quanto em navegador real. O sistema está pronto para ser utilizado em congregações, cultos de jovens e eventos bíblicos.
+### 9.1 Sigilo de Gabarito no Smartphone (UX-03)
+- **Problema:** Anteriormente, ao clicar em uma alternativa no smartphone do participante, a resposta correta era revelada de imediato antes de o apresentador autorizar no telão.
+- **Correção:** `ParticipantController::responder()` retorna `{ "sucesso": true, "bloqueada": true }` mantendo `acertou` e `resposta_correta` confidenciais. A revelação visual e sonora só ocorre no smartphone quando o apresentador aciona "Revelar no Telão" via sincronização.
+
+### 9.2 Sons de Contagem Regressiva e Suspense (UX-04)
+- **Implementação:** Criação dos áudios sintetizados clássicos `public/audio/classico/tempo_tick.wav` e `public/audio/classico/tempo_alerta.wav`.
+- **Comportamento:** Aos 10 segundos finais, todas as telas (Telão, Smartphone do Participante e Modo Individual) reproduzem ticks de suspense crescentes de 10s a 1s e um chime sonoro de alarme ao atingir 0s.
+
+### 9.3 Deploy em Produção e Nginx (OPS-01)
+- **Servidor:** Oracle Cloud (`ubuntu@146.235.224.99`, chave SSH `~/.ssh/oracle-2025`).
+- **Diretório:** `/var/www/html/bibliaShow` com symlink case-insensitive `/var/www/html/bibliashow`.
+- **PHP-FPM:** Instalação e isolamento do PHP 8.4-FPM (`unix:/run/php/php8.4-fpm.sock`), garantindo suporte ao Laravel 13 e Symfony 8.1 sem interferir nas demais aplicações do servidor que rodam em PHP 8.3.
+- **Banco de Dados:** MySQL `biblia_show` provisionado e populado com todas as 1.000 questões do clássico.
+- **Script de Deploy:** `./deploy.sh` automatizado executando `git fetch & reset`, `composer install --optimize-autoloader --no-dev`, migrações, seeders, caches de produção e reload de serviços.
+- **URLs de Acesso:**
+  - `http://146.235.224.99/bibliashow/`
+  - `http://146.235.224.99/bibliaShow/`
+
+### 9.4 Aplicativos Multiplataforma (APP-01)
+- **Android APK (Capacitor):**
+  - Arquivo `capacitor.config.json` com `appId: "com.bibliashow.arena"`, `appName: "Bíblia Show 2.0"`, carregamento da URL remota com fallback offline e splash screen estilizada.
+  - Comandos: `npm run cap:sync` e `npm run cap:open:android`.
+- **Desktop Linux / Windows (Electron):**
+  - Diretório `electron/` com `main.js`, `preload.js` e `package.json`.
+  - Suporte nativo a Modo Telão de Igreja em Tela Cheia (`F11`), atalhos de projeção rápida (`Ctrl+T`), menu de controle e alternância dev/produção.
+  - Comandos: `npm run desktop:start`, `npm run desktop:build:linux` (AppImage/deb) e `npm run desktop:build:win` (nsis).
+
+---
+
+## 10. Conclusão e Prontidão para Produção
+
+O **Bíblia Show 2.0** encontra-se estabilizado, seguro contra ataques de injeção e manipulação de permissões, com isolamento multi-tenant garantido, integridade de 100% do acervo bíblico clássico de 1.000 questões preservada, sincronização multiplayer testada tanto em suíte automatizada quanto em navegador real, e **implantado com sucesso em produção no servidor Oracle Cloud**. Além disso, a aplicação possui suporte a PWA offline, aplicativo móvel Android (APK via Capacitor) e executáveis desktop (Linux/Windows via Electron). O sistema está 100% pronto para ser utilizado em congregações, cultos de jovens e eventos bíblicos.
 

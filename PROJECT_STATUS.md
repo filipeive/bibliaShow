@@ -32,18 +32,22 @@ O **Bíblia Show 2.0** é a recriação fiel e moderna do clássico jogo multim�
 | **DATA-01**| Acervo Bíblico | Baixo | Parsing resiliente de 100% das 1.000 perguntas do `cadastro.dbf` clássico com mapeamento de referências e livros. | Resolvido |
 | **PWA-01** | PWA / Offline | Médio | Implementação de `manifest.json`, `sw.js` com cache inteligente e registro automático nas páginas. | Resolvido |
 | **UX-01**  | Multiplayer / UX | Médio | Capacidade de participantes utilizarem ajudas bíblicas individuais (Dica, Cartas 50/50, Convidados) segundo as regras do jogo. | Resolvido |
-| **UX-02**  | Experiência / Tempo | Baixo | Super cronômetro regressivo com alerta aos 10s e desabilitação suave ao esgotar o tempo, eliminando popups intrusivos. | Resolvido |
+| **UX-02**  | Experiência / Tempo | Baixo | Super cronômetro regressivo com alerta sonoro dos 10s aos 0s (`tempo_tick.wav`, `tempo_alerta.wav`) e desabilitação suave ao esgotar o tempo, eliminando popups intrusivos. | Resolvido |
+| **UX-03**  | Suspense / Revelação | Alto | Sigilo de resposta no smartphone: bloqueio sem antecipação de acerto/erro, revelação sincronizada apenas quando o apresentador autoriza. | Resolvido |
+| **OPS-01** | Produção / Nginx | Alto | Deploy automatizado via `deploy.sh` em `/var/www/html/bibliaShow` (alias `/bibliashow`), MySQL `biblia_show` e PHP 8.4-FPM dedicado. | Resolvido |
+| **APP-01** | Multiplataforma | Médio | Configuração do Capacitor (`capacitor.config.json` para Android APK) e Electron (`electron/` para Desktop Linux/Windows com F11 Telão). | Resolvido |
 
 ---
 
 ## 3. Cobertura de Testes Automatizados e Navegador Real
 
-- **Total de Testes PHPUnit:** 25
-- **Total de Asserções:** 95
+- **Total de Testes PHPUnit:** 26
+- **Total de Asserções:** 106
 - **Taxa de Sucesso:** 100% (0 falhas)
-- **Tempo de Execução:** ~370ms
+- **Tempo de Execução:** ~500ms
 - **Comando de Verificação:** `php artisan test`
 - **Validação E2E no Navegador:** Realizada via Chrome DevTools MCP (Home, Jogo Clássico Solo com ajudas e modal, Login/Admin, Estúdio do Apresentador, Telão de Projeção, Smartphone do Participante, submissão de respostas e Pódio Final).
+- **Ambiente de Produção Operacional:** `http://146.235.224.99/bibliashow/` e `http://146.235.224.99/bibliaShow/` (HTTP 200 OK com 1.000 questões e áudios originais).
 
 ---
 
