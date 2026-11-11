@@ -52,14 +52,16 @@
 
             <!-- Right Side Actions (Never wraps) -->
             <div class="flex items-center gap-2 shrink-0 whitespace-nowrap">
-                <!-- Botão Principal Destacado: JOGAR AGORA -->
-                <button type="button" onclick="abrirModalJogarAgora()"
-                        class="inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 px-4 sm:px-5 py-2.5 rounded-xl font-black text-xs sm:text-sm shadow-lg shadow-amber-500/30 ring-2 ring-amber-300/50 hover:scale-[1.02] transition">
-                    <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
-                    </svg>
-                    <span>Jogar Agora</span>
-                </button>
+                @if(!request()->routeIs('game.*') && !request()->is('jogar*') && !request()->is('entrar*') && !($hideJogarAgora ?? false))
+                    <!-- Botão Principal Destacado: JOGAR AGORA -->
+                    <button type="button" onclick="abrirModalJogarAgora()"
+                            class="inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 px-4 sm:px-5 py-2.5 rounded-xl font-black text-xs sm:text-sm shadow-lg shadow-amber-500/30 ring-2 ring-amber-300/50 hover:scale-[1.02] transition">
+                        <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                        </svg>
+                        <span>Jogar Agora</span>
+                    </button>
+                @endif
 
                 <!-- Botão de Definições (Sons & Jogador) -->
                 <button type="button" onclick="abrirModalDefinicoes()" title="Definições de Som e Jogador"
