@@ -53,13 +53,13 @@
                 @endif
             </div>
 
-            <div class="flex items-center gap-4">
-                <button type="button" onclick="alternarAudioProjecao()" id="btnAudioProj"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/20 text-amber-300 text-xs font-bold uppercase tracking-wider transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <div class="flex items-center gap-3 sm:gap-4">
+                <!-- Áudio do Telão Discreto & Ativo por Padrão -->
+                <button type="button" onclick="alternarAudioProjecao()" id="btnAudioProj" title="Áudio do Telão (Ativo por Padrão)"
+                        class="p-2.5 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/20 text-amber-300 transition shrink-0">
+                    <svg id="iconeAudioProj" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
                     </svg>
-                    <span id="txtAudioProj">Som do Telão: Ativo</span>
                 </button>
                 <div class="bg-amber-500/15 border border-amber-400/40 px-5 py-2 rounded-2xl text-center">
                     <p class="text-[10px] font-black uppercase tracking-wider text-amber-300">Código da Sala</p>
@@ -254,9 +254,34 @@
         trilhaSuspense.loop = true;
         trilhaSuspense.volume = 0.3;
 
+        // Desbloqueia áudio caso o navegador bloqueie autoplay inicial
+        function desbloquearAudioTelao() {
+            if (somAtivo && estadoAtual === 'em_curso' && trilhaSuspense.paused) {
+                trilhaSuspense.play().catch(() => {});
+            }
+        }
+        ['click', 'touchstart', 'keydown'].forEach(evt => {
+            document.addEventListener(evt, desbloquearAudioTelao, { once: true, passive: true });
+        });
+
+        function atualizarIconeAudioTelao() {
+            const btn = document.getElementById('btnAudioProj');
+            const icone = document.getElementById('iconeAudioProj');
+            if (!btn || !icone) return;
+
+            if (somAtivo) {
+                btn.title = 'Áudio do Telão: Ativo (Clique para silenciar)';
+                btn.className = 'p-2.5 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 hover:bg-emerald-500/30 transition shrink-0';
+                icone.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />';
+            } else {
+                btn.title = 'Áudio do Telão: Silenciado (Clique para ativar)';
+                btn.className = 'p-2.5 rounded-2xl bg-rose-500/20 border border-rose-400/40 text-rose-300 hover:bg-rose-500/30 transition shrink-0';
+                icone.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-1.5l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />';
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
-            const txt = document.getElementById('txtAudioProj');
-            if (txt) txt.textContent = somAtivo ? 'Som do Telão: Ativo' : 'Som do Telão: Desativado';
+            atualizarIconeAudioTelao();
             if (somAtivo && estadoAtual === 'em_curso') {
                 trilhaSuspense.play().catch(() => {});
             }
@@ -277,14 +302,12 @@
         function alternarAudioProjecao() {
             somAtivo = !somAtivo;
             localStorage.setItem('biblia_show_som', somAtivo ? 'on' : 'off');
-            const txt = document.getElementById('txtAudioProj');
+            atualizarIconeAudioTelao();
             if (somAtivo) {
-                if (txt) txt.textContent = 'Som do Telão: Ativo';
                 if (estadoAtual === 'em_curso') {
                     trilhaSuspense.play().catch(() => {});
                 }
             } else {
-                if (txt) txt.textContent = 'Som do Telão: Desativado';
                 trilhaSuspense.pause();
             }
         }

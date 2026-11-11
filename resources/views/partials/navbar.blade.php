@@ -235,9 +235,9 @@
     </div>
 </div>
 
-<!-- Modal de Definições (Áudio Clássico Ativo por Padrão + Volume) -->
+<!-- Modal de Definições (Áudio Clássico Ativo por Padrão + Volume + Abertura Clássica) -->
 <div id="modalDefinicoes" class="hidden fixed inset-0 z-[65] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-slate-900 border-2 border-slate-700 rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl relative text-slate-100">
+    <div class="bg-slate-900 border-2 border-slate-700 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl relative text-slate-100">
         <button type="button" onclick="fecharModalDefinicoes()"
                 class="absolute top-4 right-4 w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
@@ -251,14 +251,14 @@
             </svg>
             Definições de Som e Jogo
         </h3>
-        <p class="text-xs text-slate-400 mb-5">Por padrão todos os sons originais do Bíblia Show estão ativos.</p>
+        <p class="text-xs text-slate-400 mb-5">Os sons originais e locuções clássicas tocam automaticamente por padrão em todo o sistema.</p>
 
         <div class="space-y-4">
             <!-- Toggle Sons Gerais -->
             <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-950 border border-slate-800">
                 <div>
                     <p class="font-bold text-sm text-white">Sons e Locuções Clássicas</p>
-                    <p class="text-xs text-slate-400">Efeitos de acerto, erro, fases, dicas e convidados</p>
+                    <p class="text-xs text-slate-400">Efeitos de acerto, erro, fases, suspense e dicas</p>
                 </div>
                 <button type="button" id="btnToggleSomGlobal" onclick="alternarSomGlobal()"
                         class="px-4 py-2 rounded-xl font-black text-xs uppercase transition bg-emerald-500 text-slate-950">
@@ -269,7 +269,7 @@
             <!-- Controle de Volume -->
             <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800">
                 <div class="flex items-center justify-between mb-2">
-                    <label for="inputVolumeGlobal" class="font-bold text-sm text-white">Volume do Áudio</label>
+                    <label for="inputVolumeGlobal" class="font-bold text-sm text-white">Volume Geral do Áudio</label>
                     <span id="labelVolumeGlobal" class="text-xs font-mono font-black text-amber-400">85%</span>
                 </div>
                 <input type="range" id="inputVolumeGlobal" min="0" max="100" value="85"
@@ -277,15 +277,49 @@
                        class="w-full accent-amber-500 cursor-pointer">
             </div>
 
-            <!-- Testar Som -->
-            <div class="flex items-center justify-between gap-2 pt-2">
-                <button type="button" onclick="testarSomClassico()"
-                        class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs border border-slate-700 transition">
-                    Testar Áudio Clássico
+            <!-- Trilha de Abertura Clássica (Mudada para as definições para manter o design limpo) -->
+            <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-950 border border-slate-800">
+                <div class="pr-2">
+                    <p class="font-bold text-sm text-white flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+                        </svg>
+                        Trilha de Abertura Clássica
+                    </p>
+                    <p class="text-xs text-slate-400">Tema musical original do Bíblia Show dos anos 2000</p>
+                </div>
+                <button type="button" id="btnAberturaDefinicoes" onclick="alternarAberturaDefinicoes()"
+                        class="px-3.5 py-2 rounded-xl font-black text-xs uppercase transition bg-blue-600 hover:bg-blue-500 text-white shrink-0 flex items-center gap-1.5 shadow">
+                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                    </svg>
+                    <span id="txtAberturaDefinicoes">Ouvir Trilha</span>
                 </button>
+            </div>
+
+            <!-- Testar Efeitos Sonoros -->
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
+                <p class="font-bold text-xs uppercase tracking-wider text-slate-400">Testar Efeitos Clássicos:</p>
+                <div class="grid grid-cols-3 gap-2">
+                    <button type="button" onclick="testarEfeitoSonoro('inicio')"
+                            class="py-2 px-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-300 font-bold text-xs border border-slate-800 text-center transition">
+                        Chime Início
+                    </button>
+                    <button type="button" onclick="testarEfeitoSonoro('certo')"
+                            class="py-2 px-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-400 font-bold text-xs border border-slate-800 text-center transition">
+                        Acerto
+                    </button>
+                    <button type="button" onclick="testarEfeitoSonoro('erro')"
+                            class="py-2 px-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-rose-400 font-bold text-xs border border-slate-800 text-center transition">
+                        Erro
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end pt-2">
                 <button type="button" onclick="fecharModalDefinicoes()"
-                        class="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition">
-                    Concluído
+                        class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider transition">
+                    Fechar e Salvar Preferências
                 </button>
             </div>
         </div>
@@ -293,13 +327,34 @@
 </div>
 
 <script>
-    // Inicializa som como ATIVO ("on") por padrão caso nunca tenha sido desativado
+    // Inicializa som como ATIVO ("on") por padrão caso nunca tenha sido configurado
     if (localStorage.getItem('biblia_show_som') === null) {
         localStorage.setItem('biblia_show_som', 'on');
     }
     if (localStorage.getItem('biblia_show_volume') === null) {
         localStorage.setItem('biblia_show_volume', '85');
     }
+
+    let audioAberturaGlobal = null;
+    let tocandoAberturaGlobal = false;
+
+    // Desbloqueia áudio do navegador na primeira interação do usuário (respeitando autoplay policy)
+    function desbloquearAudioAutomatico() {
+        if (window._audioContextDesbloqueado) return;
+        window._audioContextDesbloqueado = true;
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+                const ctx = new AudioCtx();
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+            }
+        } catch (e) {}
+    }
+    ['click', 'touchstart', 'keydown'].forEach(evt => {
+        document.addEventListener(evt, desbloquearAudioAutomatico, { once: true, passive: true });
+    });
 
     function somEstaAtivo() {
         return localStorage.getItem('biblia_show_som') !== 'off';
@@ -332,21 +387,65 @@
         const novo = somEstaAtivo() ? 'off' : 'on';
         localStorage.setItem('biblia_show_som', novo);
         atualizarUISomGlobal();
+        if (novo === 'off' && audioAberturaGlobal && tocandoAberturaGlobal) {
+            audioAberturaGlobal.pause();
+            tocandoAberturaGlobal = false;
+            const txt = document.getElementById('txtAberturaDefinicoes');
+            if (txt) txt.textContent = 'Ouvir Trilha';
+        }
     }
 
     function ajustarVolumeGlobal(valor) {
         localStorage.setItem('biblia_show_volume', String(valor));
+        if (audioAberturaGlobal) {
+            audioAberturaGlobal.volume = (valor / 100) * 0.75;
+        }
         atualizarUISomGlobal();
     }
 
-    function testarSomClassico() {
+    function alternarAberturaDefinicoes() {
+        const txt = document.getElementById('txtAberturaDefinicoes');
+        const btn = document.getElementById('btnAberturaDefinicoes');
+        if (!audioAberturaGlobal) {
+            audioAberturaGlobal = new Audio('/audio/classico/abertura.wav');
+            audioAberturaGlobal.onended = () => {
+                tocandoAberturaGlobal = false;
+                if (txt) txt.textContent = 'Ouvir Trilha';
+                if (btn) btn.className = 'px-3.5 py-2 rounded-xl font-black text-xs uppercase transition bg-blue-600 hover:bg-blue-500 text-white shrink-0 flex items-center gap-1.5 shadow';
+            };
+        }
+
+        if (tocandoAberturaGlobal) {
+            audioAberturaGlobal.pause();
+            audioAberturaGlobal.currentTime = 0;
+            tocandoAberturaGlobal = false;
+            if (txt) txt.textContent = 'Ouvir Trilha';
+            if (btn) btn.className = 'px-3.5 py-2 rounded-xl font-black text-xs uppercase transition bg-blue-600 hover:bg-blue-500 text-white shrink-0 flex items-center gap-1.5 shadow';
+        } else {
+            if (!somEstaAtivo()) {
+                localStorage.setItem('biblia_show_som', 'on');
+                atualizarUISomGlobal();
+            }
+            audioAberturaGlobal.volume = obterVolumeGlobal() * 0.75;
+            audioAberturaGlobal.play().catch(() => {});
+            tocandoAberturaGlobal = true;
+            if (txt) txt.textContent = 'Parar Trilha';
+            if (btn) btn.className = 'px-3.5 py-2 rounded-xl font-black text-xs uppercase transition bg-amber-500 hover:bg-amber-400 text-slate-950 shrink-0 flex items-center gap-1.5 shadow';
+        }
+    }
+
+    function testarEfeitoSonoro(nome) {
         if (!somEstaAtivo()) {
             localStorage.setItem('biblia_show_som', 'on');
             atualizarUISomGlobal();
         }
-        const a = new Audio('/audio/classico/inicio.wav');
+        const a = new Audio(`/audio/classico/${nome}.wav`);
         a.volume = obterVolumeGlobal();
         a.play().catch(() => {});
+    }
+
+    function testarSomClassico() {
+        testarEfeitoSonoro('inicio');
     }
 
     function abrirModalJogarAgora() {

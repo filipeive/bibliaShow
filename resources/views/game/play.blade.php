@@ -750,6 +750,17 @@
                             if (inputNome) inputNome.focus();
                         }, 500);
                     }
+
+                    // Garante que o áudio seja iniciado na primeira interação caso o navegador bloqueie autoplay
+                    ['click', 'touchstart', 'keydown'].forEach(evt => {
+                        document.addEventListener(evt, () => {
+                            const somLigado = typeof somEstaAtivo === 'function' ? somEstaAtivo() : true;
+                            if (somLigado && !enviado && !precisaIdentificar && audioSuspense.paused) {
+                                aplicarVolume(audioSuspense, 0.28);
+                                audioSuspense.play().catch(() => {});
+                            }
+                        }, { once: true, passive: true });
+                    });
                 });
 
                 let indicePendente = null;

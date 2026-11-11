@@ -33,16 +33,19 @@
                 <p class="mt-4 text-base sm:text-lg text-slate-300 leading-relaxed">
                     Uma recriação moderna e fiel do inesquecível clássico dos anos 2000. Desenvolvido para transformar cultos, gincanas, células de jovens e momentos em família em uma empolgante jornada pelo conhecimento das Sagradas Escrituras.
                 </p>
-                <div class="mt-6 flex flex-wrap gap-3">
+                <div class="mt-6 flex flex-wrap items-center gap-3.5">
                     <a href="{{ route('game.play') }}"
                        class="inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black px-6 py-3.5 rounded-2xl text-sm shadow-xl shadow-amber-500/20 transition hover:scale-[1.02]">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
                         <span>Jogar Modo Individual</span>
                     </a>
-                    <a href="https://wa.me/258862134230" target="_blank"
-                       class="inline-flex items-center gap-2 bg-slate-800/90 hover:bg-slate-800 border border-slate-700 text-slate-200 font-bold px-6 py-3.5 rounded-2xl text-sm transition">
-                        <svg class="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.41a8.173 8.173 0 012.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.42 0-2.82-.37-4.06-1.07l-.29-.17-3.02.79.81-2.95-.19-.3a8.156 8.156 0 01-1.25-4.34c0-4.54 3.7-8.24 8.24-8.24m4.52 11.53c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.07-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.39-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.44.06-.66.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.12.17 1.77 2.7 4.29 3.79.6.26 1.07.41 1.44.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.11-.22-.17-.47-.29z"/></svg>
-                        <span>Colaborar via WhatsApp</span>
+                    <!-- Botão Destacado de WhatsApp -->
+                    <a href="https://wa.me/258862134230?text=Ol%C3%A1%20Filipe%2C%20vim%20pelo%20B%C3%ADblia%20Show%202.0" target="_blank"
+                       class="inline-flex items-center gap-2.5 bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 font-black px-6 py-3.5 rounded-2xl text-sm shadow-xl shadow-emerald-500/25 transition transform hover:-translate-y-0.5">
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                            <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.41a8.173 8.173 0 012.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.42 0-2.82-.37-4.06-1.07l-.29-.17-3.02.79.81-2.95-.19-.3a8.156 8.156 0 01-1.25-4.34c0-4.54 3.7-8.24 8.24-8.24m4.52 11.53c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.07-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.39-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.44.06-.66.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.12.17 1.77 2.7 4.29 3.79.6.26 1.07.41 1.44.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.11-.22-.17-.47-.29z"/>
+                        </svg>
+                        <span>Conversar no WhatsApp</span>
                     </a>
                 </div>
             </div>
@@ -85,14 +88,21 @@
                         </div>
                     </a>
 
-                    <a href="https://wa.me/258862134230" target="_blank" class="flex items-center gap-3 p-3 rounded-2xl bg-slate-950/60 hover:bg-slate-800/80 border border-slate-800 text-slate-200 transition group">
-                        <div class="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.41a8.173 8.173 0 012.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.42 0-2.82-.37-4.06-1.07l-.29-.17-3.02.79.81-2.95-.19-.3a8.156 8.156 0 01-1.25-4.34c0-4.54 3.7-8.24 8.24-8.24m4.52 11.53c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.07-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.39-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.44.06-.66.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.12.17 1.77 2.7 4.29 3.79.6.26 1.07.41 1.44.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.11-.22-.17-.47-.29z"/></svg>
+                    <!-- Botão WhatsApp em Destaque no Perfil -->
+                    <a href="https://wa.me/258862134230?text=Ol%C3%A1%20Filipe%2C%20vim%20pelo%20B%C3%ADblia%20Show%202.0" target="_blank"
+                       class="flex items-center justify-between p-3.5 rounded-2xl bg-emerald-950/40 hover:bg-emerald-900/50 border-2 border-emerald-500/50 text-white transition group shadow-lg shadow-emerald-950/40">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-[#25D366] text-slate-950 flex items-center justify-center shrink-0 shadow-md">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.41a8.173 8.173 0 012.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.42 0-2.82-.37-4.06-1.07l-.29-.17-3.02.79.81-2.95-.19-.3a8.156 8.156 0 01-1.25-4.34c0-4.54 3.7-8.24 8.24-8.24m4.52 11.53c-.25-.12-1.47-.72-1.7-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.97-.14.17-.29.19-.54.07-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.39-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.44.06-.66.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.12.17 1.77 2.7 4.29 3.79.6.26 1.07.41 1.44.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.11-.22-.17-.47-.29z"/></svg>
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-[10px] text-emerald-300 uppercase font-extrabold tracking-wider">WhatsApp Direto</p>
+                                <p class="text-sm font-black text-white">+258 86 213 4230</p>
+                            </div>
                         </div>
-                        <div class="min-w-0">
-                            <p class="text-[10px] text-slate-400 uppercase font-bold">WhatsApp / Telefone</p>
-                            <p class="text-xs sm:text-sm font-bold text-white truncate group-hover:text-emerald-400">+258 86 213 4230</p>
-                        </div>
+                        <span class="text-xs font-black px-3 py-1.5 rounded-xl bg-[#25D366] text-slate-950 group-hover:bg-[#20ba5a] transition shrink-0 hidden sm:inline">
+                            Conversar →
+                        </span>
                     </a>
 
                     <a href="https://github.com/filipeive/bibliaShow" target="_blank" class="flex items-center gap-3 p-3 rounded-2xl bg-slate-950/60 hover:bg-slate-800/80 border border-slate-800 text-slate-200 transition group">

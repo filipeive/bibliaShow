@@ -68,7 +68,7 @@
                         bíblicos, enciclopédia ilustrada e salas ao vivo com QR Code para sua igreja.
                     </p>
 
-                    <!-- Botões Principais + Player da Trilha de Abertura -->
+                    <!-- Botões Principais Limpos e Diretos -->
                     <div class="flex flex-wrap items-center gap-3.5 pt-2">
                         <button type="button" onclick="abrirModalJogarAgora()"
                             class="inline-flex items-center gap-2.5 bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 px-7 py-4 rounded-2xl font-black text-base shadow-xl shadow-amber-500/25 ring-2 ring-amber-300/50 transition transform hover:-translate-y-0.5">
@@ -87,16 +87,6 @@
                             </svg>
                             Jogo Individual
                         </a>
-
-                        <button type="button" onclick="tocarAbertura()" id="btnTemaAbertura"
-                            class="inline-flex items-center gap-2 px-4 py-4 rounded-2xl bg-blue-950/70 hover:bg-blue-900 border border-blue-500/40 text-blue-200 text-xs font-black uppercase tracking-wider transition">
-                            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
-                            </svg>
-                            <span id="txtTemaAbertura">Ouvir Abertura Clássica</span>
-                        </button>
                     </div>
 
                     <!-- Barra Rápida: Entrar numa Sala com Código -->
@@ -393,32 +383,6 @@
             </div>
         </div>
     </footer>
-
-    <script>
-        let audioAbertura = null;
-        let tocandoAbertura = false;
-
-        function tocarAbertura() {
-            const txt = document.getElementById('txtTemaAbertura');
-            if (!audioAbertura) {
-                audioAbertura = new Audio('/audio/classico/abertura.wav');
-                audioAbertura.onended = () => {
-                    tocandoAbertura = false;
-                    if (txt) txt.textContent = 'Ouvir Abertura Clássica';
-                };
-            }
-            if (tocandoAbertura) {
-                audioAbertura.pause();
-                audioAbertura.currentTime = 0;
-                tocandoAbertura = false;
-                if (txt) txt.textContent = 'Ouvir Abertura Clássica';
-            } else {
-                audioAbertura.play().catch(() => { });
-                tocandoAbertura = true;
-                if (txt) txt.textContent = 'Parar Música';
-            }
-        }
-    </script>
 </body>
 
 </html>
