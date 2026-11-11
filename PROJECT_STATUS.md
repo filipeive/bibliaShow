@@ -31,15 +31,17 @@ O **Bíblia Show 2.0** é a recriação fiel e moderna do clássico jogo multim�
 | **SEC-07** | Banco de Dados | Alto | Correção da ordem de migração (`equipes` antes de `participantes`) e compatibilidade universal MySQL/SQLite. | Resolvido |
 | **DATA-01**| Acervo Bíblico | Baixo | Parsing resiliente de 100% das 1.000 perguntas do `cadastro.dbf` clássico com mapeamento de referências e livros. | Resolvido |
 | **PWA-01** | PWA / Offline | Médio | Implementação de `manifest.json`, `sw.js` com cache inteligente e registro automático nas páginas. | Resolvido |
+| **UX-01**  | Multiplayer / UX | Médio | Capacidade de participantes utilizarem ajudas bíblicas individuais (Dica, Cartas 50/50, Convidados) segundo as regras do jogo. | Resolvido |
+| **UX-02**  | Experiência / Tempo | Baixo | Super cronômetro regressivo com alerta aos 10s e desabilitação suave ao esgotar o tempo, eliminando popups intrusivos. | Resolvido |
 
 ---
 
 ## 3. Cobertura de Testes Automatizados e Navegador Real
 
-- **Total de Testes PHPUnit:** 23
-- **Total de Asserções:** 80
+- **Total de Testes PHPUnit:** 25
+- **Total de Asserções:** 95
 - **Taxa de Sucesso:** 100% (0 falhas)
-- **Tempo de Execução:** ~330ms
+- **Tempo de Execução:** ~370ms
 - **Comando de Verificação:** `php artisan test`
 - **Validação E2E no Navegador:** Realizada via Chrome DevTools MCP (Home, Jogo Clássico Solo com ajudas e modal, Login/Admin, Estúdio do Apresentador, Telão de Projeção, Smartphone do Participante, submissão de respostas e Pódio Final).
 
