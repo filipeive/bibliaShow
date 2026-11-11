@@ -15,32 +15,32 @@
 
     @include('partials.navbar', ['dark' => true])
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
         <header class="flex flex-wrap items-center justify-between gap-4 mb-8">
             <div>
-                <a href="{{ route('apresentador.control', $salaId) }}" class="text-xs font-bold text-amber-400 hover:underline">← Voltar ao Estúdio da Sala</a>
-                <h1 class="text-3xl font-black text-white mt-1">Pódio & Relatório Final — {{ $sala->nome ?? ('Sala #' . $salaId) }}</h1>
+                <a href="{{ route('apresentador.control', $salaId) }}" class="text-xs font-bold text-amber-300 hover:underline">← Voltar ao Estúdio da Sala</a>
+                <div class="flex items-center gap-2 mt-2">
+                    <span class="sm-pill !px-3 !py-0.5 !text-[10px] uppercase">ENCERRAMENTO</span>
+                    <h1 class="text-2xl sm:text-3xl font-black text-white sm-logo-title">Pódio & Relatório Oficial — {{ $sala->nome ?? ('Sala #' . $salaId) }}</h1>
+                </div>
             </div>
-            <div class="flex gap-2.5">
+            <div class="flex items-center gap-2.5">
                 <a href="{{ route('apresentador.control', ['sala' => $salaId, 'nova_partida' => 1]) }}"
-                   class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-5 py-2.5 rounded-xl font-black text-xs sm:text-sm shadow">
-                    Nova Partida na Sala
+                   class="sm-cta !w-auto !py-2.5 !px-5 !text-xs cursor-pointer shadow-lg">
+                    <span>Nova Partida na Sala</span>
                 </a>
                 <a href="{{ route('apresentador.painel') }}"
-                   class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm border border-slate-700">
+                   class="bg-blue-950 hover:bg-blue-900 border border-blue-400/30 text-blue-200 px-4 py-2.5 rounded-full font-bold text-xs transition">
                     Painel de Salas
                 </a>
             </div>
         </header>
 
-        <!-- Classificação dos Participantes -->
-        <div class="bg-slate-900/95 border border-amber-500/40 rounded-3xl shadow-2xl p-6 sm:p-8 mb-8">
-            <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
-                <h2 class="text-lg font-black text-white flex items-center gap-2">
-                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
-                    </svg>
-                    Classificação Geral e Premiação dos Vencedores
+        <!-- Classificação dos Participantes (Show do Milhão Pódio) -->
+        <div class="sm-panel p-6 sm:p-8 mb-8">
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-3 border-b border-blue-400/20">
+                <h2 class="text-lg font-black text-amber-300 flex items-center gap-2 uppercase tracking-wider">
+                    <span>🏆</span> Classificação Oficial & Premiação
                 </h2>
                 @if($sala && ($sala->premio_primeiro_lugar || $sala->premio_segundo_lugar))
                     <div class="flex flex-wrap gap-2 text-xs">
