@@ -39,49 +39,20 @@
                 </div>
             </a>
 
-            <!-- Links de Gestão (Exibidos apenas após Login) -->
-            @auth
-                <div class="hidden lg:flex items-center gap-1 xl:gap-2 text-xs xl:text-sm font-extrabold whitespace-nowrap">
-                    <a href="{{ route('apresentador.painel') }}"
-                       class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full transition border {{ str_starts_with($rotaAtual, 'apresentador.') ? 'bg-amber-500/25 text-amber-300 border-amber-400/60 shadow-lg shadow-amber-500/20' : 'text-blue-200 hover:text-white hover:bg-blue-900/40 border-transparent' }}">
-                        <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125z" />
-                        </svg>
-                        <span>Apresentador</span>
-                    </a>
-
-                    <a href="{{ route('perguntas.index') }}"
-                       class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full transition border {{ str_starts_with($rotaAtual, 'perguntas.') ? 'bg-amber-500/25 text-amber-300 border-amber-400/60 shadow-lg shadow-amber-500/20' : 'text-blue-200 hover:text-white hover:bg-blue-900/40 border-transparent' }}">
-                        <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
-                        </svg>
-                        <span>Perguntas</span>
-                    </a>
-
-                    <a href="{{ route('admin.dashboard') }}"
-                       class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full transition border {{ str_starts_with($rotaAtual, 'admin.') ? 'bg-amber-500/25 text-amber-300 border-amber-400/60 shadow-lg shadow-amber-500/20' : 'text-blue-200 hover:text-white hover:bg-blue-900/40 border-transparent' }}">
-                        <svg class="w-4 h-4 text-rose-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
-                        </svg>
-                        <span>Admin</span>
-                    </a>
-                </div>
-            @endauth
-
-            <!-- Right Side Actions -->
-            <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0 whitespace-nowrap">
+            <!-- Right Side Actions: Apenas o Botão "Jogar Agora" em destaque e o Botão "Menu" -->
+            <div class="flex items-center gap-2 sm:gap-3 shrink-0 whitespace-nowrap">
                 @if(!request()->routeIs('game.*') && !request()->is('jogar*') && !request()->is('entrar*') && !($hideJogarAgora ?? false))
                     @if($jogoAtivoNavbar)
                         <!-- Botão de Continuar Jogo em Andamento -->
                         <a href="{{ route('game.play') }}"
-                           class="sm-cta !w-auto !py-2 !px-4 sm:!px-5 !text-xs sm:!text-sm cursor-pointer shadow-lg hidden sm:inline-flex items-center gap-2 animate-pulse">
+                           class="sm-cta !w-auto !py-2 !px-3.5 sm:!px-5 !text-xs sm:!text-sm cursor-pointer shadow-xl inline-flex items-center gap-2 animate-pulse">
                             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                             <span>Continuar Jogo ({{ $jogoAtivoNavbar['numero'] }}/{{ $jogoAtivoNavbar['total'] }})</span>
                         </a>
                     @else
-                        <!-- Botão Principal Destacado: JOGAR AGORA (Desktop e Tablets) -->
+                        <!-- Botão Único Principal: JOGAR AGORA -->
                         <button type="button" onclick="abrirModalJogarAgora()"
-                                class="sm-cta !w-auto !py-2 !px-4 sm:!px-5 !text-xs sm:!text-sm cursor-pointer shadow-lg hidden sm:inline-flex">
+                                class="sm-cta !w-auto !py-2 !px-4 sm:!px-6 !text-xs sm:!text-sm cursor-pointer shadow-xl inline-flex items-center gap-2">
                             <svg class="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
                                 <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
                             </svg>
@@ -90,162 +61,122 @@
                     @endif
                 @endif
 
-                <!-- Botão de Definições (Sons & Jogo) - Desktop -->
-                <button type="button" onclick="abrirModalDefinicoes()" title="Definições de Som e Jogo"
-                        class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold bg-blue-950/80 hover:bg-blue-900 border border-blue-400/40 text-blue-200 transition shadow">
+                <!-- Botão Menu Elegante (Desktop & Mobile) -->
+                <button type="button" id="btnToggleMenuGlobal" onclick="toggleNavbarMenuGlobal(event)" title="Abrir Menu"
+                        class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-2xl bg-blue-950/90 hover:bg-blue-900 border-2 border-amber-400/50 hover:border-amber-300 text-amber-300 font-black text-xs uppercase tracking-wider shadow-lg active:scale-95 transition cursor-pointer">
+                    <svg class="w-4 h-4 text-amber-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                    <span>Menu</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dropdown / Painel Flutuante do Menu (Desktop & Mobile) -->
+    <div id="navbarMenuGlobal" class="hidden absolute right-3 sm:right-6 lg:right-8 top-16 mt-2 w-72 sm:w-80 sm-panel p-4 shadow-2xl z-50 text-white rounded-2xl border-2 border-blue-400/50 backdrop-blur-md">
+        @auth
+            <!-- Perfil do Usuário Logado -->
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-blue-950/90 border border-blue-400/30 mb-3">
+                <div class="sm-avatar !w-10 !h-10 text-sm font-black shrink-0">
+                    {{ mb_strtoupper(mb_substr(auth()->user()->nome ?? 'U', 0, 1)) }}
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="font-bold text-sm text-white truncate">{{ auth()->user()->nome }}</p>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        <span class="text-[10px] font-extrabold uppercase text-amber-300 truncate">
+                            {{ auth()->user()->papel === 'admin_geral' ? 'Administrador Geral' : (auth()->user()->papel === 'lider_igreja' ? 'Líder / Apresentador' : 'Participante') }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Links de Gestão -->
+            <div class="space-y-1 mb-3 pb-3 border-b border-blue-400/20">
+                <div class="text-[10px] font-black uppercase tracking-wider text-amber-300/80 px-2 mb-1">Área do Apresentador & Gestão</div>
+                <a href="{{ route('apresentador.painel') }}"
+                   class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-blue-100 hover:bg-blue-900/60 hover:text-white transition {{ str_starts_with($rotaAtual, 'apresentador.') ? 'bg-amber-500/20 text-amber-300' : '' }}">
+                    <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125z" />
+                    </svg>
+                    <span>Painel do Apresentador</span>
+                </a>
+
+                <a href="{{ route('perguntas.index') }}"
+                   class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-blue-100 hover:bg-blue-900/60 hover:text-white transition {{ str_starts_with($rotaAtual, 'perguntas.') ? 'bg-amber-500/20 text-amber-300' : '' }}">
+                    <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+                    </svg>
+                    <span>Banco de Perguntas (1.000 Q)</span>
+                </a>
+
+                <a href="{{ route('admin.dashboard') }}"
+                   class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-blue-100 hover:bg-blue-900/60 hover:text-white transition {{ str_starts_with($rotaAtual, 'admin.') ? 'bg-amber-500/20 text-amber-300' : '' }}">
+                    <svg class="w-4 h-4 text-rose-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+                    </svg>
+                    <span>Painel de Administração</span>
+                </a>
+            </div>
+        @endauth
+
+        <!-- Jogo & Configurações -->
+        <div class="space-y-1 mb-3 pb-3 border-b border-blue-400/20">
+            <div class="text-[10px] font-black uppercase tracking-wider text-amber-300/80 px-2 mb-1">Jogo & Configurações</div>
+            <button type="button" onclick="abrirModalDefinicoes(); fecharNavbarMenuGlobal();"
+                    class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-blue-100 hover:bg-blue-900/60 hover:text-white transition text-left cursor-pointer">
+                <div class="flex items-center gap-2.5">
                     <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    <span class="hidden md:inline" id="badgeStatusSomNav">Definições</span>
-                </button>
-
-                <!-- Link Sobre o Jogo - Desktop -->
-                <a href="{{ route('sobre') }}" title="Sobre o Bíblia Show e Créditos"
-                   class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold {{ request()->routeIs('sobre') ? 'bg-amber-500/25 text-amber-300 border border-amber-400/60' : 'bg-blue-950/80 hover:bg-blue-900 text-blue-200 border border-blue-400/40' }} transition shadow">
-                    <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                    </svg>
-                    <span class="hidden md:inline">Sobre</span>
-                </a>
-
-                @auth
-                    <a href="{{ route('admin.dashboard') }}"
-                       class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-black bg-blue-950 border border-amber-400/50 text-amber-300 shadow">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                        <span class="max-w-[110px] truncate">{{ auth()->user()->nome }}</span>
-                    </a>
-                    <form action="{{ route('logout') }}" method="POST" class="hidden sm:inline">
-                        @csrf
-                        <button type="submit" title="Sair da conta"
-                                class="inline-flex items-center gap-1 px-3 py-2 rounded-full text-xs font-bold bg-rose-950/70 hover:bg-rose-900 text-rose-300 border border-rose-500/40 transition">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-                            </svg>
-                            <span class="hidden sm:inline">Sair</span>
-                        </button>
-                    </form>
-                @else
-                    <a href="{{ route('login') }}"
-                       class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-black bg-blue-950/80 hover:bg-blue-900 text-amber-300 border border-amber-400/40 shadow transition">
-                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                        </svg>
-                        <span>Login</span>
-                    </a>
-                @endauth
-
-                <!-- Menu de 3 Pontinhos no Mobile (⋮) -->
-                <button type="button" onclick="toggleMenuTresPontinhosMobile()" title="Mais opções"
-                        class="sm:hidden inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-blue-950/90 border-2 border-amber-400/50 text-amber-300 shadow-md active:scale-95 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm0 6.75a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm0 6.75a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Dropdown / Drawer do Menu de 3 Pontinhos no Mobile -->
-    <div id="menuTresPontinhosMobile" class="hidden sm:hidden border-t border-amber-500/20 bg-gradient-to-b from-[#0a164a]/98 to-[#060e33]/98 px-3.5 py-3 space-y-1.5 backdrop-blur-md shadow-2xl">
-        @if($jogoAtivoNavbar && !request()->routeIs('game.*'))
-            <a href="{{ route('game.play') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-black text-xs text-slate-950 bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 shadow-lg border border-amber-200 animate-pulse">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping shrink-0"></span>
-                <div>
-                    <div class="font-black text-xs">Continuar Jogo em Andamento</div>
-                    <div class="text-[10px] text-slate-900 font-bold">Pergunta {{ $jogoAtivoNavbar['numero'] }} de {{ $jogoAtivoNavbar['total'] }}</div>
+                    <span>Definições de Som</span>
                 </div>
-            </a>
-        @endif
-        <button type="button" onclick="abrirModalDefinicoes(); toggleMenuTresPontinhosMobile();"
-                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left font-bold text-xs text-blue-100 hover:bg-blue-900/50 transition border border-transparent hover:border-blue-400/30">
-            <div class="w-8 h-8 rounded-lg bg-blue-900/60 border border-blue-400/30 flex items-center justify-center text-amber-400 shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-            </div>
-            <div>
-                <div class="text-white font-extrabold">Definições</div>
-                <div class="text-[10px] text-blue-300">Sons de auditório, efeitos e vibrações</div>
-            </div>
-        </button>
+                <span class="text-[10px] font-black uppercase text-amber-300">Ajustar</span>
+            </button>
 
-        <a href="{{ route('sobre') }}"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs text-blue-100 hover:bg-blue-900/50 transition border border-transparent hover:border-blue-400/30">
-            <div class="w-8 h-8 rounded-lg bg-blue-900/60 border border-blue-400/30 flex items-center justify-center text-amber-400 shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                </svg>
-            </div>
-            <div>
-                <div class="text-white font-extrabold">Sobre o Jogo & Baixar APK</div>
-                <div class="text-[10px] text-blue-300">Instale no celular Android ou conheça o projeto</div>
-            </div>
-        </a>
-
-        <a href="{{ route('curiosidades') }}"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs text-blue-100 hover:bg-blue-900/50 transition border border-transparent hover:border-blue-400/30">
-            <div class="w-8 h-8 rounded-lg bg-blue-900/60 border border-blue-400/30 flex items-center justify-center text-emerald-400 shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <a href="{{ route('curiosidades') }}"
+               class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-blue-100 hover:bg-blue-900/60 hover:text-white transition {{ request()->routeIs('curiosidades') ? 'bg-amber-500/20 text-amber-300' : '' }}">
+                <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                 </svg>
-            </div>
-            <div>
-                <div class="text-white font-extrabold">Regras das 4 Fases</div>
-                <div class="text-[10px] text-blue-300">Escada de pontuação e dicas bíblicas</div>
-            </div>
-        </a>
+                <span>Regras Oficiais & 4 Fases</span>
+            </a>
 
-        @auth
-            <div class="pt-2 border-t border-blue-400/20 space-y-1">
-                <a href="{{ route('apresentador.painel') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold text-xs text-white hover:bg-blue-900/50">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Painel do Apresentador
-                </a>
-                <a href="{{ route('perguntas.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold text-xs text-white hover:bg-blue-900/50">
-                    <span class="w-2 h-2 rounded-full bg-amber-400"></span> Banco de Perguntas
-                </a>
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold text-xs text-white hover:bg-blue-900/50">
-                    <span class="w-2 h-2 rounded-full bg-rose-400"></span> Painel Admin ({{ auth()->user()->nome }})
-                </a>
-                <form action="{{ route('logout') }}" method="POST" class="pt-1">
+            <a href="{{ route('sobre') }}"
+               class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-blue-100 hover:bg-blue-900/60 hover:text-white transition {{ request()->routeIs('sobre') ? 'bg-amber-500/20 text-amber-300' : '' }}">
+                <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                </svg>
+                <span>Sobre o Jogo & Baixar APK</span>
+            </a>
+        </div>
+
+        <!-- Autenticação / Conta -->
+        <div>
+            @auth
+                <form action="{{ route('logout') }}" method="POST">
                     @csrf
-                    <button type="submit" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-left font-bold text-xs text-rose-300 hover:bg-rose-950/60">
-                        <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
-                        Sair da Conta
+                    <button type="submit"
+                            class="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-rose-950/70 hover:bg-rose-900 text-rose-300 border border-rose-500/40 transition cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                        </svg>
+                        <span>Sair da Conta</span>
                     </button>
                 </form>
-            </div>
-        @else
-            <div class="pt-2 border-t border-blue-400/20">
-                <a href="{{ route('login') }}" class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs text-slate-950 bg-gradient-to-r from-amber-300 to-amber-500 shadow-lg">
-                    <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            @else
+                <a href="{{ route('login') }}"
+                   class="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-lg hover:from-amber-300 hover:to-amber-400 transition">
+                    <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                     </svg>
-                    <span>Entrar / Acesso do Apresentador</span>
+                    <span>Entrar / Fazer Login</span>
                 </a>
-            </div>
-        @endauth
-    </div>
+            @endauth
         </div>
     </div>
-
-    <!-- Mobile Navigation Drawer -->
-    @auth
-        <div id="mobileMenuBiblia" class="hidden lg:hidden border-t bg-gradient-to-b from-[#0a164a] to-[#060e33] border-blue-400/20 px-4 py-3 space-y-2">
-            <a href="{{ route('apresentador.painel') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl font-bold text-sm text-white hover:bg-blue-900/50">
-                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Painel do Apresentador
-            </a>
-            <a href="{{ route('perguntas.index') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl font-bold text-sm text-white hover:bg-blue-900/50">
-                <span class="w-2 h-2 rounded-full bg-amber-400"></span> Banco de Perguntas
-            </a>
-            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl font-bold text-sm text-white hover:bg-blue-900/50">
-                <span class="w-2 h-2 rounded-full bg-rose-400"></span> Painel de Administração
-            </a>
-        </div>
-    @endauth
-</nav>
 
 <!-- Modal "Jogar Agora" (Tema Show do Milhão Palco) -->
 <div id="modalJogarAgora" class="hidden fixed inset-0 z-[60] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
@@ -607,10 +538,36 @@
         if (m) m.classList.add('hidden');
     }
 
-    function toggleMenuTresPontinhosMobile() {
-        const m = document.getElementById('menuTresPontinhosMobile');
+    function toggleNavbarMenuGlobal(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        const m = document.getElementById('navbarMenuGlobal');
         if (m) m.classList.toggle('hidden');
     }
+
+    function fecharNavbarMenuGlobal() {
+        const m = document.getElementById('navbarMenuGlobal');
+        if (m && !m.classList.contains('hidden')) m.classList.add('hidden');
+    }
+
+    document.addEventListener('click', (ev) => {
+        const menu = document.getElementById('navbarMenuGlobal');
+        const btn = document.getElementById('btnToggleMenuGlobal');
+        if (!menu || !btn) return;
+        if (!menu.classList.contains('hidden') && !menu.contains(ev.target) && !btn.contains(ev.target)) {
+            menu.classList.add('hidden');
+        }
+    });
+
+    document.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Escape') {
+            fecharNavbarMenuGlobal();
+            fecharModalJogarAgora();
+            fecharModalDefinicoes();
+        }
+    });
 
     document.addEventListener('DOMContentLoaded', atualizarUISomGlobal);
 </script>

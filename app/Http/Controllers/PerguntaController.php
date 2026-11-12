@@ -53,7 +53,7 @@ class PerguntaController extends Controller
 
         $questoes = $query->orderBy('id')->paginate(20)->withQueryString();
 
-        $livros = LivroBiblico::orderBy('ordem')->get();
+        $livros = LivroBiblico::orderBy('id')->get();
         $categorias = Categoria::orderBy('nome')->get();
         $dificuldades = NivelDificuldade::orderBy('nivel')->get();
 
@@ -62,7 +62,7 @@ class PerguntaController extends Controller
 
     public function create()
     {
-        $livros = LivroBiblico::orderBy('ordem')->get();
+        $livros = LivroBiblico::orderBy('id')->get();
         $categorias = Categoria::orderBy('nome')->get();
         $dificuldades = NivelDificuldade::orderBy('nivel')->get();
 
@@ -127,13 +127,14 @@ class PerguntaController extends Controller
     {
         $this->verificarAcessoQuestao($request, $questao);
         $questao->load(['livro', 'capitulo', 'dificuldade', 'categoria', 'submetidaPor', 'revisadaPor']);
+
         return view('perguntas.show', compact('questao'));
     }
 
     public function edit(Request $request, Questao $questao)
     {
         $this->verificarAcessoQuestao($request, $questao);
-        $livros = LivroBiblico::orderBy('ordem')->get();
+        $livros = LivroBiblico::orderBy('id')->get();
         $categorias = Categoria::orderBy('nome')->get();
         $dificuldades = NivelDificuldade::orderBy('nivel')->get();
         $capitulos = Capitulo::where('livro_id', $questao->livro_id)->orderBy('numero')->get();
@@ -192,6 +193,7 @@ class PerguntaController extends Controller
     {
         $this->verificarAcessoQuestao($request, $questao);
         $questao->delete();
+
         return redirect()->route('perguntas.index')
             ->with('success', 'Pergunta removida com sucesso.');
     }

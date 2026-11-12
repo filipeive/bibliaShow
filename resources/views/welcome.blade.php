@@ -71,94 +71,80 @@
                         A recriação fiel do clássico dos anos 2000 no formato <strong>Show do Milhão</strong>: 4 fases (10, 20, 30 e 50 pontos), Cartas 50/50, Personagens Bíblicos e salas ao vivo para cultos e jovens!
                     </p>
 
-                    <!-- BANNER FLUÍDO: Partida em Andamento Detectada -->
-                    @if($jogoAtivoInfo)
-                        <div class="sm-panel !p-4 border-2 !border-amber-300 shadow-2xl bg-gradient-to-r from-amber-500/25 via-blue-900/80 to-blue-950/90 text-left max-w-xl mx-auto lg:mx-0">
-                            <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
-                                <div class="flex items-center gap-3 min-w-0">
-                                    <div class="w-12 h-12 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-200 text-slate-950 font-black text-xl shrink-0 shadow-lg shadow-amber-500/30">
+                    <!-- Ações Principais (Sem Redundância) -->
+                    <div class="space-y-3.5 pt-1 max-w-lg mx-auto lg:mx-0">
+                        @if($jogoAtivoInfo)
+                            <!-- Card Único e Elegante: Partida em Andamento -->
+                            <div class="sm-panel p-4 text-left shadow-2xl relative">
+                                <div class="flex items-center gap-3.5 mb-3">
+                                    <div class="sm-avatar !w-12 !h-12 !text-lg !font-black shrink-0">
                                         {{ mb_strtoupper(mb_substr($jogoAtivoInfo['jogador'] ?? 'P', 0, 1)) }}
                                     </div>
-                                    <div class="min-w-0">
+                                    <div class="min-w-0 flex-1">
                                         <div class="flex items-center gap-2">
-                                            <span class="sm-pill !px-2 !py-0.5 !text-[9px] uppercase font-black">Partida em Curso</span>
+                                            <span class="sm-pill !px-2.5 !py-0.5 !text-[10px] uppercase font-black">Em Curso</span>
                                             <span class="text-xs font-black text-amber-300">{{ $jogoAtivoInfo['fase'] }}ª Fase</span>
                                         </div>
                                         <p class="font-black text-white text-sm sm:text-base truncate mt-0.5">
-                                            {{ $jogoAtivoInfo['jogador'] }} • Pergunta {{ $jogoAtivoInfo['numero'] }} de {{ $jogoAtivoInfo['total'] }} ({{ $jogoAtivoInfo['pontos'] }} pts)
+                                            {{ $jogoAtivoInfo['jogador'] }} • Pergunta {{ $jogoAtivoInfo['numero'] }} de {{ $jogoAtivoInfo['total'] }}
                                         </p>
+                                        <p class="text-xs text-blue-200 font-mono font-bold">{{ $jogoAtivoInfo['pontos'] }} pontos acumulados</p>
                                     </div>
                                 </div>
-                                <a href="{{ route('game.play') }}"
-                                   class="sm-cta !w-full sm:!w-auto !py-2.5 !px-5 !text-xs sm:!text-sm shrink-0 shadow-xl cursor-pointer">
-                                    Continuar Jogo →
-                                </a>
-                            </div>
-                        </div>
-                    @endif
-
-                    <!-- Ações Principais (Ultra-otimizadas para Mobile e Desktop) -->
-                    <div class="space-y-3 pt-1 max-w-md mx-auto lg:mx-0">
-                        @if($jogoAtivoInfo)
-                            <!-- Botão de Continuar Jogo em Andamento -->
-                            <a href="{{ route('game.play') }}"
-                               class="sm-cta !text-sm sm:!text-base cursor-pointer shadow-2xl py-3.5 sm:py-4">
-                                <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
-                                    <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
-                                </svg>
-                                <span>Continuar Partida (Pergunta {{ $jogoAtivoInfo['numero'] }})</span>
-                            </a>
-                            <div class="text-center">
-                                <a href="{{ route('game.play', ['novo' => 1]) }}"
-                                   onclick="return confirm('Deseja iniciar uma nova partida? O progresso da partida atual será reiniciado.');"
-                                   class="text-xs font-bold text-blue-300 hover:text-amber-300 hover:underline transition">
-                                    ⟳ Ou iniciar uma nova partida do zero
-                                </a>
+                                <div class="space-y-2">
+                                    <a href="{{ route('game.play') }}"
+                                       class="sm-cta !text-sm sm:!text-base cursor-pointer shadow-xl !py-3">
+                                        Continuar Partida (Pergunta {{ $jogoAtivoInfo['numero'] }}) →
+                                    </a>
+                                    <div class="text-center pt-1">
+                                        <a href="{{ route('game.play', ['novo' => 1]) }}"
+                                           onclick="return confirm('Deseja iniciar uma nova partida? O progresso da partida atual será reiniciado.');"
+                                           class="text-xs font-bold text-blue-300 hover:text-amber-300 hover:underline transition">
+                                            ⟳ Ou iniciar uma nova partida do zero
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         @else
-                            <!-- Botão Ouro Clássico: Jogar Modo Individual -->
-                            <a href="{{ route('game.play', ['novo' => 1]) }}"
-                               class="sm-cta !text-sm sm:!text-base cursor-pointer shadow-2xl py-3.5 sm:py-4">
+                            <!-- Botão Ouro Clássico: Iniciar Jogo -->
+                            <button type="button" onclick="abrirModalJogarAgora()"
+                                    class="sm-cta !text-sm sm:!text-base cursor-pointer shadow-2xl !py-4">
                                 <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
                                     <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
                                 </svg>
-                                <span>Jogar Agora</span>
-                            </a>
+                                <span>Começar a Jogar Agora! →</span>
+                            </button>
                         @endif
 
-                        <!-- Caixa Rápida: Entrar em Sala por Código -->
+                        <!-- Entrada Rápida em Sala por Código PIN -->
                         <form action="{{ route('entrar.view') }}" method="GET"
                               onsubmit="event.preventDefault(); const c = this.codigo.value.trim().toUpperCase(); window.location.href = c ? '/entrar/' + c : '/entrar';"
-                              class="bg-blue-950/90 border-2 border-blue-400/50 rounded-2xl p-2 flex items-center gap-2 shadow-lg">
-                            <div class="pl-3 flex items-center gap-1.5 text-amber-300 font-bold text-xs uppercase">
+                              class="sm-panel !p-2 flex items-center gap-2 shadow-xl">
+                            <div class="pl-3 flex items-center gap-2 text-amber-300 font-black text-xs uppercase shrink-0">
                                 <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
                                 </svg>
-                                <span class="hidden sm:inline">Sala:</span>
+                                <span class="hidden sm:inline">Entrar na Sala:</span>
                             </div>
-                            <input type="text" name="codigo" maxlength="6" placeholder="CÓDIGO (EX.: AB12CD)"
-                                   class="flex-1 bg-transparent px-2 py-1.5 text-amber-300 font-mono font-black uppercase tracking-widest text-xs sm:text-sm outline-none placeholder:text-blue-300/40">
+                            <input type="text" name="codigo" maxlength="6" placeholder="DIGITE O PIN (EX: AB12CD)"
+                                   class="flex-1 bg-transparent px-2.5 py-2 text-amber-300 font-mono font-black uppercase tracking-widest text-xs sm:text-sm outline-none placeholder:text-blue-300/40">
                             <button type="submit"
-                                    class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-black text-xs uppercase tracking-wider transition shadow shrink-0">
+                                    class="sm-cta !w-auto !py-2 !px-4 !text-xs cursor-pointer shrink-0">
                                 Entrar →
                             </button>
                         </form>
-                    </div>
 
-                    <!-- Links Rápidos de Estúdio e Regras -->
-                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 pt-2 text-xs font-bold text-blue-200">
-                        <a href="{{ route('apresentador.painel') }}" class="px-3.5 py-1.5 rounded-full bg-blue-950/80 border border-blue-400/40 hover:text-white hover:border-amber-400 transition inline-flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/></svg>
-                            <span>Painel do Apresentador</span>
-                        </a>
-                        <a href="{{ route('curiosidades') }}" class="px-3.5 py-1.5 rounded-full bg-blue-950/80 border border-blue-400/40 hover:text-white hover:border-amber-400 transition inline-flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
-                            <span>Regras Oficiais & 4 Fases</span>
-                        </a>
-                        <button type="button" onclick="abrirModalJogarAgora()" class="px-3.5 py-1.5 rounded-full bg-blue-950/80 border border-blue-400/40 text-amber-300 hover:text-amber-200 hover:border-amber-300 transition inline-flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                            <span>Escolher Modo</span>
-                        </button>
+                        <!-- Atalhos Rápidos para Estúdio e Regras -->
+                        <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 pt-1 text-xs font-bold text-blue-200">
+                            <a href="{{ route('apresentador.painel') }}" class="px-3.5 py-1.5 rounded-full bg-blue-950/80 border border-blue-400/40 hover:text-white hover:border-amber-400 transition inline-flex items-center gap-1.5 shadow">
+                                <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125z"/></svg>
+                                <span>Painel do Apresentador</span>
+                            </a>
+                            <a href="{{ route('curiosidades') }}" class="px-3.5 py-1.5 rounded-full bg-blue-950/80 border border-blue-400/40 hover:text-white hover:border-amber-400 transition inline-flex items-center gap-1.5 shadow">
+                                <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+                                <span>Regras Oficiais & 4 Fases</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -247,61 +233,78 @@
                 </div>
             </div>
 
-            <!-- Faixa Rápida de Estatísticas em Pílulas (Harmonia de Auditório) -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-10">
-                <div class="sm-panel p-4 text-center">
-                    <p class="text-2xl sm:text-3xl font-black text-amber-300">1.000+</p>
-                    <p class="text-[10px] sm:text-xs font-black text-blue-200 uppercase tracking-wider mt-1">Questões Oficiais</p>
-                </div>
-                <div class="sm-panel p-4 text-center">
-                    <p class="text-2xl sm:text-3xl font-black text-emerald-300">66 Livros</p>
-                    <p class="text-[10px] sm:text-xs font-black text-blue-200 uppercase tracking-wider mt-1">Velho & Novo Testamento</p>
-                </div>
-                <div class="sm-panel p-4 text-center">
-                    <p class="text-2xl sm:text-3xl font-black text-blue-200">25 Sons</p>
-                    <p class="text-[10px] sm:text-xs font-black text-blue-200 uppercase tracking-wider mt-1">Efeitos & Trilhas</p>
-                </div>
-                <div class="sm-panel p-4 text-center">
-                    <p class="text-2xl sm:text-3xl font-black text-amber-400">4 Fases</p>
-                    <p class="text-[10px] sm:text-xs font-black text-blue-200 uppercase tracking-wider mt-1">Escada do Milhão</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SEÇÃO COMPACTA: AS 4 FASES CLÁSSICAS -->
-    <section class="py-10 px-4 sm:px-6 lg:px-8 border-t border-blue-400/20 bg-blue-950/40">
+    <!-- SEÇÃO ORGANIZADA: RECURSOS & MODOS DA ARENA (SEM REDUNDÂNCIAS) -->
+    <section class="py-12 px-4 sm:px-6 lg:px-8 border-t border-blue-400/20 bg-blue-950/40">
         <div class="max-w-7xl mx-auto">
-            <div class="flex items-center justify-between gap-4 mb-6">
-                <div>
-                    <span class="text-[10px] font-black uppercase tracking-widest text-amber-300">Estrutura Oficial</span>
-                    <h2 class="text-xl sm:text-2xl font-black text-white mt-0.5 sm-logo-title">Mecânica das 4 Fases</h2>
-                </div>
-                <a href="{{ route('curiosidades') }}" class="text-xs font-bold text-amber-300 hover:underline">
-                    Ver Regras →
-                </a>
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <span class="sm-pill !px-3 !py-0.5 !text-[11px] uppercase tracking-widest mb-2">Recursos & Modos de Jogo</span>
+                <h2 class="text-2xl sm:text-4xl font-black text-white sm-logo-title mt-1">Como Funciona a Arena</h2>
+                <p class="text-xs sm:text-sm text-blue-200 mt-2">Partidas individuais desafiadoras para o ranking ou dinamismo interativo para eventos e cultos.</p>
             </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                <div class="sm-panel p-4 text-center">
-                    <span class="px-2.5 py-0.5 rounded-full bg-blue-900 text-blue-200 font-black text-[10px] uppercase border border-blue-400/30">1ª Fase</span>
-                    <h3 class="text-sm font-black text-white mt-2">Fácil</h3>
-                    <p class="text-xs text-emerald-300 font-bold mt-1">+10 pts / acerto</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Card 1: Modo Solo & Escada de Prêmios -->
+                <div class="sm-panel p-6 flex flex-col justify-between shadow-2xl relative">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="sm-pill !px-3 !py-0.5 !text-[10px] uppercase font-black">SOLO • RANKING</span>
+                            <span class="text-xs font-mono font-bold text-amber-300">4 Fases • 24 Q</span>
+                        </div>
+                        <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-300 flex items-center justify-center mb-4 shadow">
+                            <svg class="w-7 h-7 text-amber-300 fill-current" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0011 15.9V19H7v2h10v-2h-4v-3.1c1.94-.37 3.5-1.99 3.61-3.96C19.08 11.63 21 9.55 21 7V5c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
+                        </div>
+                        <h3 class="text-lg font-black text-white mb-2">Escada de Prêmios & Ranking</h3>
+                        <p class="text-xs sm:text-sm text-blue-200 leading-relaxed mb-4">
+                            Suba a escada de 4 fases com valores crescentes (+10, +20, +30 e +50 pts por acerto). Use Cartas 50/50, Convidados e Pulos para alcançar a pontuação máxima no Ranking Geral.
+                        </p>
+                    </div>
+                    <button type="button" onclick="abrirModalJogarAgora()" class="sm-cta !py-2.5 !text-xs cursor-pointer">
+                        Jogar Modo Solo →
+                    </button>
                 </div>
-                <div class="sm-panel p-4 text-center">
-                    <span class="px-2.5 py-0.5 rounded-full bg-blue-900 text-blue-200 font-black text-[10px] uppercase border border-blue-400/30">2ª Fase</span>
-                    <h3 class="text-sm font-black text-white mt-2">Média</h3>
-                    <p class="text-xs text-emerald-300 font-bold mt-1">+20 pts / acerto</p>
+
+                <!-- Card 2: Arena Ao Vivo para Igrejas -->
+                <div class="sm-panel p-6 flex flex-col justify-between shadow-2xl relative border-2 !border-amber-400/80">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-[10px] font-black uppercase tracking-wider">AO VIVO • MULTIJOGADOR</span>
+                            <span class="text-xs font-mono font-bold text-emerald-300">Projeção + Celular</span>
+                        </div>
+                        <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 flex items-center justify-center mb-4 shadow">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-black text-white mb-2">Arena Ao Vivo com Telão</h3>
+                        <p class="text-xs sm:text-sm text-blue-200 leading-relaxed mb-4">
+                            O apresentador projeta as perguntas com QR Code automático no telão da igreja. A congregação responde pelos smartphones, com disputa de equipes, corrida ao vivo e trilhas clássicas.
+                        </p>
+                    </div>
+                    <a href="{{ route('apresentador.painel') }}" class="block text-center w-full py-2.5 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 hover:from-emerald-300 hover:to-emerald-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg transition">
+                        Abrir Painel do Apresentador →
+                    </a>
                 </div>
-                <div class="sm-panel p-4 text-center">
-                    <span class="px-2.5 py-0.5 rounded-full bg-blue-900 text-blue-200 font-black text-[10px] uppercase border border-blue-400/30">3ª Fase</span>
-                    <h3 class="text-sm font-black text-white mt-2">Difícil</h3>
-                    <p class="text-xs text-emerald-300 font-bold mt-1">+30 pts / acerto</p>
-                </div>
-                <div class="sm-panel p-4 text-center border-2 !border-amber-300">
-                    <span class="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[10px] uppercase shadow">4ª Fase</span>
-                    <h3 class="text-sm font-black text-amber-300 mt-2">Desafio Final</h3>
-                    <p class="text-xs text-amber-300 font-bold mt-1">+50 pts / acerto</p>
+
+                <!-- Card 3: Acervo & Enciclopédia -->
+                <div class="sm-panel p-6 flex flex-col justify-between shadow-2xl relative">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="sm-pill !px-3 !py-0.5 !text-[10px] uppercase font-black">FONTES & HISTÓRIA</span>
+                            <span class="text-xs font-mono font-bold text-amber-300">66 Livros • 1.000 Q</span>
+                        </div>
+                        <div class="w-14 h-14 rounded-2xl bg-blue-500/20 border border-blue-400/40 text-blue-300 flex items-center justify-center mb-4 shadow">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-black text-white mb-2">Acervo Bíblico Verificado</h3>
+                        <p class="text-xs sm:text-sm text-blue-200 leading-relaxed mb-4">
+                            Todas as perguntas possuem referência bíblica de conferência direta nas escrituras. Acompanha enciclopédia histórica sobre os manuscritos do Mar Morto, Gutenberg e a Bíblia em Português.
+                        </p>
+                    </div>
+                    <a href="{{ route('curiosidades') }}" class="block text-center w-full py-2.5 rounded-full bg-blue-900/60 hover:bg-blue-800 text-blue-200 border border-blue-400/40 font-bold text-xs transition">
+                        Ver Regras & Enciclopédia →
+                    </a>
                 </div>
             </div>
         </div>
