@@ -25,27 +25,29 @@
     @endphp
 
     <div class="max-w-7xl mx-auto">
-        <!-- Header da Projeção -->
-        <header class="mb-6 flex flex-wrap justify-between items-center gap-4 border-b border-white/10 pb-5">
+        <!-- Header da Projeção (Tema Show do Milhão Palco) -->
+        <header class="mb-6 flex flex-wrap justify-between items-center gap-4 border-b border-blue-400/20 pb-5">
             <div>
-                <div class="flex items-center gap-2.5 mb-1">
+                <div class="flex items-center gap-2.5 mb-2">
                     <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span class="text-xs font-black text-emerald-400 uppercase tracking-widest">AO VIVO • BÍBLIA SHOW ARENA</span>
-                    <span id="faseBadgeProj" class="px-3 py-0.5 rounded-full bg-amber-500 text-slate-950 text-xs font-black uppercase">
+                    <span class="sm-pill !px-3 !py-0.5 !text-[11px] uppercase tracking-widest">
+                        AO VIVO • ARENA BÍBLIA SHOW
+                    </span>
+                    <span id="faseBadgeProj" class="sm-pill !px-3 !py-0.5 !text-[11px] font-black uppercase">
                         {{ $faseAtual }}ª FASE • VALE {{ $placar['valor_pergunta'] ?? 10 }} PTS
                     </span>
                 </div>
-                <h1 class="text-2xl sm:text-4xl font-black text-white">{{ $sala->nome }}</h1>
+                <h1 class="text-2xl sm:text-4xl font-black text-white sm-logo-title">{{ $sala->nome }}</h1>
                 @if($sala->premio_primeiro_lugar || $sala->premio_segundo_lugar)
-                    <div class="flex flex-wrap items-center gap-3 mt-1.5 text-xs">
+                    <div class="flex flex-wrap items-center gap-3 mt-2 text-xs">
                         @if($sala->premio_primeiro_lugar)
-                            <span class="px-2.5 py-0.5 rounded-lg bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold">
-                                1º Lugar: {{ $sala->premio_primeiro_lugar }}
+                            <span class="px-3 py-1 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-300 font-bold flex items-center gap-1.5 shadow">
+                                <span>🏆</span> 1º Lugar: {{ $sala->premio_primeiro_lugar }}
                             </span>
                         @endif
                         @if($sala->premio_segundo_lugar)
-                            <span class="px-2.5 py-0.5 rounded-lg bg-white/10 border border-white/20 text-slate-200 font-bold">
-                                2º Lugar: {{ $sala->premio_segundo_lugar }}
+                            <span class="px-3 py-1 rounded-xl bg-blue-900/60 border border-blue-400/40 text-blue-200 font-bold flex items-center gap-1.5">
+                                <span>🥈</span> 2º Lugar: {{ $sala->premio_segundo_lugar }}
                             </span>
                         @endif
                     </div>
@@ -53,21 +55,21 @@
             </div>
 
             <div class="flex items-center gap-3 sm:gap-4">
-                <!-- Áudio do Telão Discreto & Ativo por Padrão -->
-                <button type="button" onclick="alternarAudioProjecao()" id="btnAudioProj" title="Áudio do Telão (Ativo por Padrão)"
-                        class="p-2.5 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/20 text-amber-300 transition shrink-0">
-                    <svg id="iconeAudioProj" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+                <!-- Áudio do Telão (Silenciado por Padrão para não conflitar com a igreja ou celulares) -->
+                <button type="button" onclick="alternarAudioProjecao()" id="btnAudioProj" title="Áudio do Telão: Silenciado por padrão (Clique para ativar efeitos de palco)"
+                        class="sm-lifeline !w-11 !h-11 flex items-center justify-center cursor-pointer border-rose-400/60 text-rose-300 opacity-60">
+                    <svg id="iconeAudioProj" class="w-5 h-5 text-rose-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-1.5l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
                     </svg>
                 </button>
-                <div class="bg-amber-500/15 border border-amber-400/40 px-5 py-2 rounded-2xl text-center">
-                    <p class="text-[10px] font-black uppercase tracking-wider text-amber-300">Código da Sala</p>
-                    <p class="text-2xl sm:text-3xl font-mono font-black text-amber-400" id="salaCodigo">{{ $sala->codigo_acesso }}</p>
+                <div class="sm-ingot !px-5 !py-2 text-center min-w-[130px]">
+                    <div class="sm-ingot-label">CÓDIGO DA SALA</div>
+                    <div class="sm-ingot-value !text-2xl sm:!text-3xl" id="salaCodigo">{{ $sala->codigo_acesso }}</div>
                 </div>
                 <div class="text-right">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pergunta</p>
+                    <p class="text-xs font-bold text-blue-200 uppercase tracking-wider">Pergunta</p>
                     <p class="text-3xl sm:text-4xl font-black text-white">
-                        <span id="numPergunta">{{ $numero_pergunta ?? 1 }}</span><span class="text-slate-500 text-xl">/{{ $total_perguntas ?? 24 }}</span>
+                        <span id="numPergunta" class="text-amber-300">{{ $numero_pergunta ?? 1 }}</span><span class="text-blue-300/60 text-xl font-bold">/{{ $total_perguntas ?? 24 }}</span>
                     </p>
                 </div>
             </div>
@@ -77,42 +79,46 @@
             <!-- Área Principal da Pergunta (2 colunas) -->
             <div class="lg:col-span-2 space-y-5" id="painelPergunta">
                 @if($estado === 'terminado')
-                    <div class="bg-slate-900/90 backdrop-blur-md rounded-3xl p-10 border-2 border-amber-400/50 text-center shadow-2xl">
-                        <div class="w-16 h-16 rounded-2xl bg-amber-500/20 border-2 border-amber-400/50 flex items-center justify-center mx-auto mb-4 text-amber-400">
-                            <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
-                            </svg>
+                    <div class="sm-panel p-8 sm:p-12 text-center shadow-2xl relative overflow-hidden">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-4 border-amber-200 shadow-2xl shadow-amber-500/50 mx-auto mb-4">
+                            <span class="text-4xl sm:text-5xl">🏆</span>
                         </div>
-                        <h2 class="text-4xl font-black text-white mb-2">Partida Finalizada!</h2>
-                        <p class="text-amber-300 text-xl font-bold">Confira a classificação oficial ao lado</p>
+                        <div class="inline-flex items-center justify-center mb-3">
+                            <span class="sm-pill !px-6 !py-1.5 text-sm uppercase font-black">
+                                ★ PARTIDA FINALIZADA ★
+                            </span>
+                        </div>
+                        <h2 class="text-3xl sm:text-5xl font-black text-white sm-logo-title mb-2">Show Concluído!</h2>
+                        <p class="text-blue-200 text-lg font-bold">Confira a classificação oficial dos participantes no ranking ao lado</p>
                     </div>
                 @elseif($pergunta)
-                    <div class="bg-slate-900/90 backdrop-blur-md rounded-3xl p-7 border border-white/15 shadow-2xl">
-                        <div class="flex justify-between items-center mb-5">
-                            <span class="px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/30 text-amber-300 text-xs font-black uppercase tracking-wider" id="nivelBadge">
+                    <div class="sm-panel p-6 sm:p-8 shadow-2xl">
+                        <div class="flex justify-between items-center mb-6">
+                            <span class="sm-pill !px-4 !py-1 text-xs font-black uppercase tracking-wider" id="nivelBadge">
                                 {{ $faseAtual }}ª Fase • {{ $pergunta['dificuldade_nome'] ?? 'Bíblia Show' }}
                             </span>
-                            <span class="inline-flex items-center gap-1.5 text-2xl sm:text-3xl font-mono font-black text-amber-400" id="tempoRestante">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span id="timerSegundos">{{ $tempo_restante }}</span>s
-                            </span>
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs font-black uppercase text-amber-300 tracking-wider">Tempo</span>
+                                <div class="sm-timer !w-14 !h-14 !text-xl" id="tempoRestanteBox" title="Tempo Restante">
+                                    <span id="timerSegundos">{{ $tempo_restante }}</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Caixa Vermelha/Dourada Clássica da Pergunta -->
-                        <div class="question-banner rounded-3xl p-6 sm:p-8 mb-6 shadow-xl">
-                            <p class="text-2xl sm:text-3xl font-black text-white leading-snug" id="textoPergunta">
+                        <!-- Caixa Dourada/Azul Clássica da Pergunta -->
+                        <div class="sm-question p-6 sm:p-8 mb-6 shadow-2xl">
+                            <p class="sm-question-text text-2xl sm:text-3xl font-black text-white leading-snug" id="textoPergunta">
                                 {{ $pergunta['texto'] ?? $pergunta->texto }}
                             </p>
                         </div>
 
                         <!-- Banner de Dica Bíblica e Convidado Bíblico no Telão -->
-                        <div id="boxDicaBiblicaProj" class="{{ $dicaBiblica ? '' : 'hidden' }} mb-4 p-4 rounded-2xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-base">
-                            {{ $dicaBiblica }}
+                        <div id="boxDicaBiblicaProj" class="{{ $dicaBiblica ? '' : 'hidden' }} mb-4 p-4 rounded-2xl bg-amber-500/20 border-2 border-amber-400/50 text-amber-200 text-base font-bold flex items-center gap-3 shadow-lg">
+                            <span class="text-xl">💡</span>
+                            <span>{{ $dicaBiblica }}</span>
                         </div>
 
-                        <div id="boxConvidadoProj" class="{{ $dicaConvidado ? '' : 'hidden' }} mb-4 p-4 rounded-2xl bg-blue-950/90 border border-blue-400/50 text-blue-100 font-bold text-base">
+                        <div id="boxConvidadoProj" class="{{ $dicaConvidado ? '' : 'hidden' }} mb-4 p-4 rounded-2xl bg-blue-950/90 border-2 border-blue-400/50 text-blue-100 font-bold text-base shadow-lg">
                             @if($dicaConvidado)
                                 <strong class="text-amber-300">{{ $dicaConvidado['convidado'] }}:</strong> {{ $dicaConvidado['mensagem'] }}
                             @endif
@@ -131,11 +137,16 @@
                                     $eliminada = in_array($idx, $opcoesEliminadas);
                                     $ehCorretaRevelada = $gabaritoRevelado && mb_strtolower(trim((string) $opcao), 'UTF-8') === mb_strtolower($corretaTexto, 'UTF-8');
                                 @endphp
-                                <div class="rounded-2xl p-4 flex items-center gap-4 border-2 transition {{ $eliminada ? 'opacity-25 bg-slate-950 border-slate-800 line-through' : ($ehCorretaRevelada ? 'bg-emerald-900/80 border-emerald-400 shadow-lg shadow-emerald-500/20' : 'bg-blue-950/80 border-blue-400/40') }}">
-                                    <span class="w-11 h-11 rounded-xl {{ $ehCorretaRevelada ? 'bg-emerald-400 text-slate-950' : 'bg-amber-500 text-slate-950' }} font-black text-xl flex items-center justify-center shrink-0">
-                                        {{ $letras[$idx] ?? ($idx + 1) }}
-                                    </span>
-                                    <span class="text-lg sm:text-xl font-bold text-white">{{ $opcao }}</span>
+                                <div class="sm-option min-h-[64px] sm:min-h-[72px] !px-5 !py-3.5 {{ $eliminada ? 'is-eliminada' : ($ehCorretaRevelada ? 'opcao-correta-reveal' : '') }}">
+                                    <div class="flex items-center gap-3.5 min-w-0">
+                                        <span class="sm-avatar !w-11 !h-11 !text-lg !font-black shrink-0">
+                                            {{ $letras[$idx] ?? ($idx + 1) }}
+                                        </span>
+                                        <span class="text-lg sm:text-xl font-black text-white truncate">{{ $opcao }}</span>
+                                    </div>
+                                    @if($ehCorretaRevelada)
+                                        <span class="text-emerald-200 font-black text-xl shrink-0">✓</span>
+                                    @endif
                                 </div>
                             @endforeach
                         </div>
@@ -145,30 +156,30 @@
 
             <!-- Coluna Lateral: Ranking em Tempo Real + QR Code -->
             <div class="lg:col-span-1 space-y-6">
-                <div class="bg-slate-900/90 backdrop-blur-md rounded-3xl p-6 border border-white/15 shadow-xl">
-                    <h3 class="text-lg font-black text-white mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <div class="sm-panel p-6 shadow-xl">
+                    <div class="flex items-center gap-2 mb-4 pb-3 border-b border-blue-400/20">
+                        <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
                         </svg>
-                        Classificação Ao Vivo
-                    </h3>
+                        <h3 class="text-lg font-black text-white sm-logo-title">Classificação Ao Vivo</h3>
+                    </div>
 
                     <div class="space-y-2.5" id="rankingList">
                         @forelse(array_slice($ranking ?? [], 0, 8) as $index => $participante)
-                            <div class="flex items-center gap-3 p-3.5 rounded-2xl {{ $index === 0 ? 'bg-amber-500/25 border border-amber-400/50' : 'bg-white/5 border border-white/10' }}">
-                                <span class="text-xl font-black w-7 {{ $index === 0 ? 'text-amber-400' : 'text-slate-300' }}">
+                            <div class="flex items-center gap-3 p-3 rounded-2xl {{ $index === 0 ? 'bg-gradient-to-r from-amber-500/25 to-amber-600/15 border-2 border-amber-400/70 shadow-lg' : 'bg-blue-950/80 border border-blue-400/30' }}">
+                                <span class="text-lg font-black w-7 {{ $index === 0 ? 'text-amber-300' : 'text-blue-200' }}">
                                     {{ $index + 1 }}º
                                 </span>
                                 <div class="flex-1 min-w-0">
-                                    <p class="font-bold text-white truncate">{{ $participante['nome'] ?? 'Participante' }}</p>
+                                    <p class="font-bold text-white truncate text-sm sm:text-base">{{ $participante['nome'] ?? 'Participante' }}</p>
                                     @if(!empty($participante['equipe']))
-                                        <p class="text-xs text-slate-300 truncate">{{ $participante['equipe'] }}</p>
+                                        <p class="text-xs text-blue-200/70 truncate">{{ $participante['equipe'] }}</p>
                                     @endif
                                 </div>
-                                <span class="font-mono font-black text-amber-300">{{ $participante['pontuacao'] }} pts</span>
+                                <span class="font-mono font-black text-amber-300 text-sm sm:text-base">{{ $participante['pontuacao'] }} pts</span>
                             </div>
                         @empty
-                            <div class="text-center py-6 text-slate-400 text-sm">
+                            <div class="text-center py-6 text-blue-200 text-sm">
                                 Escaneie o QR Code abaixo ou acesse <strong>/entrar/{{ $sala->codigo_acesso }}</strong>
                             </div>
                         @endforelse
@@ -176,12 +187,12 @@
                 </div>
 
                 <!-- QR Code no Telão -->
-                <div class="bg-slate-900/90 backdrop-blur-md rounded-3xl p-5 border border-white/15 text-center flex items-center justify-center gap-4">
-                    <div id="qrcodeProj" class="p-2 bg-white rounded-xl shrink-0"></div>
+                <div class="sm-panel p-5 text-center flex items-center justify-center gap-4">
+                    <div id="qrcodeProj" class="p-2.5 bg-white rounded-2xl shadow-xl border-2 border-amber-400 shrink-0"></div>
                     <div class="text-left">
-                        <p class="text-xs font-black uppercase tracking-wider text-amber-300">Participe pelo Celular</p>
-                        <p class="text-2xl font-mono font-black text-white mt-0.5">{{ $sala->codigo_acesso }}</p>
-                        <p class="text-xs text-slate-400 mt-1">/entrar/{{ $sala->codigo_acesso }}</p>
+                        <span class="sm-pill !px-3 !py-0.5 !text-[10px] uppercase tracking-wider mb-1">Participe pelo Celular</span>
+                        <p class="text-2xl font-mono font-black text-amber-300 mt-1">{{ $sala->codigo_acesso }}</p>
+                        <p class="text-xs text-blue-200 mt-1 font-bold">/entrar/{{ $sala->codigo_acesso }}</p>
                     </div>
                 </div>
             </div>
@@ -192,47 +203,47 @@
         <!-- ======================================================== -->
         <div class="mt-7 grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
             <!-- 1. Corrida do Bíblia Show (Disputa de Posições estilo Race Track) -->
-            <div class="lg:col-span-6 bg-slate-900/90 backdrop-blur-md rounded-3xl p-6 border border-white/15 shadow-2xl">
-                <div class="flex items-center justify-between mb-4">
+            <div class="lg:col-span-6 sm-panel p-6 shadow-2xl">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-blue-400/20">
                     <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center">
+                        <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 flex items-center justify-center">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z"/></svg>
                         </div>
                         <div>
-                            <h3 class="text-sm font-black text-white uppercase tracking-wider">Corrida do Bíblia Show</h3>
-                            <p class="text-[11px] text-slate-400">Disputa em tempo real rumo ao topo</p>
+                            <h3 class="text-sm font-black text-white uppercase tracking-wider sm-logo-title">Corrida do Bíblia Show</h3>
+                            <p class="text-[11px] text-blue-200">Disputa em tempo real rumo ao topo</p>
                         </div>
                     </div>
-                    <span class="text-xs font-mono font-bold text-amber-400 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 inline-flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5 text-amber-400 fill-none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5"/></svg>
+                    <span class="sm-pill !px-2.5 !py-0.5 !text-[11px] inline-flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-amber-950 fill-none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5"/></svg>
                         <span>Rumo ao Topo</span>
                     </span>
                 </div>
 
                 <div id="corridaContainer" class="space-y-3">
-                    <p class="text-xs text-slate-400 text-center py-4">Carregando posições da corrida...</p>
+                    <p class="text-xs text-blue-200 text-center py-4">Carregando posições da corrida...</p>
                 </div>
             </div>
 
             <!-- 2. Participantes na Rodada & Letra Escolhida (Ao Bloquear / Revelar) -->
-            <div class="lg:col-span-6 bg-slate-900/90 backdrop-blur-md rounded-3xl p-6 border border-white/15 shadow-2xl">
-                <div class="flex items-center justify-between mb-4">
+            <div class="lg:col-span-6 sm-panel p-6 shadow-2xl">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-blue-400/20">
                     <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-500/40 text-blue-400 flex items-center justify-center">
+                        <div class="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/40 text-blue-300 flex items-center justify-center">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>
                         </div>
                         <div>
-                            <h3 class="text-sm font-black text-white uppercase tracking-wider">Respostas dos Jogadores na Rodada</h3>
-                            <p class="text-[11px] text-slate-400">Letras bloqueadas ao vivo pelos participantes</p>
+                            <h3 class="text-sm font-black text-white uppercase tracking-wider sm-logo-title">Respostas na Rodada</h3>
+                            <p class="text-[11px] text-blue-200">Letras bloqueadas ao vivo pelos participantes</p>
                         </div>
                     </div>
-                    <span id="contadorRespostasRodada" class="text-xs font-bold text-amber-300">
+                    <span id="contadorRespostasRodada" class="sm-pill !px-3 !py-0.5 !text-[11px] font-black">
                         0 responderam
                     </span>
                 </div>
 
                 <div id="gridParticipantesRodada" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-72 overflow-y-auto pr-1">
-                    <p class="text-xs text-slate-400 col-span-2 text-center py-4">Aguardando participantes...</p>
+                    <p class="text-xs text-blue-200 col-span-2 text-center py-4">Aguardando participantes...</p>
                 </div>
             </div>
         </div>
@@ -245,14 +256,13 @@
         let gabaritoEstavaRevelado = {{ $gabaritoRevelado ? 'true' : 'false' }};
         let dicaEstavaAtiva = {{ $dicaBiblica ? 'true' : 'false' }};
         let convidadoEstavaAtivo = {{ $dicaConvidado ? 'true' : 'false' }};
-        if (localStorage.getItem('biblia_show_som') === null) {
-            localStorage.setItem('biblia_show_som', 'on');
-        }
-        let somAtivo = localStorage.getItem('biblia_show_som') !== 'off';
+        // No Telão (Arena Coletiva), o áudio fica silencioso por padrão para manter o foco
+        // na voz do apresentador/pastor e não criar conflito com os celulares dos múltiplos jogadores.
+        let somAtivo = localStorage.getItem('biblia_show_projecao_som') === 'on';
 
         const trilhaSuspense = new Audio('/audio/classico/suspense.wav');
         trilhaSuspense.loop = true;
-        trilhaSuspense.volume = 0.3;
+        trilhaSuspense.volume = 0.25;
 
         // Desbloqueia áudio caso o navegador bloqueie autoplay inicial
         function desbloquearAudioTelao() {
@@ -291,11 +301,11 @@
 
             if (somAtivo) {
                 btn.title = 'Áudio do Telão: Ativo (Clique para silenciar)';
-                btn.className = 'p-2.5 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 hover:bg-emerald-500/30 transition shrink-0';
+                btn.className = 'sm-lifeline !w-11 !h-11 flex items-center justify-center cursor-pointer border-emerald-400 text-emerald-300';
                 icone.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />';
             } else {
                 btn.title = 'Áudio do Telão: Silenciado (Clique para ativar)';
-                btn.className = 'p-2.5 rounded-2xl bg-rose-500/20 border border-rose-400/40 text-rose-300 hover:bg-rose-500/30 transition shrink-0';
+                btn.className = 'sm-lifeline !w-11 !h-11 flex items-center justify-center cursor-pointer border-rose-400/60 text-rose-300 opacity-60';
                 icone.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-1.5l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />';
             }
         }
@@ -321,7 +331,7 @@
 
         function alternarAudioProjecao() {
             somAtivo = !somAtivo;
-            localStorage.setItem('biblia_show_som', somAtivo ? 'on' : 'off');
+            localStorage.setItem('biblia_show_projecao_som', somAtivo ? 'on' : 'off');
             atualizarIconeAudioTelao();
             if (somAtivo) {
                 if (estadoAtual === 'em_curso') {
@@ -337,18 +347,18 @@
             if (!list) return;
 
             if (!ranking || ranking.length === 0) {
-                list.innerHTML = '<div class="text-center py-6 text-slate-400 text-sm">Escaneie o QR Code abaixo ou acesse <strong>/entrar/{{ $sala->codigo_acesso }}</strong></div>';
+                list.innerHTML = '<div class="text-center py-6 text-blue-200 text-sm">Escaneie o QR Code abaixo ou acesse <strong>/entrar/{{ $sala->codigo_acesso }}</strong></div>';
                 return;
             }
 
             list.innerHTML = ranking.slice(0, 8).map((p, index) => `
-                <div class="flex items-center gap-3 p-3.5 rounded-2xl ${index === 0 ? 'bg-amber-500/25 border border-amber-400/50' : 'bg-white/5 border border-white/10'}">
-                    <span class="text-xl font-black w-7 ${index === 0 ? 'text-amber-400' : 'text-slate-300'}">${index + 1}º</span>
+                <div class="flex items-center gap-3 p-3 rounded-2xl ${index === 0 ? 'bg-gradient-to-r from-amber-500/25 to-amber-600/15 border-2 border-amber-400/70 shadow-lg' : 'bg-blue-950/80 border border-blue-400/30'}">
+                    <span class="text-lg font-black w-7 ${index === 0 ? 'text-amber-300' : 'text-blue-200'}">${index + 1}º</span>
                     <div class="flex-1 min-w-0">
-                        <p class="font-bold text-white truncate">${p.nome || 'Participante'}</p>
-                        ${p.equipe ? `<p class="text-xs text-slate-300 truncate">${p.equipe}</p>` : ''}
+                        <p class="font-bold text-white truncate text-sm sm:text-base">${p.nome || 'Participante'}</p>
+                        ${p.equipe ? `<p class="text-xs text-blue-200/70 truncate">${p.equipe}</p>` : ''}
                     </div>
-                    <span class="font-mono font-black text-amber-300">${p.pontuacao} pts</span>
+                    <span class="font-mono font-black text-amber-300 text-sm sm:text-base">${p.pontuacao} pts</span>
                 </div>
             `).join('');
         }
@@ -358,7 +368,7 @@
             if (!container) return;
 
             if (!ranking || ranking.length === 0) {
-                container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Aguardando participantes entrarem na corrida...</p>';
+                container.innerHTML = '<p class="text-xs text-blue-200 text-center py-4">Aguardando participantes entrarem na corrida...</p>';
                 return;
             }
 
@@ -373,14 +383,14 @@
                     <div class="space-y-1">
                         <div class="flex items-center justify-between text-xs font-bold">
                             <span class="text-white flex items-center gap-1.5 truncate">
-                                <span class="font-black ${idx === 0 ? 'text-amber-300' : 'text-blue-300'}">${medalhas[idx] || (idx + 1 + 'º')}</span>
+                                <span class="font-black ${idx === 0 ? 'text-amber-300' : 'text-blue-200'}">${medalhas[idx] || (idx + 1 + 'º')}</span>
                                 <span class="truncate">${p.nome || 'Participante'}</span>
-                                ${p.equipe ? `<span class="text-[10px] text-slate-400">(${p.equipe})</span>` : ''}
+                                ${p.equipe ? `<span class="text-[10px] text-blue-200/70">(${p.equipe})</span>` : ''}
                             </span>
                             <span class="font-mono text-amber-300 font-black">${pts} pts</span>
                         </div>
-                        <div class="h-4 w-full bg-slate-950/80 rounded-full overflow-hidden p-0.5 border border-slate-800 relative">
-                            <div class="h-full bg-gradient-to-r ${idx === 0 ? 'from-amber-500 to-yellow-400 shadow-md shadow-amber-500/40' : 'from-blue-600 to-indigo-500'} rounded-full transition-all duration-700 relative"
+                        <div class="h-4 w-full bg-blue-950/90 rounded-full overflow-hidden p-0.5 border border-blue-400/30 relative">
+                            <div class="h-full bg-gradient-to-r ${idx === 0 ? 'from-amber-400 via-yellow-300 to-amber-500 shadow-md shadow-amber-500/50' : 'from-blue-500 to-indigo-500'} rounded-full transition-all duration-700 relative"
                                  style="width: ${perc}%">
                             </div>
                         </div>
@@ -395,7 +405,7 @@
             if (!grid) return;
 
             if (!participantes || participantes.length === 0) {
-                grid.innerHTML = '<p class="text-xs text-slate-400 col-span-2 text-center py-4">Nenhum jogador conectado no momento.</p>';
+                grid.innerHTML = '<p class="text-xs text-blue-200 col-span-2 text-center py-4">Nenhum jogador conectado no momento.</p>';
                 if (contadorEl) contadorEl.textContent = '0 responderam';
                 return;
             }
@@ -411,7 +421,7 @@
                 let badgeHtml = '';
                 if (!jaRespondeu) {
                     badgeHtml = `
-                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 animate-pulse">
+                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-blue-900/60 text-blue-200 border border-blue-400/30 animate-pulse">
                             Pensando...
                         </span>
                     `;
@@ -431,14 +441,14 @@
                 }
 
                 return `
-                    <div class="flex items-center justify-between p-2.5 rounded-2xl bg-slate-950/70 border border-slate-800/80">
+                    <div class="flex items-center justify-between p-2.5 rounded-2xl bg-blue-950/80 border border-blue-400/30">
                         <div class="flex items-center gap-2.5 min-w-0 pr-2">
-                            <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-300 font-black text-xs flex items-center justify-center shrink-0">
+                            <div class="sm-avatar !w-7 !h-7 !text-xs shrink-0">
                                 ${(p.nome || 'P').charAt(0).toUpperCase()}
                             </div>
                             <div class="min-w-0">
                                 <p class="text-xs font-bold text-white truncate">${p.nome || 'Participante'}</p>
-                                ${p.equipe ? `<p class="text-[10px] text-slate-400 truncate">${p.equipe.nome || p.equipe}</p>` : ''}
+                                ${p.equipe ? `<p class="text-[10px] text-blue-200/70 truncate">${p.equipe.nome || p.equipe}</p>` : ''}
                             </div>
                         </div>
                         <div class="shrink-0">
@@ -460,9 +470,17 @@
             }
 
             const timerEl = document.getElementById('timerSegundos');
+            const timerBox = document.getElementById('tempoRestanteBox');
             if (timerEl && typeof data.tempo_restante !== 'undefined') {
                 const seg = Number(data.tempo_restante);
                 timerEl.textContent = seg;
+                if (timerBox) {
+                    if (seg <= 5) {
+                        timerBox.className = 'sm-timer !w-14 !h-14 !text-xl is-critical';
+                    } else {
+                        timerBox.className = 'sm-timer !w-14 !h-14 !text-xl';
+                    }
+                }
                 if (seg <= 10) {
                     tocarTickTelao(seg);
                 }
@@ -497,9 +515,9 @@
                     new Audio(`/audio/classico/fase${Math.min(4, fase)}.wav`).play().catch(() => {});
                 }
             } else {
-                if (gabaritoRevelado && !gabaritoEstavaRevelado && somAtivo) {
-                    new Audio('/audio/classico/certa1.wav').play().catch(() => {});
-                }
+                // No Telão não tocamos áudio de acerto (certa1) nem de erro (errou1)
+                // porque vários participantes jogam ao mesmo tempo com respostas distintas.
+                // O feedback de acerto/erro é individual e toca direto no smartphone de cada um.
                 if (ajudas.dica_biblica && !dicaEstavaAtiva && somAtivo) {
                     new Audio('/audio/classico/dica.wav').play().catch(() => {});
                 }
@@ -545,12 +563,18 @@
                 opcoesEl.innerHTML = q.opcoes.map((op, i) => {
                     const isEliminada = eliminadas.includes(i);
                     const isCorreta = gabaritoRevelado && respCorreta && String(op).trim().toLowerCase() === respCorreta;
+                    let classeOpcao = 'sm-option min-h-[64px] sm:min-h-[72px] !px-5 !py-3.5';
+                    if (isEliminada) classeOpcao += ' is-eliminada';
+                    if (isCorreta) classeOpcao += ' opcao-correta-reveal';
                     return `
-                        <div class="rounded-2xl p-4 flex items-center gap-4 border-2 transition ${isEliminada ? 'opacity-25 bg-slate-950 border-slate-800 line-through' : (isCorreta ? 'bg-emerald-900/80 border-emerald-400 shadow-lg shadow-emerald-500/20' : 'bg-blue-950/80 border-blue-400/40')}">
-                            <span class="w-11 h-11 rounded-xl ${isCorreta ? 'bg-emerald-400 text-slate-950' : 'bg-amber-500 text-slate-950'} font-black text-xl flex items-center justify-center shrink-0">
-                                ${letras[i] || (i + 1)}
-                            </span>
-                            <span class="text-lg sm:text-xl font-bold text-white">${op}</span>
+                        <div class="${classeOpcao}">
+                            <div class="flex items-center gap-3.5 min-w-0">
+                                <span class="sm-avatar !w-11 !h-11 !text-lg !font-black shrink-0">
+                                    ${letras[i] || (i + 1)}
+                                </span>
+                                <span class="text-lg sm:text-xl font-black text-white truncate">${op}</span>
+                            </div>
+                            ${isCorreta ? '<span class="text-emerald-200 font-black text-xl shrink-0">✓</span>' : ''}
                         </div>
                     `;
                 }).join('');
