@@ -6,30 +6,35 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#f59e0b">
-    <title>Bíblia Show — Jogar</title>
+    <title>Bíblia Show — Palco do Jogo</title>
     <link rel="icon" href="/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/show-milhao.css') }}">
     <style>
         body { font-family: 'Inter', sans-serif; }
+        .sm-box-subtle {
+            background: rgba(11, 26, 77, 0.7);
+            border: 1.5px solid rgba(147, 197, 253, 0.35);
+            backdrop-filter: blur(8px);
+        }
         .opcao-bloqueada {
             background: linear-gradient(180deg, #fbbf24 0%, #d97706 60%, #92400e 100%) !important;
             border-color: #fff3c4 !important;
             color: #1c0f00 !important;
-            box-shadow: 0 0 24px rgba(251, 191, 36, .6) !important;
+            box-shadow: 0 0 24px rgba(251, 191, 36, .7) !important;
             animation: sm-blink 0.7s ease-in-out infinite alternate;
         }
         .opcao-correta-reveal {
             background: linear-gradient(180deg, #34d399 0%, #059669 60%, #065f46 100%) !important;
             border-color: #a7f3d0 !important;
-            box-shadow: 0 0 28px rgba(16, 185, 129, .65) !important;
+            box-shadow: 0 0 28px rgba(16, 185, 129, .75) !important;
             animation: none;
         }
         .opcao-errada-reveal {
             background: linear-gradient(180deg, #fb7185 0%, #e11d48 60%, #881337 100%) !important;
             border-color: #fecdd3 !important;
-            box-shadow: 0 0 28px rgba(244, 63, 94, .65) !important;
+            box-shadow: 0 0 28px rgba(244, 63, 94, .75) !important;
             animation: none;
         }
         @keyframes timerPulse {
@@ -42,8 +47,8 @@
         }
         .timer-box-warning {
             border-color: #f43f5e !important;
-            background: rgba(225, 29, 72, 0.22) !important;
-            box-shadow: 0 0 24px rgba(244, 63, 94, 0.45) !important;
+            background: rgba(225, 29, 72, 0.25) !important;
+            box-shadow: 0 0 24px rgba(244, 63, 94, 0.5) !important;
         }
     </style>
 </head>
@@ -51,7 +56,7 @@
 
     @include('partials.navbar', ['dark' => true, 'hideJogarAgora' => true, 'hideOnMobile' => false])
 
-    <div class="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-3 sm:py-6 flex-1">
+    <div class="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-6 flex-1">
 
         @php
             $resultado = session('resultado');
@@ -80,11 +85,11 @@
 
         <!-- Feedback de Recurso de Ajuda -->
         @if($ajudaFeedback && !empty($ajudaFeedback['mensagem']))
-            <div class="mb-5 rounded-2xl p-4 bg-amber-500/15 border border-amber-500/40 text-amber-200 text-sm flex items-center gap-3 shadow-lg">
-                <svg class="w-5 h-5 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <div class="mb-4 rounded-2xl p-4 bg-amber-500/20 border-2 border-amber-400 text-amber-200 text-sm flex items-center gap-3 shadow-xl backdrop-blur-md">
+                <svg class="w-5 h-5 text-amber-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
                 </svg>
-                <span>{{ $ajudaFeedback['mensagem'] }}</span>
+                <span class="font-bold">{{ $ajudaFeedback['mensagem'] }}</span>
             </div>
         @endif
 
@@ -102,17 +107,17 @@
             @endphp
 
             <!-- ===================== HUD MOBILE (Show do Milhão Bíblico) ===================== -->
-            <div class="lg:hidden flex items-center justify-between gap-2 mb-3 bg-[#0c163d]/90 border border-blue-400/20 rounded-2xl p-3 shadow-xl backdrop-blur-md">
+            <div class="lg:hidden flex items-center justify-between gap-2 mb-3 sm-panel p-3">
                 <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 font-black text-base flex items-center justify-center shrink-0 shadow-md">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-200 text-slate-950 font-black text-base shrink-0 shadow-md">
                         {{ mb_strtoupper(mb_substr($jogador_nome ?? 'P', 0, 1)) }}
                     </div>
                     <div class="min-w-0 leading-tight">
                         <p class="text-xs font-black text-white truncate max-w-[120px]">{{ $jogador_nome ?? 'Participante' }}</p>
-                        <div class="flex items-center gap-1.5 mt-1" title="Vidas">
-                            <span class="text-[10px] uppercase font-bold text-slate-400">Erros:</span>
+                        <div class="flex items-center gap-1.5 mt-1" title="Erros cometidos">
+                            <span class="text-[9px] uppercase font-bold text-blue-200">Erros:</span>
                             @for($i = 1; $i <= ($max_erros ?? 3); $i++)
-                                <span class="w-2.5 h-2.5 rounded-full {{ $i <= ($erros_count ?? 0) ? 'bg-rose-500 shadow-sm shadow-rose-500/70' : 'bg-[#18234d] border border-blue-400/20' }}"></span>
+                                <span class="w-2.5 h-2.5 rounded-full {{ $i <= ($erros_count ?? 0) ? 'bg-rose-500 shadow-sm shadow-rose-500/80 border border-rose-300' : 'bg-blue-950 border border-blue-400/30' }}"></span>
                             @endfor
                         </div>
                     </div>
@@ -121,34 +126,34 @@
                     <button type="button" onclick="abrirEscadaPremios()" class="sm-lifeline !w-9 !h-9 flex items-center justify-center" title="Escada de Prêmios">
                         <svg class="w-4 h-4 text-amber-300 fill-current" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0011 15.9V19H7v2h10v-2h-4v-3.1c1.94-.37 3.5-1.99 3.61-3.96C19.08 11.63 21 9.55 21 7V5c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
                     </button>
-                    <button type="button" onclick="typeof abrirModalDefinicoes === 'function' && abrirModalDefinicoes()" class="sm-lifeline !w-9 !h-9 flex items-center justify-center" title="Som e Definições">
+                    <button type="button" onclick="typeof abrirModalDefinicoes === 'function' && abrirModalDefinicoes()" class="sm-lifeline !w-9 !h-9 flex items-center justify-center" title="Definições e Som">
                         <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                     </button>
                     <form action="{{ route('game.finish') }}" method="POST" class="inline">
                         @csrf
-                        <button type="submit" class="sm-lifeline !w-9 !h-9 flex items-center justify-center" title="Parar e ver resultado">
+                        <button type="submit" class="sm-lifeline !w-9 !h-9 flex items-center justify-center !border-rose-400" title="Parar e ver resultado">
                             <svg class="w-4 h-4 text-rose-300" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
                         </button>
                     </form>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-start">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
                 <!-- ======================================================== -->
                 <!-- SIDEBAR ESQUERDA: PARTICIPANTE, VIDAS, PLACAR E JORNADA  -->
                 <!-- ======================================================== -->
                 <aside class="hidden lg:block lg:col-span-4 xl:col-span-4 space-y-4">
                     <!-- 1. Card do Participante no Palco -->
-                    <div class="bg-[#0c163d]/90 border border-blue-400/20 rounded-2xl p-5 shadow-2xl backdrop-blur-md">
+                    <div class="sm-panel p-5 shadow-2xl">
                         <div class="flex items-center gap-3.5 mb-4">
-                            <div id="sidebarJogadorAvatar" class="w-14 h-14 rounded-2xl bg-amber-500 text-slate-950 font-black text-2xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
+                            <div id="sidebarJogadorAvatar" class="w-14 h-14 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-200 text-slate-950 font-black text-2xl shrink-0 shadow-xl shadow-amber-500/30">
                                 {{ mb_strtoupper(mb_substr($jogador_nome ?? 'P', 0, 1)) }}
                             </div>
                             <div class="min-w-0">
-                                <p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">PARTICIPANTE NO PALCO</p>
-                                <h3 id="sidebarJogadorNome" class="font-black text-white text-xl truncate leading-tight mt-0.5">{{ $jogador_nome ?? 'Participante' }}</h3>
-                                <button type="button" onclick="abrirModalNomeJogador()" class="text-xs font-semibold text-amber-400 hover:text-amber-300 hover:underline inline-flex items-center gap-1.5 mt-1">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-blue-200">PARTICIPANTE NO PALCO</p>
+                                <h3 id="sidebarJogadorNome" class="font-black text-white text-xl truncate leading-tight mt-0.5 sm-logo-title">{{ $jogador_nome ?? 'Participante' }}</h3>
+                                <button type="button" onclick="abrirModalNomeJogador()" class="text-xs font-bold text-amber-300 hover:text-amber-200 hover:underline inline-flex items-center gap-1.5 mt-1">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
                                     </svg>
@@ -157,10 +162,10 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-2.5 pt-3 border-t border-blue-400/15">
+                        <div class="grid grid-cols-2 gap-2.5 pt-3 border-t border-blue-400/30">
                             <a href="{{ route('game.play', ['novo' => 1]) }}"
-                               class="inline-flex items-center justify-center gap-2 text-xs bg-[#131d47] hover:bg-[#1b2861] text-slate-200 py-2.5 px-4 rounded-xl font-bold border border-blue-400/20 transition shadow">
-                                <svg class="w-3.5 h-3.5 text-slate-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                               class="inline-flex items-center justify-center gap-2 text-xs bg-blue-900/80 hover:bg-blue-800 text-blue-100 py-2.5 px-3 rounded-xl font-bold border border-blue-400/40 transition shadow">
+                                <svg class="w-3.5 h-3.5 text-amber-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
                                 </svg>
                                 <span>Reiniciar</span>
@@ -169,8 +174,8 @@
                             <form action="{{ route('game.finish') }}" method="POST" class="inline w-full">
                                 @csrf
                                 <button type="submit"
-                                        class="w-full inline-flex items-center justify-center gap-2 text-xs bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 py-2.5 px-4 rounded-xl font-bold transition shadow">
-                                    <svg class="w-3.5 h-3.5 text-rose-400 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                                        class="w-full inline-flex items-center justify-center gap-2 text-xs bg-rose-600/30 hover:bg-rose-600/40 text-rose-200 border border-rose-400/50 py-2.5 px-3 rounded-xl font-bold transition shadow">
+                                    <svg class="w-3.5 h-3.5 text-rose-300 shrink-0" fill="currentColor" viewBox="0 0 24 24">
                                         <rect x="6" y="6" width="12" height="12" rx="2"/>
                                     </svg>
                                     <span>Parar</span>
@@ -180,80 +185,82 @@
                     </div>
 
                     <!-- 2. Card de Sobrevivência: Vidas & Tentativas de Tempo -->
-                    <div class="bg-[#0c163d]/90 border border-blue-400/20 rounded-2xl p-5 shadow-2xl backdrop-blur-md space-y-3">
-                        <div class="flex items-center justify-between p-3.5 rounded-xl bg-[#09112e]/70 border border-blue-400/15">
+                    <div class="sm-panel p-5 shadow-2xl space-y-3">
+                        <div class="flex items-center justify-between p-3 rounded-xl sm-box-subtle">
                             <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/25 flex items-center justify-center text-rose-400 shrink-0">
-                                    <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                                <div class="w-8 h-8 rounded-lg bg-rose-500/20 border border-rose-400/40 flex items-center justify-center text-rose-300 shrink-0 shadow-sm">
+                                    <svg class="w-4 h-4 text-rose-400 fill-current" viewBox="0 0 24 24">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                                     </svg>
                                 </div>
                                 <div>
-                                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">VIDAS (MÁX. 3 ERROS)</p>
-                                    <p class="text-xs font-bold text-slate-300">Erros cometidos: <strong id="errosContador" class="text-rose-400 font-black">{{ $erros_count ?? 0 }}</strong> / {{ $max_erros ?? 3 }}</p>
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-blue-200">VIDAS (MÁX. 3 ERROS)</p>
+                                    <p class="text-xs font-bold text-white">Erros cometidos: <strong id="errosContador" class="text-rose-300 font-black">{{ $erros_count ?? 0 }}</strong> / {{ $max_erros ?? 3 }}</p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-1.5" id="coracoesVidas">
                                 @for($i = 1; $i <= ($max_erros ?? 3); $i++)
-                                    <span class="w-3.5 h-3.5 rounded-full {{ $i <= ($erros_count ?? 0) ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.7)]' : 'bg-[#18234d] border border-blue-400/20' }}"></span>
+                                    <span class="w-3.5 h-3.5 rounded-full {{ $i <= ($erros_count ?? 0) ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.85)] border border-rose-200' : 'bg-blue-950 border border-blue-400/40' }}"></span>
                                 @endfor
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-between p-3.5 rounded-xl bg-[#09112e]/70 border border-blue-400/15">
+                        <div class="flex items-center justify-between p-3 rounded-xl sm-box-subtle">
                             <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 shrink-0">
+                                <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 shrink-0 shadow-sm">
                                     <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                                         <circle cx="12" cy="12" r="9"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 3"/>
                                     </svg>
                                 </div>
                                 <div>
-                                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">TENTATIVAS DE TEMPO (MÁX. 3)</p>
-                                    <p class="text-xs font-bold text-slate-300">Tempos esgotados: <strong id="temposContador" class="text-amber-400 font-black">{{ $tempos_esgotados_count ?? 0 }}</strong> / {{ $max_tempos_esgotados ?? 3 }}</p>
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-blue-200">TENTATIVAS DE TEMPO (MÁX. 3)</p>
+                                    <p class="text-xs font-bold text-white">Tempos esgotados: <strong id="temposContador" class="text-amber-300 font-black">{{ $tempos_esgotados_count ?? 0 }}</strong> / {{ $max_tempos_esgotados ?? 3 }}</p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-1.5">
                                 @for($i = 1; $i <= ($max_tempos_esgotados ?? 3); $i++)
-                                    <span class="w-3.5 h-3.5 rounded-full {{ $i <= ($tempos_esgotados_count ?? 0) ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.7)]' : 'bg-[#18234d] border border-blue-400/20' }}"></span>
+                                    <span class="w-3.5 h-3.5 rounded-full {{ $i <= ($tempos_esgotados_count ?? 0) ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.85)] border border-amber-100' : 'bg-blue-950 border border-blue-400/40' }}"></span>
                                 @endfor
                             </div>
                         </div>
                     </div>
 
-                    <!-- 3. Placar Estilo Show do Milhão: ERRAR | PARAR | ACERTAR -->
-                    <div class="bg-[#0c163d]/90 border border-blue-400/20 rounded-2xl p-5 shadow-2xl backdrop-blur-md space-y-3">
-                        <p class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 text-center mb-1">PREMIAÇÃO DA RODADA</p>
+                    <!-- 3. Lingotes de Premiação: ERRAR | PARAR | ACERTAR -->
+                    <div class="sm-panel p-5 shadow-2xl space-y-2.5">
+                        <div class="text-center mb-1">
+                            <span class="sm-pill !text-[11px] !py-0.5 !px-3 font-black">PREMIAÇÃO DA RODADA</span>
+                        </div>
                         
-                        <div class="grid grid-cols-3 gap-2.5">
-                            <div class="bg-rose-950/20 border border-rose-500/25 rounded-xl p-3 text-center">
-                                <p class="text-[10px] font-black uppercase tracking-wider text-rose-400">ERRAR</p>
-                                <p class="text-xl font-black text-rose-200 mt-0.5">
-                                    {{ $placar_milhao['errar'] ?? 0 }} <span class="text-xs font-bold text-rose-400">pts</span>
-                                </p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="sm-ingot is-errar !p-2.5">
+                                <div class="sm-ingot-label">ERRAR</div>
+                                <div class="sm-ingot-value !text-lg mt-0.5">
+                                    {{ $placar_milhao['errar'] ?? 0 }} <span class="text-[10px]">pts</span>
+                                </div>
                             </div>
 
-                            <div class="bg-amber-950/20 border border-amber-500/25 rounded-xl p-3 text-center">
-                                <p class="text-[10px] font-black uppercase tracking-wider text-amber-400">PARAR</p>
-                                <p class="text-xl font-black text-amber-300 mt-0.5">
-                                    {{ $pontuacao }} <span class="text-xs font-bold text-amber-400/80">pts</span>
-                                </p>
+                            <div class="sm-ingot !p-2.5">
+                                <div class="sm-ingot-label">PARAR</div>
+                                <div class="sm-ingot-value !text-lg mt-0.5">
+                                    {{ $pontuacao }} <span class="text-[10px]">pts</span>
+                                </div>
                             </div>
 
-                            <div class="bg-emerald-950/20 border border-emerald-500/25 rounded-xl p-3 text-center">
-                                <p class="text-[10px] font-black uppercase tracking-wider text-emerald-400">ACERTAR</p>
-                                <p class="text-xl font-black text-emerald-300 mt-0.5">
-                                    {{ $placar_milhao['acertar'] ?? ($pontuacao + 10) }} <span class="text-xs font-bold text-emerald-400/80">pts</span>
-                                </p>
+                            <div class="sm-ingot is-acertar !p-2.5">
+                                <div class="sm-ingot-label">ACERTAR</div>
+                                <div class="sm-ingot-value !text-lg mt-0.5">
+                                    {{ $placar_milhao['acertar'] ?? ($pontuacao + 10) }} <span class="text-[10px]">pts</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- 4. Card de Fases e Progresso do Bíblia Show (1ª a 4ª Fase) -->
-                    <div class="bg-[#0c163d]/90 border border-blue-400/20 rounded-2xl p-5 shadow-2xl backdrop-blur-md">
-                        <div class="flex items-center justify-between mb-3.5">
-                            <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">JORNADA DAS 4 FASES</span>
-                            <span class="text-xs font-black text-amber-400">Pergunta {{ $numero_pergunta }} de {{ $total_perguntas }}</span>
+                    <div class="sm-panel p-5 shadow-2xl">
+                        <div class="flex items-center justify-between mb-3.5 pb-2 border-b border-blue-400/20">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-blue-200">JORNADA DAS 4 FASES</span>
+                            <span class="text-xs font-black text-amber-300">Pergunta {{ $numero_pergunta }} de {{ $total_perguntas }}</span>
                         </div>
 
                         <div class="space-y-2">
@@ -270,9 +277,9 @@
                                     $isFaseAtual = ($fase_atual ?? 1) == $fNum;
                                     $isPassou = ($fase_atual ?? 1) > $fNum;
                                 @endphp
-                                <div class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition {{ $isFaseAtual ? 'bg-amber-500/15 border border-amber-500/40 text-amber-300 font-extrabold shadow-sm' : ($isPassou ? 'bg-[#09112e]/60 text-slate-400 font-semibold border border-blue-400/10' : 'bg-[#09112e]/30 text-slate-500 border border-transparent') }}">
+                                <div class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition {{ $isFaseAtual ? 'bg-amber-400/25 border-2 border-amber-300 text-amber-200 font-black shadow-lg shadow-amber-500/20' : ($isPassou ? 'bg-blue-950/60 text-slate-300 font-semibold border border-blue-400/20' : 'bg-blue-950/30 text-blue-300/50 border border-transparent') }}">
                                     <div class="flex items-center gap-2.5">
-                                        <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black {{ $isFaseAtual ? 'bg-amber-400 text-slate-950' : ($isPassou ? 'bg-emerald-500 text-slate-950' : 'bg-[#18234d] text-slate-400') }}">
+                                        <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black {{ $isFaseAtual ? 'bg-amber-400 text-slate-950 shadow' : ($isPassou ? 'bg-emerald-400 text-slate-950' : 'bg-blue-900 text-blue-300') }}">
                                             @if($isPassou)
                                                 ✓
                                             @else
@@ -281,7 +288,7 @@
                                         </span>
                                         <span>{{ $fInfo['nome'] }}</span>
                                     </div>
-                                    <span class="text-[11px] font-bold opacity-80">{{ $fInfo['perguntas'] }}</span>
+                                    <span class="text-[11px] font-bold opacity-90">{{ $fInfo['perguntas'] }}</span>
                                 </div>
                             @endforeach
                         </div>
@@ -291,46 +298,46 @@
                 <!-- ======================================================== -->
                 <!-- ARENA CENTRAL DO JOGO: TEMPORIZADOR, PERGUNTA E AJUDAS   -->
                 <!-- ======================================================== -->
-                <main class="lg:col-span-8 xl:col-span-8 space-y-4 lg:space-y-5">
-                    <!-- Barra de Destaque Superior: Temporizador & Contexto da Pergunta -->
-                    <div class="bg-[#0c163d]/90 border border-blue-400/20 rounded-2xl p-4 sm:p-5 shadow-2xl backdrop-blur-md flex flex-wrap items-center justify-between gap-4">
+                <main class="lg:col-span-8 xl:col-span-8 space-y-4 sm:space-y-5">
+                    <!-- Barra de Destaque Superior: Pergunta & Cronômetro -->
+                    <div class="sm-panel p-4 sm:p-5 shadow-2xl flex flex-wrap items-center justify-between gap-4">
                         <div class="flex items-center gap-3.5">
-                            <div class="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center font-black text-xl shrink-0 shadow-inner">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-200 text-slate-950 font-black text-xl shrink-0 shadow-lg shadow-amber-500/30">
                                 {{ $numero_pergunta }}
                             </div>
                             <div>
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <span class="text-xs font-black uppercase tracking-widest text-amber-400">PERGUNTA {{ $numero_pergunta }} DE {{ $total_perguntas }}</span>
-                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#131d47] text-blue-200 border border-blue-400/25">Fase {{ $fase_atual ?? 1 }}</span>
-                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">Nv. {{ $pergunta['dificuldade_nivel'] ?? 1 }}</span>
+                                    <span class="text-xs font-black uppercase tracking-widest text-amber-300">PERGUNTA {{ $numero_pergunta }} DE {{ $total_perguntas }}</span>
+                                    <span class="sm-pill !px-2.5 !py-0.5 !text-[10px]">FASE {{ $fase_atual ?? 1 }}</span>
+                                    <span class="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-blue-900/80 text-blue-200 border border-blue-400/40">NV. {{ $pergunta['dificuldade_nivel'] ?? 1 }}</span>
                                     @if($sequencia_acertos > 0)
-                                        <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <span class="inline-flex items-center gap-1 text-[10px] font-black px-2.5 py-0.5 rounded-full bg-emerald-500/25 text-emerald-300 border border-emerald-400/40 shadow-sm">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                                             </svg>
                                             {{ $sequencia_acertos }} seguidos
                                         </span>
                                     @endif
                                 </div>
-                                <p class="text-xs sm:text-sm font-bold text-slate-300 mt-1">
+                                <p class="text-xs sm:text-sm font-bold text-white mt-1">
                                     {{ $pergunta['livro_nome'] ?? 'Escrituras Sagradas' }}
                                     @if(!empty($pergunta['categoria_nome']))
-                                        <span class="text-slate-400 font-normal">• {{ $pergunta['categoria_nome'] }}</span>
+                                        <span class="text-blue-200 font-normal">• {{ $pergunta['categoria_nome'] }}</span>
                                     @endif
                                 </p>
                             </div>
                         </div>
 
-                        <!-- Temporizador Destacado e Chamativo (Design Mockup) -->
-                        <div id="timerContainerBox" class="bg-[#09112e]/90 border border-blue-400/20 px-4 py-2.5 rounded-xl shadow-inner flex items-center gap-3 transition-all">
+                        <!-- Temporizador Destacado (Estilo Show do Milhão Oficial) -->
+                        <div id="timerContainerBox" class="sm-box-subtle px-4 py-2.5 rounded-2xl shadow-inner flex items-center gap-3 transition-all">
                             <div class="text-right">
-                                <p class="text-[9px] font-extrabold uppercase tracking-widest text-slate-400">TEMPO RESTANTE</p>
+                                <p class="text-[9px] font-black uppercase tracking-widest text-blue-200">TEMPO RESTANTE</p>
                                 <p class="text-2xl sm:text-3xl font-black font-mono text-white leading-none tracking-tight">
                                     <span id="timer" class="js-timer">{{ $tempo_restante }}</span><span class="text-sm font-bold text-amber-400 ml-0.5">s</span>
                                 </p>
                             </div>
-                            <div id="timerIconBox" class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <div id="timerIconBox" class="w-10 h-10 rounded-xl bg-amber-500/20 border-2 border-amber-400/60 text-amber-300 flex items-center justify-center shrink-0 shadow-sm">
+                                <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                                     <circle cx="12" cy="12" r="9"/>
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 3"/>
                                 </svg>
@@ -338,12 +345,12 @@
                         </div>
                     </div>
 
-                    <!-- Card Principal da Pergunta -->
-                    <div class="bg-[#0c163d]/90 border border-blue-400/20 rounded-2xl p-4 sm:p-7 shadow-2xl backdrop-blur-md">
+                    <!-- Card Principal da Pergunta (sm-panel com sm-question azul vibrante) -->
+                    <div class="sm-panel p-5 sm:p-7 shadow-2xl relative">
                         <!-- Badges Bíblicos (Livro, Categoria, #Código) -->
                         <div class="flex flex-wrap items-center justify-start gap-2 mb-4">
                             @if(!empty($pergunta['livro_nome']))
-                                <span class="inline-flex items-center gap-1.5 text-xs font-black px-3.5 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-sm">
+                                <span class="inline-flex items-center gap-1.5 text-xs font-black px-3.5 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-300/40 shadow-sm">
                                     <svg class="w-3.5 h-3.5 text-amber-300" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
                                     </svg>
@@ -351,34 +358,34 @@
                                 </span>
                             @endif
                             @if(!empty($pergunta['categoria_nome']))
-                                <span class="text-xs font-bold px-3.5 py-1 rounded-full bg-blue-500/15 text-blue-300 border border-blue-400/30">
+                                <span class="text-xs font-bold px-3.5 py-1 rounded-full bg-blue-900/80 text-blue-200 border border-blue-400/40">
                                     {{ $pergunta['categoria_nome'] }}
                                 </span>
                             @endif
                             @if(!empty($pergunta['codigo_classico']) || !empty($pergunta['id']))
-                                <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-[#09112e] text-slate-400 border border-blue-400/20">
+                                <span class="text-xs font-mono font-bold px-3 py-1 rounded-full sm-box-subtle text-amber-300/90">
                                     #{{ $pergunta['codigo_classico'] ?? $pergunta['id'] }}
                                 </span>
                             @endif
                         </div>
 
-                        <!-- Card de Pergunta Ampliado & Destacado (Caixa Vinho com borda dourada luminosa) -->
-                        <div class="relative bg-gradient-to-b from-[#2e0c15] via-[#1a060b] to-[#250910] border-2 border-amber-500/70 rounded-2xl sm:rounded-3xl p-6 sm:p-8 mb-5 sm:mb-6 shadow-[0_0_25px_rgba(245,158,11,0.25)] min-h-[125px] sm:min-h-[145px] flex items-center justify-center text-center">
-                            <p class="text-lg sm:text-2xl font-black text-white leading-relaxed tracking-tight select-none">
+                        <!-- Card de Pergunta Oficial Show do Milhão (.sm-question) -->
+                        <div class="sm-question p-6 sm:p-8 mb-5 sm:mb-6 min-h-[130px] sm:min-h-[150px] flex items-center justify-center text-center">
+                            <p class="sm-question-text text-lg sm:text-2xl font-black text-white leading-relaxed tracking-tight select-none">
                                 {{ $pergunta['texto'] ?? $pergunta->texto }}
                             </p>
                         </div>
 
                         <!-- Dica Bíblica (Referência) quando acionada -->
                         @if($dicaBiblica)
-                            <div class="mb-4 rounded-2xl p-3.5 lg:p-4 bg-blue-950/60 border border-blue-400/40 text-blue-100 flex items-center gap-3">
+                            <div class="mb-4 rounded-2xl p-4 bg-blue-950/80 border-2 border-blue-400 text-blue-100 flex items-center gap-3.5 shadow-lg">
                                 <div class="w-10 h-10 rounded-xl bg-blue-500 text-slate-950 flex items-center justify-center shrink-0">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                                     </svg>
                                 </div>
                                 <div>
-                                    <p class="text-xs font-extrabold uppercase tracking-wider text-blue-300">Dica de Referência Bíblica</p>
+                                    <p class="text-xs font-black uppercase tracking-wider text-amber-300">Dica de Referência Bíblica</p>
                                     <p class="text-sm sm:text-base font-bold text-white">{{ $dicaBiblica }}</p>
                                 </div>
                             </div>
@@ -386,18 +393,18 @@
 
                         <!-- Resposta do Convidado Bíblico quando acionada -->
                         @if($dicaConvidado)
-                            <div class="mb-4 rounded-2xl p-4 border {{ !empty($dicaConvidado['sabe_resposta']) ? 'bg-amber-500/15 border-amber-400/50 text-amber-100' : 'bg-slate-800/90 border-slate-600 text-slate-200' }}">
+                            <div class="mb-4 rounded-2xl p-4 border-2 {{ !empty($dicaConvidado['sabe_resposta']) ? 'bg-amber-500/20 border-amber-300 text-amber-100' : 'bg-blue-950/80 border-blue-400/50 text-blue-200' }} shadow-lg">
                                 <div class="flex items-start gap-3.5">
-                                    <div class="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 font-black flex items-center justify-center shrink-0">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                    <div class="w-10 h-10 rounded-xl bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 text-slate-950 font-black flex items-center justify-center shrink-0 shadow-md">
+                                        <svg class="w-5 h-5 text-slate-950" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         </svg>
                                     </div>
                                     <div>
-                                        <p class="text-xs uppercase tracking-wider font-extrabold text-amber-400">
+                                        <p class="text-xs uppercase tracking-wider font-black text-amber-300">
                                             Personagem Bíblico Consultado: {{ $dicaConvidado['convidado'] }}
                                         </p>
-                                        <p class="text-sm sm:text-base mt-1 font-semibold">
+                                        <p class="text-sm sm:text-base mt-1 font-bold">
                                             {{ $dicaConvidado['mensagem'] }}
                                         </p>
                                     </div>
@@ -433,7 +440,7 @@
                             </form>
                         </div>
 
-                        <!-- Alternativas A, B, C, D (Pílulas Azuis Safira com letras douradas) -->
+                        <!-- Alternativas A, B, C, D (Pílulas Azuis Safira do Show do Milhão) -->
                         <form action="{{ route('game.answer') }}" method="POST" id="respostaForm">
                             @csrf
                             <input type="hidden" name="tempo_resposta" id="tempo_resposta" value="0">
@@ -453,10 +460,10 @@
                                         $letra = $letras[$indice] ?? ($indice + 1);
                                     @endphp
                                     @if($eliminada)
-                                        <div class="sm-option is-eliminada select-none !rounded-full !py-3.5 !px-5">
+                                        <div class="sm-option is-eliminada select-none">
                                             <span class="flex items-center gap-2.5 min-w-0">
-                                                <span class="sm-letter text-amber-400/50 font-black text-base lg:text-lg">{{ $letra }}:</span>
-                                                <span class="text-slate-400 font-medium text-sm lg:text-base">{{ $opcao }}</span>
+                                                <span class="sm-letter">{{ $letra }}:</span>
+                                                <span class="text-blue-200/50 font-bold text-sm lg:text-base">{{ $opcao }}</span>
                                             </span>
                                         </div>
                                     @else
@@ -465,9 +472,9 @@
                                                 data-indice="{{ $indice }}"
                                                 onmouseenter="tocarHover()"
                                                 onclick="pedirConfirmacao('{{ $indice }}', '{{ $letra }}', @js($opcao))"
-                                                class="btn-alternativa sm-option group !rounded-full !py-3.5 !px-5">
+                                                class="btn-alternativa sm-option group">
                                             <div class="flex items-center gap-2.5 min-w-0">
-                                                <span id="badgeLetra_{{ $indice }}" class="sm-letter text-amber-400 font-black text-base lg:text-lg">
+                                                <span id="badgeLetra_{{ $indice }}" class="sm-letter text-base lg:text-lg">
                                                     {{ $letra }}:
                                                 </span>
                                                 <span class="text-white font-extrabold text-sm sm:text-base lg:text-lg leading-snug">
@@ -482,58 +489,58 @@
                         </form>
 
                         <!-- Barra de Resultado Instantâneo após Bloqueio -->
-                        <div id="painelResultadoInstantaneo" class="hidden mt-6 rounded-2xl p-4 sm:p-5 border transition-all"></div>
+                        <div id="painelResultadoInstantaneo" class="hidden mt-6 rounded-2xl p-4 sm:p-5 border-2 transition-all"></div>
                     </div>
 
                     <!-- MOBILE: Lingotes ERRAR | PARAR | ACERTAR -->
                     <div class="lg:hidden grid grid-cols-3 gap-2 pt-1">
                         <div class="sm-ingot is-errar">
-                            <div class="sm-ingot-value">{{ $placar_milhao['errar'] ?? 0 }}</div>
                             <div class="sm-ingot-label">Errar</div>
+                            <div class="sm-ingot-value">{{ $placar_milhao['errar'] ?? 0 }}</div>
                         </div>
                         <div class="sm-ingot">
-                            <div class="sm-ingot-value">{{ $pontuacao }}</div>
                             <div class="sm-ingot-label">Parar</div>
+                            <div class="sm-ingot-value">{{ $pontuacao }}</div>
                         </div>
                         <div class="sm-ingot is-acertar">
-                            <div class="sm-ingot-value">{{ $placar_milhao['acertar'] ?? ($pontuacao + 10) }}</div>
                             <div class="sm-ingot-label">Acertar</div>
+                            <div class="sm-ingot-value">{{ $placar_milhao['acertar'] ?? ($pontuacao + 10) }}</div>
                         </div>
                     </div>
 
-                    <!-- Rodapé clássico Show do Milhão no mobile -->
-                    <div class="lg:hidden mt-1 bg-gradient-to-r from-red-800 via-red-600 to-red-800 text-white font-black text-xs py-2.5 px-3 text-center rounded-xl uppercase tracking-wider shadow-md border border-red-500/40">
+                    <!-- Faixa Vermelha Show do Milhão no mobile -->
+                    <div class="lg:hidden mt-2 sm-banner-red py-2 px-3 text-center rounded-xl text-xs uppercase tracking-wider shadow-md">
                         Não sabe a resposta? Use ajuda!
                     </div>
 
                     <!-- Área Destacada de Dicas & Ajudas do Clássico Bíblia Show -->
-                    <div class="hidden lg:block bg-[#0c163d]/90 border border-blue-400/20 rounded-2xl p-5 sm:p-6 shadow-2xl backdrop-blur-md">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-amber-400 flex items-center gap-2">
-                                <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    <div class="hidden lg:block sm-panel p-5 sm:p-6 shadow-2xl">
+                        <div class="flex items-center justify-between mb-4 pb-2 border-b border-blue-400/20">
+                            <h2 class="text-xs sm:text-sm font-black uppercase tracking-widest text-amber-300 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                 </svg>
                                 <span>AJUDAS E DICAS DO CLÁSSICO BÍBLIA SHOW</span>
                             </h2>
-                            <span class="text-xs text-slate-400 font-semibold">3 Dicas • 3 Convidados • Cartas • 3 Pulos</span>
+                            <span class="sm-pill !text-[10px] !py-0.5 !px-3 font-bold">3 Dicas • 3 Convidados • Cartas • 3 Pulos</span>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
                             <!-- 1. Dica Bíblica -->
-                            <div class="bg-[#09112e]/70 border border-blue-400/15 rounded-xl p-4 flex flex-col justify-between">
+                            <div class="sm-box-subtle rounded-2xl p-4 flex flex-col justify-between">
                                 <div>
                                     <div class="flex items-center justify-between mb-2">
-                                        <span class="inline-flex items-center gap-1.5 text-xs font-extrabold text-blue-300">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <span class="inline-flex items-center gap-1.5 text-xs font-black text-blue-200">
+                                            <svg class="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                                             </svg>
                                             Dica Bíblica
                                         </span>
-                                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full {{ $dicasRestantes <= 0 ? 'bg-[#18234d] text-slate-500' : 'bg-blue-500/20 text-blue-300' }}">
+                                        <span class="text-[11px] font-black px-2 py-0.5 rounded-full {{ $dicasRestantes <= 0 ? 'bg-blue-950 text-blue-400/50' : 'bg-blue-400/20 text-blue-200 border border-blue-400/30' }}">
                                             {{ $dicasRestantes }}/3
                                         </span>
                                     </div>
-                                    <p class="text-[11px] text-slate-400 mb-3">Mostra o livro e capítulo bíblico onde está a resposta.</p>
+                                    <p class="text-[11px] text-blue-200/80 mb-3">Mostra o livro e capítulo bíblico onde está a resposta.</p>
                                 </div>
                                 <form action="{{ route('game.lifeline') }}" method="POST">
                                     @csrf
@@ -541,27 +548,27 @@
                                     <button type="submit"
                                             onmouseenter="tocarHover()"
                                             @if($dicasRestantes <= 0 || $dicaBiblica) disabled @endif
-                                            class="w-full py-2.5 rounded-xl text-xs font-extrabold transition {{ ($dicasRestantes <= 0 || $dicaBiblica) ? 'bg-[#18234d] text-slate-500 cursor-not-allowed' : 'bg-blue-500/20 hover:bg-blue-500 text-blue-300 hover:text-white border border-blue-500/30 shadow' }}">
+                                            class="w-full py-2.5 rounded-xl text-xs font-black transition {{ ($dicasRestantes <= 0 || $dicaBiblica) ? 'bg-blue-950/60 text-blue-400/40 cursor-not-allowed border border-blue-400/20' : 'bg-blue-600/40 hover:bg-blue-600 text-white border-2 border-blue-300 shadow-lg' }}">
                                         {{ $dicaBiblica ? 'Dica Ativa' : ($dicasRestantes <= 0 ? 'Esgotadas' : 'Ler Dica Bíblica') }}
                                     </button>
                                 </form>
                             </div>
 
                             <!-- 2. Personagens Bíblicos -->
-                            <div class="bg-[#09112e]/70 border border-blue-400/15 rounded-xl p-4 flex flex-col justify-between">
+                            <div class="sm-box-subtle rounded-2xl p-4 flex flex-col justify-between">
                                 <div>
                                     <div class="flex items-center justify-between mb-2">
-                                        <span class="inline-flex items-center gap-1.5 text-xs font-extrabold text-amber-300">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <span class="inline-flex items-center gap-1.5 text-xs font-black text-amber-300">
+                                            <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                                             </svg>
                                             Convidados
                                         </span>
-                                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full {{ $convidadosRestantes <= 0 ? 'bg-[#18234d] text-slate-500' : 'bg-amber-500/20 text-amber-300' }}">
+                                        <span class="text-[11px] font-black px-2 py-0.5 rounded-full {{ $convidadosRestantes <= 0 ? 'bg-blue-950 text-blue-400/50' : 'bg-amber-400/20 text-amber-300 border border-amber-400/30' }}">
                                             {{ $convidadosRestantes }}/3
                                         </span>
                                     </div>
-                                    <p class="text-[11px] text-slate-400 mb-2">Consulte quem viveu na época do relato:</p>
+                                    <p class="text-[11px] text-blue-200/80 mb-2">Consulte personagens do relato bíblico:</p>
                                 </div>
                                 @if(!$convidadosUsada)
                                     <div class="grid grid-cols-3 gap-1.5">
@@ -572,7 +579,7 @@
                                                 <input type="hidden" name="convidado_indice" value="{{ $idx }}">
                                                 <button type="submit"
                                                         onmouseenter="tocarHover()"
-                                                        class="w-full px-1.5 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500 hover:text-slate-950 text-amber-300 border border-amber-500/30 text-[11px] font-extrabold truncate transition shadow"
+                                                        class="w-full px-1.5 py-2 rounded-xl bg-amber-500/25 hover:bg-amber-400 text-amber-200 hover:text-slate-950 border border-amber-300/40 text-[11px] font-black truncate transition shadow"
                                                         title="Consultar {{ $nomeConvidado }}">
                                                     {{ $nomeConvidado }}
                                                 </button>
@@ -580,28 +587,28 @@
                                         @endforeach
                                     </div>
                                 @else
-                                    <div class="py-2 rounded-xl bg-[#18234d] text-slate-400 text-center text-xs font-bold">
+                                    <div class="py-2 rounded-xl bg-blue-950/60 text-blue-300/60 text-center text-xs font-bold border border-blue-400/20">
                                         {{ $dicaConvidado ? 'Consultado nesta pergunta' : 'Ajudas esgotadas' }}
                                     </div>
                                 @endif
                             </div>
 
                             <!-- 3. Eliminar 2 Alternativas (Cartas) -->
-                            <div class="bg-[#09112e]/70 border border-blue-400/15 rounded-xl p-4 flex flex-col justify-between">
+                            <div class="sm-box-subtle rounded-2xl p-4 flex flex-col justify-between">
                                 <div>
                                     <div class="flex items-center justify-between mb-2">
-                                        <span class="inline-flex items-center gap-1.5 text-xs font-extrabold text-emerald-300">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <span class="inline-flex items-center gap-1.5 text-xs font-black text-emerald-300">
+                                            <svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                                                 <rect x="4" y="4" width="16" height="16" rx="2"/>
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 9h6v6H9z"/>
                                             </svg>
                                             Cartas (50/50)
                                         </span>
-                                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full {{ $cartasUsada ? 'bg-[#18234d] text-slate-500' : 'bg-emerald-500/20 text-emerald-300' }}">
+                                        <span class="text-[11px] font-black px-2 py-0.5 rounded-full {{ $cartasUsada ? 'bg-blue-950 text-blue-400/50' : 'bg-emerald-400/20 text-emerald-300 border border-emerald-400/30' }}">
                                             {{ $cartasUsada ? '0/1' : '1/1' }}
                                         </span>
                                     </div>
-                                    <p class="text-[11px] text-slate-400 mb-3">Remove duas alternativas incorretas da tela.</p>
+                                    <p class="text-[11px] text-blue-200/80 mb-3">Remove duas alternativas incorretas da tela.</p>
                                 </div>
                                 <form action="{{ route('game.lifeline') }}" method="POST">
                                     @csrf
@@ -609,27 +616,27 @@
                                     <button type="submit"
                                             onmouseenter="tocarHover()"
                                             @if($cartasUsada) disabled @endif
-                                            class="w-full py-2.5 rounded-xl text-xs font-extrabold transition {{ $cartasUsada ? 'bg-[#18234d] text-slate-500 cursor-not-allowed' : 'bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 border border-emerald-500/30 shadow' }}">
+                                            class="w-full py-2.5 rounded-xl text-xs font-black transition {{ $cartasUsada ? 'bg-blue-950/60 text-blue-400/40 cursor-not-allowed border border-blue-400/20' : 'bg-emerald-600/40 hover:bg-emerald-500 text-white border-2 border-emerald-300 shadow-lg' }}">
                                         {{ $cartasUsada ? 'Já Utilizada' : 'Eliminar 2 Opções' }}
                                     </button>
                                 </form>
                             </div>
 
                             <!-- 4. Pular Pergunta -->
-                            <div class="bg-[#09112e]/70 border border-blue-400/15 rounded-xl p-4 flex flex-col justify-between">
+                            <div class="sm-box-subtle rounded-2xl p-4 flex flex-col justify-between">
                                 <div>
                                     <div class="flex items-center justify-between mb-2">
-                                        <span class="inline-flex items-center gap-1.5 text-xs font-extrabold text-purple-300">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <span class="inline-flex items-center gap-1.5 text-xs font-black text-purple-300">
+                                            <svg class="w-4 h-4 text-purple-300" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
                                             </svg>
                                             Pular Pergunta
                                         </span>
-                                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full {{ $pulosRestantes <= 0 ? 'bg-[#18234d] text-slate-500' : 'bg-purple-500/20 text-purple-300' }}">
+                                        <span class="text-[11px] font-black px-2 py-0.5 rounded-full {{ $pulosRestantes <= 0 ? 'bg-blue-950 text-blue-400/50' : 'bg-purple-400/20 text-purple-300 border border-purple-400/30' }}">
                                             {{ $pulosRestantes }}/3
                                         </span>
                                     </div>
-                                    <p class="text-[11px] text-slate-400 mb-3">Sorteia outra pergunta sem perder pontuação.</p>
+                                    <p class="text-[11px] text-blue-200/80 mb-3">Sorteia outra pergunta sem perder pontuação.</p>
                                 </div>
                                 <form action="{{ route('game.lifeline') }}" method="POST">
                                     @csrf
@@ -637,7 +644,7 @@
                                     <button type="submit"
                                             onmouseenter="tocarHover()"
                                             @if($pulosRestantes <= 0) disabled @endif
-                                            class="w-full py-2.5 rounded-xl text-xs font-extrabold transition {{ $pulosRestantes <= 0 ? 'bg-[#18234d] text-slate-500 cursor-not-allowed' : 'bg-purple-500/20 hover:bg-purple-500 text-purple-300 hover:text-white border border-purple-500/30 shadow' }}">
+                                            class="w-full py-2.5 rounded-xl text-xs font-black transition {{ $pulosRestantes <= 0 ? 'bg-blue-950/60 text-blue-400/40 cursor-not-allowed border border-blue-400/20' : 'bg-purple-600/40 hover:bg-purple-500 text-white border-2 border-purple-300 shadow-lg' }}">
                                         {{ $pulosRestantes <= 0 ? 'Sem Pulos' : 'Pular Pergunta' }}
                                     </button>
                                 </form>
@@ -674,16 +681,16 @@
 
             <!-- ===== MODAL: Cartas (eliminar 2 alternativas) ===== -->
             <div id="modalCartasMobile" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md items-center justify-center p-4" onclick="if(event.target===this) fecharCartasMobile()">
-                <div class="sm-panel w-full max-w-sm text-center relative overflow-hidden border-2 border-amber-400/60 shadow-2xl">
+                <div class="sm-panel w-full max-w-sm text-center relative overflow-hidden border-2 border-amber-300 shadow-2xl">
                     <div class="sm-panel-title px-4 py-3 text-center flex items-center justify-between">
                         <span class="text-xs uppercase tracking-widest font-black text-amber-300 flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
                             AJUDA DAS CARTAS
                         </span>
-                        <button type="button" onclick="fecharCartasMobile()" class="text-slate-400 hover:text-white text-base">✕</button>
+                        <button type="button" onclick="fecharCartasMobile()" class="text-slate-300 hover:text-white text-base">✕</button>
                     </div>
                     <div class="p-5">
-                        <p class="text-xs font-extrabold text-blue-100 mb-4">Escolha uma das 4 cartas para virar e eliminar 2 opções incorretas:</p>
+                        <p class="text-xs font-black text-blue-100 mb-4">Escolha uma das 4 cartas para virar e eliminar 2 opções incorretas:</p>
                         <form action="{{ route('game.lifeline') }}" method="POST" id="formCartasMobile">
                             @csrf
                             <input type="hidden" name="tipo" value="cartas">
@@ -708,7 +715,7 @@
                 <div class="sm-panel w-full max-w-xs">
                     <div class="sm-panel-title px-4 py-2.5 text-center font-black text-white tracking-wider">CONVIDADOS BÍBLICOS</div>
                     <div class="p-4 space-y-2.5">
-                        <p class="text-center text-xs font-bold text-blue-100">Quem você quer consultar?</p>
+                        <p class="text-center text-xs font-black text-blue-100">Quem você quer consultar?</p>
                         @foreach($convidadosBiblicos as $idx => $nomeConvidado)
                             <form action="{{ route('game.lifeline') }}" method="POST">
                                 @csrf
@@ -716,10 +723,10 @@
                                 <input type="hidden" name="convidado_indice" value="{{ $idx }}">
                                 <button type="submit" class="sm-option" onclick="vibrar(30)">
                                     <span class="flex items-center gap-2.5">
-                                        <span class="sm-avatar !w-8 !h-8 text-xs">{{ mb_strtoupper(mb_substr($nomeConvidado, 0, 1)) }}</span>
+                                        <span class="w-8 h-8 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border border-amber-200 text-slate-950 font-black text-xs">{{ mb_strtoupper(mb_substr($nomeConvidado, 0, 1)) }}</span>
                                         <span>{{ $nomeConvidado }}</span>
                                     </span>
-                                    <span class="text-amber-300 text-xs">›</span>
+                                    <span class="text-amber-300 text-xs font-black">›</span>
                                 </button>
                             </form>
                         @endforeach
@@ -752,7 +759,7 @@
                             Continuar como {{ $jogador_nome }} →
                         </button>
                         <button type="button" onclick="trocarParaNovoParticipante()"
-                                class="w-full py-3 px-5 rounded-full bg-blue-900/60 hover:bg-blue-800 text-blue-200 font-bold text-xs uppercase tracking-wider border border-blue-400/40 transition">
+                                class="w-full py-3 px-5 rounded-full bg-blue-900/60 hover:bg-blue-800 text-blue-200 font-bold text-xs uppercase tracking-wider border-2 border-blue-400/40 transition">
                             Entrar com Outro Nome / Participante
                         </button>
                     </div>
@@ -782,7 +789,7 @@
                         <input type="text" name="jogador_nome" id="inputNomeJogadorModal" required maxlength="60"
                                value="{{ ($jogador_nome ?? '') !== 'Participante' ? ($jogador_nome ?? '') : '' }}"
                                placeholder="Digite seu nome ou apelido..."
-                               class="w-full px-4 py-3.5 rounded-xl bg-blue-950/90 border border-blue-400/50 text-white font-bold text-center text-base focus:border-amber-400 focus:ring-2 focus:ring-amber-400 outline-none placeholder-blue-300/40 shadow-inner">
+                               class="w-full px-4 py-3.5 rounded-xl bg-blue-950/90 border-2 border-blue-400/60 text-white font-bold text-center text-base focus:border-amber-400 focus:ring-2 focus:ring-amber-400 outline-none placeholder-blue-300/40 shadow-inner">
                         <button type="submit" id="btnIniciarPartidaModal"
                                 class="sm-cta !py-3.5 !text-sm cursor-pointer">
                             Começar Partida! →
@@ -805,11 +812,11 @@
                     <h3 class="text-2xl sm:text-3xl font-black text-white sm-logo-title mb-2">Você tem certeza?</h3>
                     <p class="text-xs sm:text-sm text-blue-200 mb-5">
                         Alternativa escolhida:
-                        <span id="modalAlternativaTexto" class="block mt-2 p-3 rounded-2xl bg-blue-950/90 border border-amber-400/60 text-amber-300 font-black text-base shadow-inner"></span>
+                        <span id="modalAlternativaTexto" class="block mt-2 p-3 rounded-2xl bg-blue-950/90 border-2 border-amber-300 text-amber-300 font-black text-base shadow-inner"></span>
                     </p>
                     <div class="grid grid-cols-2 gap-3">
                         <button type="button" onclick="fecharConfirmacao()"
-                                class="py-3 px-4 rounded-full bg-blue-900/70 hover:bg-blue-800 text-blue-200 font-extrabold text-xs uppercase tracking-wider border border-blue-400/40 transition">
+                                class="py-3 px-4 rounded-full bg-blue-900/70 hover:bg-blue-800 text-blue-200 font-extrabold text-xs uppercase tracking-wider border-2 border-blue-400/40 transition">
                             NÃO, VOLTAR
                         </button>
                         <button type="button" onclick="confirmarRespostaFinal()"
@@ -820,7 +827,7 @@
                 </div>
             </div>
 
-            <!-- Modal 3: Mensagem Amigável de Fim de Jogo (antes de ir para /jogar/resultado) -->
+            <!-- Modal 3: Mensagem Amigável de Fim de Jogo -->
             <div id="modalFimAmigavel" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/85 backdrop-blur-md p-4">
                 <div class="sm-panel max-w-lg w-full p-6 sm:p-8 text-center relative text-white shadow-2xl">
                     <div class="inline-flex items-center justify-center mb-2">
@@ -869,7 +876,6 @@
                     } catch (e) {}
                 }
 
-                // Desbloqueio de áudio no mobile
                 function destravarAudioMobile() {
                     try {
                         const dummy = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA');
@@ -1324,10 +1330,10 @@
                             const painel = document.getElementById('painelResultadoInstantaneo');
                             if (painel) {
                                 const isCerta = !!data.acertou;
-                                painel.className = 'mt-6 rounded-2xl p-4 sm:p-5 border flex flex-wrap items-center justify-between gap-4 ' +
+                                painel.className = 'mt-6 rounded-2xl p-4 sm:p-5 border-2 flex flex-wrap items-center justify-between gap-4 ' +
                                     (isCerta
-                                        ? 'bg-emerald-950/85 border-emerald-400/60 text-emerald-100'
-                                        : 'bg-rose-950/85 border-rose-400/60 text-rose-100');
+                                        ? 'bg-emerald-950/90 border-emerald-400 text-emerald-100 shadow-xl'
+                                        : 'bg-rose-950/90 border-rose-400 text-rose-100 shadow-xl');
 
                                 let tituloMsg = isCerta
                                     ? `Certa Resposta! (+${data.pontos || 0} pontos)`
@@ -1342,7 +1348,7 @@
                                         ${data.referencia_biblica ? `<p class="text-xs text-amber-300 font-bold mt-1">Referência: ${data.referencia_biblica}</p>` : ''}
                                     </div>
                                     <a href="${data.redirect_url || '{{ route('game.play') }}'}"
-                                       class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg transition shrink-0">
+                                       class="px-5 py-2.5 rounded-xl bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 border-2 border-amber-200 hover:brightness-110 text-slate-950 font-black text-xs sm:text-sm shadow-xl transition shrink-0">
                                         ${data.fim_de_jogo ? 'Ver Resultado Final →' : 'Próxima Pergunta →'}
                                     </a>
                                 `;

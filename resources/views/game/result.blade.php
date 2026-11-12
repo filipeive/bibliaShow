@@ -86,31 +86,31 @@
 
             <!-- Ações Principais em Botões de Palco -->
             @php
-                $classeBotaoCircular = 'w-12 h-12 inline-flex items-center justify-center rounded-full transition';
+                $classeBotaoAcao = 'w-full sm:w-48 h-12 inline-flex items-center justify-center gap-2 rounded-xl transition font-bold';
             @endphp
             <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5 max-w-xl mx-auto">
                 <a href="{{ route('game.play', ['novo' => 1]) }}"
-                   class="sm-cta !text-sm cursor-pointer shadow-xl">
-                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                        <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                   class="sm-cta {{ $classeBotaoAcao }} !h-12 !min-h-12 !px-4 !text-sm cursor-pointer shadow-xl">
+                    <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 5V2L7 7l5 5V8a6 6 0 11-5.65 8h-2.1A8 8 0 1012 5z" />
                     </svg>
-                    <span>Jogar Novamente</span>
+                    <span>Repetir</span>
                 </a>
 
                 <button type="button" onclick="abrirModalJogarAgora()"
-                        aria-label="Jogar Agora" title="Jogar Agora"
-                    class="{{ $classeBotaoCircular }} bg-blue-900/80 hover:bg-blue-800 border-2 border-blue-400/50 text-blue-100 shadow">
-                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M17.65 6.35A7.95 7.95 0 0012 4a8 8 0 100 16 8 8 0 007.93-7h-2.02A6 6 0 1112 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+                        class="{{ $classeBotaoAcao }} bg-blue-900/80 hover:bg-blue-800 border-2 border-blue-400/50 text-blue-100 shadow">
+                    <svg class="w-5 h-5 fill-none stroke-current shrink-0" viewBox="0 0 24 24" stroke-width="2.5" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m-7-7h14" />
                     </svg>
+                    <span>Novo Jogo</span>
                 </button>
 
                 <a href="/"
-                   aria-label="Início" title="Início"
-                         class="{{ $classeBotaoCircular }} bg-blue-950/90 hover:bg-blue-900 border border-blue-400/30 text-blue-300">
-                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                   class="{{ $classeBotaoAcao }} bg-blue-950/90 hover:bg-blue-900 border border-blue-400/30 text-blue-300">
+                    <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
                     </svg>
+                    <span>Voltar</span>
                 </a>
             </div>
         </div>
