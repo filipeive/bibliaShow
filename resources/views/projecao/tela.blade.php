@@ -10,6 +10,24 @@
     <link rel="stylesheet" href="{{ asset('css/show-milhao.css') }}">
     <style>
         body { font-family: 'Inter', sans-serif; }
+        .sm-proj-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+            align-items: start;
+        }
+        @media (min-width: 1024px) {
+            .sm-proj-grid {
+                grid-template-columns: minmax(0, 1fr) 400px;
+                gap: 1.5rem;
+            }
+        }
+        @media (min-width: 1440px) {
+            .sm-proj-grid {
+                grid-template-columns: minmax(0, 1fr) 480px;
+                gap: 1.75rem;
+            }
+        }
     </style>
 </head>
 <body class="sm-stage text-white min-h-screen p-5 sm:p-8">
@@ -22,9 +40,22 @@
         $gabaritoRevelado = !empty($ajudasMotor['gabarito_revelado']);
         $dicaBiblica = $ajudasMotor['dica_biblica'] ?? null;
         $dicaConvidado = $ajudasMotor['dica_convidado'] ?? null;
+
+        $temasParticipantes = [
+            ['cor' => 'amber', 'avatar' => 'bg-gradient-to-br from-amber-300 via-amber-500 to-amber-600 text-slate-950 border-2 border-amber-200 shadow-amber-500/40', 'borda' => 'border-amber-400', 'icone' => '👑', 'barra' => 'from-amber-400 via-yellow-300 to-amber-500'],
+            ['cor' => 'emerald', 'avatar' => 'bg-gradient-to-br from-emerald-300 via-emerald-500 to-emerald-700 text-slate-950 border-2 border-emerald-200 shadow-emerald-500/40', 'borda' => 'border-emerald-400', 'icone' => '🌿', 'barra' => 'from-emerald-400 to-teal-500'],
+            ['cor' => 'cyan', 'avatar' => 'bg-gradient-to-br from-cyan-300 via-cyan-500 to-blue-600 text-slate-950 border-2 border-cyan-200 shadow-cyan-500/40', 'borda' => 'border-cyan-400', 'icone' => '🕊️', 'barra' => 'from-cyan-400 to-blue-500'],
+            ['cor' => 'purple', 'avatar' => 'bg-gradient-to-br from-purple-300 via-purple-500 to-indigo-700 text-white border-2 border-purple-200 shadow-purple-500/40', 'borda' => 'border-purple-400', 'icone' => '✝️', 'barra' => 'from-purple-400 to-indigo-500'],
+            ['cor' => 'rose', 'avatar' => 'bg-gradient-to-br from-pink-400 via-rose-500 to-rose-700 text-white border-2 border-pink-200 shadow-rose-500/40', 'borda' => 'border-rose-400', 'icone' => '🌟', 'barra' => 'from-pink-400 to-rose-600'],
+            ['cor' => 'orange', 'avatar' => 'bg-gradient-to-br from-orange-300 via-amber-500 to-red-600 text-slate-950 border-2 border-orange-200 shadow-orange-500/40', 'borda' => 'border-orange-400', 'icone' => '🔥', 'barra' => 'from-orange-400 to-red-500'],
+            ['cor' => 'blue', 'avatar' => 'bg-gradient-to-br from-blue-300 via-blue-500 to-indigo-800 text-white border-2 border-blue-200 shadow-blue-500/40', 'borda' => 'border-blue-400', 'icone' => '🛡️', 'barra' => 'from-blue-400 to-indigo-600'],
+            ['cor' => 'lime', 'avatar' => 'bg-gradient-to-br from-lime-300 via-yellow-400 to-emerald-600 text-slate-950 border-2 border-lime-200 shadow-lime-500/40', 'borda' => 'border-lime-400', 'icone' => '⚡', 'barra' => 'from-lime-400 to-yellow-400'],
+            ['cor' => 'red', 'avatar' => 'bg-gradient-to-br from-red-400 via-rose-600 to-red-800 text-white border-2 border-red-200 shadow-red-500/40', 'borda' => 'border-red-400', 'icone' => '📖', 'barra' => 'from-red-400 to-rose-600'],
+            ['cor' => 'teal', 'avatar' => 'bg-gradient-to-br from-teal-300 via-teal-500 to-emerald-700 text-slate-950 border-2 border-teal-200 shadow-teal-500/40', 'borda' => 'border-teal-400', 'icone' => '⚓', 'barra' => 'from-teal-400 to-emerald-600'],
+        ];
     @endphp
 
-    <div class="max-w-7xl mx-auto">
+    <div class="max-w-[1880px] w-full mx-auto">
         <!-- Header da Projeção (Tema Show do Milhão Palco) -->
         <header class="mb-6 flex flex-wrap justify-between items-center gap-4 border-b border-blue-400/20 pb-5">
             <div>
@@ -75,9 +106,17 @@
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-7 items-start">
-            <!-- Área Principal da Pergunta (2 colunas) -->
-            <div class="lg:col-span-2 space-y-5" id="painelPergunta">
+        <!-- ======================================================== -->
+        <!-- GRADE PRINCIPAL DO TELÃO (2 COLUNAS):                    -->
+        <!-- 1. ESQUERDA (1fr): Card Principal da Pergunta & Opções   -->
+        <!-- 2. DIREITA  (480px): Classificação, Resultados & QR      -->
+        <!-- ======================================================== -->
+        <div class="sm-proj-grid">
+
+            <!-- ===================================================== -->
+            <!-- 1. COLUNA PRINCIPAL: CARD DA PERGUNTA & ALTERNATIVAS  -->
+            <!-- ===================================================== -->
+            <div class="space-y-6 min-w-0" id="painelPergunta">
                 @if($estado === 'terminado')
                     <div class="sm-panel p-8 sm:p-12 text-center shadow-2xl relative overflow-hidden">
                         <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-4 border-amber-200 shadow-2xl shadow-amber-500/50 mx-auto mb-4">
@@ -107,7 +146,7 @@
 
                         <!-- Caixa Dourada/Azul Clássica da Pergunta -->
                         <div class="sm-question p-6 sm:p-8 mb-6 shadow-2xl">
-                            <p class="sm-question-text text-2xl sm:text-3xl font-black text-white leading-snug" id="textoPergunta">
+                            <p class="sm-question-text text-4xl sm:text-5xl font-black text-white leading-snug" id="textoPergunta">
                                 {{ $pergunta['texto'] ?? $pergunta->texto }}
                             </p>
                         </div>
@@ -154,96 +193,185 @@
                 @endif
             </div>
 
-            <!-- Coluna Lateral: Ranking em Tempo Real + QR Code -->
-            <div class="lg:col-span-1 space-y-6">
-                <div class="sm-panel p-6 shadow-xl">
-                    <div class="flex items-center gap-2 mb-4 pb-3 border-b border-blue-400/20">
-                        <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <!-- ===================================================== -->
+            <!-- 2. COLUNA LATERAL DIREITA: CLASSIFICAÇÃO, RESULTADOS, QR -->
+            <!-- ===================================================== -->
+            <div class="space-y-5 min-w-0">
+                <!-- 1. Classificação Ao Vivo -->
+                <div class="sm-panel p-5 sm:p-6 shadow-xl">
+                    <div class="flex items-center gap-2.5 mb-3.5 pb-2.5 border-b border-blue-400/20">
+                        <svg class="w-5 h-5 text-amber-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
                         </svg>
-                        <h3 class="text-lg font-black text-white sm-logo-title">Classificação Ao Vivo</h3>
+                        <h3 class="text-base sm:text-lg font-black text-white sm-logo-title uppercase tracking-wider">Classificação Ao Vivo</h3>
                     </div>
 
-                    <div class="space-y-2.5" id="rankingList">
-                        @forelse(array_slice($ranking ?? [], 0, 8) as $index => $participante)
-                            <div class="flex items-center gap-3 p-3 rounded-2xl {{ $index === 0 ? 'bg-gradient-to-r from-amber-500/25 to-amber-600/15 border-2 border-amber-400/70 shadow-lg' : 'bg-blue-950/80 border border-blue-400/30' }}">
-                                <span class="text-lg font-black w-7 {{ $index === 0 ? 'text-amber-300' : 'text-blue-200' }}">
+                    <div class="space-y-2.5 max-h-52 overflow-y-auto pr-1" id="rankingList">
+                        @forelse(array_slice($ranking ?? [], 0, 6) as $index => $participante)
+                            @php
+                                $temaRank = $temasParticipantes[abs((int) ($participante['id'] ?? $index)) % count($temasParticipantes)];
+                            @endphp
+                            <div class="flex items-center gap-2.5 p-2.5 rounded-xl {{ $index === 0 ? 'bg-gradient-to-r from-amber-500/25 to-amber-600/15 border-2 border-amber-400/70 shadow-lg' : 'bg-blue-950/80 border border-blue-400/30' }}">
+                                <span class="text-sm sm:text-base font-black w-6 {{ $index === 0 ? 'text-amber-300' : 'text-blue-200' }}">
                                     {{ $index + 1 }}º
                                 </span>
+                                <div class="w-7 h-7 rounded-lg {{ $temaRank['avatar'] }} text-xs font-black flex items-center justify-center shrink-0 shadow-sm">
+                                    <span class="text-xs leading-none">{{ $temaRank['icone'] }}</span>
+                                </div>
                                 <div class="flex-1 min-w-0">
-                                    <p class="font-bold text-white truncate text-sm sm:text-base">{{ $participante['nome'] ?? 'Participante' }}</p>
+                                    <p class="font-bold text-white truncate text-xs sm:text-sm">{{ $participante['nome'] ?? 'Participante' }}</p>
                                     @if(!empty($participante['equipe']))
-                                        <p class="text-xs text-blue-200/70 truncate">{{ $participante['equipe'] }}</p>
+                                        <p class="text-[10px] sm:text-xs text-blue-200/70 truncate">{{ $participante['equipe'] }}</p>
                                     @endif
                                 </div>
-                                <span class="font-mono font-black text-amber-300 text-sm sm:text-base">{{ $participante['pontuacao'] }} pts</span>
+                                <span class="font-mono font-black text-amber-300 text-xs sm:text-sm">{{ $participante['pontuacao'] }} pts</span>
                             </div>
                         @empty
-                            <div class="text-center py-6 text-blue-200 text-sm">
-                                Escaneie o QR Code abaixo ou acesse <strong>{{ parse_url(url('/'), PHP_URL_PATH) }}/entrar/{{ $sala->codigo_acesso }}</strong>
+                            <div class="text-center py-4 text-blue-200 text-xs">
+                                Escaneie o QR Code abaixo para entrar
                             </div>
                         @endforelse
                     </div>
                 </div>
 
-                <!-- QR Code no Telão -->
-                <div class="sm-panel p-5 text-center flex items-center justify-center gap-4">
-                    <div id="qrcodeProj" class="p-2.5 bg-white rounded-2xl shadow-xl border-2 border-amber-400 shrink-0"></div>
-                    <div class="text-left">
-                        <span class="sm-pill !px-3 !py-0.5 !text-[10px] uppercase tracking-wider mb-1">Participe pelo Celular</span>
-                        <p class="text-2xl font-mono font-black text-amber-300 mt-1">{{ $sala->codigo_acesso }}</p>
-                        <p class="text-xs text-blue-200 mt-1 font-bold">{{ parse_url(url('/'), PHP_URL_PATH) }}/entrar/{{ $sala->codigo_acesso }}</p>
+                <!-- 2. Card de Resultado / Respostas Bloqueadas na Rodada -->
+                <div class="sm-panel p-5 sm:p-6 shadow-2xl relative overflow-hidden border-2 sm:border-3 border-amber-400 shadow-amber-500/20 bg-gradient-to-b from-[#0e2270] via-[#0a1854] to-[#060e33]">
+                    <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-amber-300 to-transparent"></div>
+
+                    <div class="flex items-center justify-between gap-3 mb-4 pb-3 border-b-2 border-amber-400/30">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-amber-300 via-amber-500 to-amber-600 text-slate-950 flex items-center justify-center shadow-md shadow-amber-500/40 border-2 border-amber-200 shrink-0">
+                                <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-base sm:text-lg font-black text-white uppercase tracking-wider sm-logo-title truncate">Respostas na Rodada</h3>
+                                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-[10px] font-black text-emerald-300 uppercase tracking-widest shrink-0">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                                        AO VIVO
+                                    </span>
+                                </div>
+                                <p class="text-xs text-blue-200 font-semibold truncate">Letras bloqueadas ao vivo</p>
+                            </div>
+                        </div>
+                        @php
+                            $totalParticipantes = count($participantes ?? []);
+                            $respondidosCount = count(array_filter(($participantes ?? collect())->all(), fn($p) => isset($respostas_rodada[$p->id])));
+                        @endphp
+                        <span id="contadorRespostasRodada" class="px-3 sm:px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 text-slate-950 text-xs sm:text-sm font-black shadow-md shadow-amber-500/40 border border-white/80 tracking-wide shrink-0 whitespace-nowrap">
+                            {{ $respondidosCount }}/{{ $totalParticipantes }} resp.
+                        </span>
+                    </div>
+
+                    <div id="gridParticipantesRodada" class="space-y-3 max-h-64 overflow-y-auto pr-1">
+                        @php
+                            $tempoEsgotadoInicial = ($tempo_restante ?? 0) <= 0 || !empty($tempo_esgotado) || !empty($gabaritoRevelado);
+                        @endphp
+                        @forelse($participantes ?? [] as $p)
+                            @php
+                                $resp = $respostas_rodada[$p->id] ?? null;
+                                $jaRespondeu = !empty($resp);
+                                $acertou = !empty($resp['correta']);
+                                $letraResp = $resp['letra'] ?? '?';
+                                $tema = $temasParticipantes[abs((int) ($p->id ?? $loop->index)) % count($temasParticipantes)];
+
+                                if ($jaRespondeu) {
+                                    if ($gabaritoRevelado) {
+                                        $cardClasses = $acertou
+                                            ? 'bg-gradient-to-r from-emerald-950/40 via-blue-950/90 to-blue-900/90 border-2 border-emerald-400 shadow-xl shadow-emerald-500/20 ring-1 ring-emerald-300/40'
+                                            : 'bg-gradient-to-r from-rose-950/40 via-blue-950/90 to-blue-900/90 border-2 border-rose-500/70 shadow-xl shadow-rose-600/20 ring-1 ring-rose-400/40';
+                                        $avatarClasses = $acertou
+                                            ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-slate-950 border-2 border-emerald-200 shadow-emerald-500/40'
+                                            : 'bg-gradient-to-br from-rose-500 to-rose-700 text-white border-2 border-rose-300 shadow-rose-600/40';
+                                    } else {
+                                        $cardClasses = 'bg-gradient-to-r from-amber-950/50 via-blue-950/90 to-blue-900/90 border-2 border-amber-400 shadow-xl shadow-amber-500/25 ring-1 ring-amber-300/50';
+                                        $avatarClasses = $tema['avatar'];
+                                    }
+                                } elseif ($tempoEsgotadoInicial) {
+                                    $cardClasses = 'bg-gradient-to-r from-rose-950/30 via-slate-900/90 to-blue-950/90 border border-rose-500/40 shadow-sm opacity-85';
+                                    $avatarClasses = 'bg-rose-950/70 border border-rose-400/40 text-rose-300';
+                                } else {
+                                    $cardClasses = 'bg-blue-950/80 border border-blue-400/30';
+                                    $avatarClasses = $tema['avatar'];
+                                }
+                            @endphp
+                            <div class="flex items-center justify-between p-3 sm:p-3.5 rounded-2xl transition-all duration-300 {{ $cardClasses }}">
+                                <div class="flex items-center gap-3 min-w-0 pr-2">
+                                    <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl {{ $avatarClasses }} text-base sm:text-lg font-black flex items-center justify-center shadow-md shrink-0 relative">
+                                        <span class="text-base sm:text-lg leading-none">{{ $tema['icone'] }}</span>
+                                        <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-slate-950 border {{ $tema['borda'] }} text-[9px] font-black text-white flex items-center justify-center leading-none">{{ mb_strtoupper(mb_substr($p->nome ?? 'P', 0, 1)) }}</span>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-sm sm:text-base font-black text-white truncate drop-shadow-sm">{{ $p->nome ?? 'Participante' }}</p>
+                                        @if(!empty($p->equipe))
+                                            <p class="text-xs text-amber-200/80 font-bold truncate">{{ $p->equipe->nome ?? $p->equipe }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="shrink-0">
+                                    @if(!$jaRespondeu)
+                                        @if($tempoEsgotadoInicial)
+                                            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-950/80 text-rose-300 border border-rose-500/50 font-bold text-xs sm:text-sm tracking-wide shadow">
+                                                <svg class="w-4 h-4 text-rose-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <span>Tempo Esgotado</span>
+                                            </div>
+                                        @else
+                                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-900/80 text-blue-200 border border-blue-400/40 font-bold text-xs sm:text-sm tracking-wide shadow">
+                                                <span class="relative flex h-2.5 w-2.5">
+                                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400"></span>
+                                                </span>
+                                                <span>Pensando...</span>
+                                            </div>
+                                        @endif
+                                    @elseif($gabaritoRevelado)
+                                        @if($acertou)
+                                            <div class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-600 text-slate-950 shadow-lg shadow-emerald-500/50 border border-emerald-200 font-black">
+                                                <span class="text-xs sm:text-sm uppercase tracking-wider text-emerald-950 flex items-center gap-1 font-extrabold">
+                                                    <svg class="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                                                    Acertou
+                                                </span>
+                                                <span class="px-2.5 py-0.5 rounded-lg bg-slate-950 text-emerald-300 font-mono font-black text-sm sm:text-base border border-emerald-300/60 shadow-inner">
+                                                    [ {{ $letraResp }} ]
+                                                </span>
+                                            </div>
+                                        @else
+                                            <div class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 text-white shadow-lg shadow-rose-600/50 border border-rose-300 font-black">
+                                                <span class="text-xs sm:text-sm uppercase tracking-wider text-rose-100 flex items-center gap-1 font-extrabold">
+                                                    <svg class="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                    Errou
+                                                </span>
+                                                <span class="px-2.5 py-0.5 rounded-lg bg-slate-950 text-rose-300 font-mono font-black text-sm sm:text-base border border-rose-400/60 shadow-inner">
+                                                    [ {{ $letraResp }} ]
+                                                </span>
+                                            </div>
+                                        @endif
+                                    @else
+                                        <div class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-slate-950 shadow-lg shadow-amber-500/50 border border-amber-200 animate-pulse font-black">
+                                            <span class="text-xs sm:text-sm uppercase tracking-wider text-amber-950 font-extrabold">Bloqueou</span>
+                                            <span class="px-2.5 py-0.5 rounded-lg bg-slate-950 text-amber-300 font-mono font-black text-sm sm:text-base border border-amber-400/60 shadow-inner">
+                                                [ {{ $letraResp }} ]
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-xs text-blue-200 text-center py-6 font-bold">Aguardando participantes...</p>
+                        @endforelse
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- ======================================================== -->
-        <!-- SEÇÃO INFERIOR DO TELÃO: CORRIDA AO VIVO & RESPOSTAS     -->
-        <!-- ======================================================== -->
-        <div class="mt-7 grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
-            <!-- 1. Corrida do Bíblia Show (Disputa de Posições estilo Race Track) -->
-            <div class="lg:col-span-6 sm-panel p-6 shadow-2xl">
-                <div class="flex items-center justify-between mb-4 pb-3 border-b border-blue-400/20">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 flex items-center justify-center">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z"/></svg>
-                        </div>
-                        <div>
-                            <h3 class="text-sm font-black text-white uppercase tracking-wider sm-logo-title">Corrida do Bíblia Show</h3>
-                            <p class="text-[11px] text-blue-200">Disputa em tempo real rumo ao topo</p>
-                        </div>
+                <!-- 3. Participe pelo Celular -->
+                <div class="sm-panel p-4 text-center flex items-center justify-center gap-4">
+                    <div id="qrcodeProj" class="p-2 bg-white rounded-xl shadow-lg border-2 border-amber-400 shrink-0"></div>
+                    <div class="text-left min-w-0">
+                        <span class="sm-pill !px-2.5 !py-0.5 !text-[10px] uppercase tracking-wider">Participe pelo Celular</span>
+                        <p class="text-2xl font-mono font-black text-amber-300 mt-1 leading-none">{{ $sala->codigo_acesso }}</p>
+                        <p class="text-xs text-blue-200 mt-1 font-bold truncate">{{ parse_url(url('/'), PHP_URL_PATH) }}/entrar/{{ $sala->codigo_acesso }}</p>
                     </div>
-                    <span class="sm-pill !px-2.5 !py-0.5 !text-[11px] inline-flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5 text-amber-950 fill-none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5"/></svg>
-                        <span>Rumo ao Topo</span>
-                    </span>
-                </div>
-
-                <div id="corridaContainer" class="space-y-3">
-                    <p class="text-xs text-blue-200 text-center py-4">Carregando posições da corrida...</p>
-                </div>
-            </div>
-
-            <!-- 2. Participantes na Rodada & Letra Escolhida (Ao Bloquear / Revelar) -->
-            <div class="lg:col-span-6 sm-panel p-6 shadow-2xl">
-                <div class="flex items-center justify-between mb-4 pb-3 border-b border-blue-400/20">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/40 text-blue-300 flex items-center justify-center">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>
-                        </div>
-                        <div>
-                            <h3 class="text-sm font-black text-white uppercase tracking-wider sm-logo-title">Respostas na Rodada</h3>
-                            <p class="text-[11px] text-blue-200">Letras bloqueadas ao vivo pelos participantes</p>
-                        </div>
-                    </div>
-                    <span id="contadorRespostasRodada" class="sm-pill !px-3 !py-0.5 !text-[11px] font-black">
-                        0 responderam
-                    </span>
-                </div>
-
-                <div id="gridParticipantesRodada" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-72 overflow-y-auto pr-1">
-                    <p class="text-xs text-blue-200 col-span-2 text-center py-4">Aguardando participantes...</p>
                 </div>
             </div>
         </div>
@@ -260,17 +388,18 @@
         let gabaritoEstavaRevelado = {{ $gabaritoRevelado ? 'true' : 'false' }};
         let dicaEstavaAtiva = {{ $dicaBiblica ? 'true' : 'false' }};
         let convidadoEstavaAtivo = {{ $dicaConvidado ? 'true' : 'false' }};
-        // No Telão (Arena Coletiva), o áudio fica silencioso por padrão para manter o foco
-        // na voz do apresentador/pastor e não criar conflito com os celulares dos múltiplos jogadores.
-        let somAtivo = localStorage.getItem('biblia_show_projecao_som') === 'on';
+        let tempoLocal = {{ max(0, (int) ($tempo_restante ?? 0)) }};
+        // No Telão, áudio ativado por padrão para efeitos sonoros de palco (suspense, dicas e contagem regressiva)
+        let somAtivo = localStorage.getItem('biblia_show_projecao_som') !== 'off';
 
-        const trilhaSuspense = new Audio('/audio/classico/suspense.wav');
+        const BASE_AUDIO_URL = "{{ asset('audio/classico') }}";
+        const trilhaSuspense = new Audio(`${BASE_AUDIO_URL}/suspense.wav`);
         trilhaSuspense.loop = true;
         trilhaSuspense.volume = 0.25;
 
         // Desbloqueia áudio caso o navegador bloqueie autoplay inicial
         function desbloquearAudioTelao() {
-            if (somAtivo && estadoAtual === 'em_curso' && trilhaSuspense.paused) {
+            if (somAtivo && estadoAtual === 'em_curso' && trilhaSuspense.paused && !gabaritoEstavaRevelado) {
                 trilhaSuspense.play().catch(() => {});
             }
         }
@@ -286,17 +415,44 @@
 
             try {
                 if (segundos > 0) {
-                    const audioSrc = segundos <= 3 ? '/audio/classico/tempo_alerta.wav' : '/audio/classico/tempo_tick.wav';
+                    const audioSrc = segundos <= 3 ? `${BASE_AUDIO_URL}/tempo_alerta.wav` : `${BASE_AUDIO_URL}/tempo_tick.wav`;
                     const fx = new Audio(audioSrc);
-                    fx.volume = 0.8;
+                    fx.volume = 0.9;
                     fx.play().catch(() => {});
                 } else if (segundos === 0) {
-                    const fx = new Audio('/audio/classico/ks.wav');
-                    fx.volume = 0.8;
+                    const fx = new Audio(`${BASE_AUDIO_URL}/ks.wav`);
+                    fx.volume = 0.95;
                     fx.play().catch(() => {});
                 }
             } catch (e) {}
         }
+
+        function atualizarTimerVisual(seg) {
+            const timerEl = document.getElementById('timerSegundos');
+            const timerBox = document.getElementById('tempoRestanteBox');
+            if (timerEl) timerEl.textContent = Math.max(0, seg);
+            if (timerBox) {
+                if (seg <= 5 && seg > 0) {
+                    timerBox.className = 'sm-timer !w-14 !h-14 !text-xl is-critical';
+                } else if (seg <= 10 && seg > 0) {
+                    timerBox.className = 'sm-timer !w-14 !h-14 !text-xl timer-box-warning';
+                } else {
+                    timerBox.className = 'sm-timer !w-14 !h-14 !text-xl';
+                }
+            }
+        }
+
+        // Relógio local regressivo contínuo de 1 em 1 segundo de alta fidelidade
+        setInterval(() => {
+            if (estadoAtual !== 'em_curso' || gabaritoEstavaRevelado) return;
+            if (tempoLocal > 0) {
+                tempoLocal--;
+                atualizarTimerVisual(tempoLocal);
+                if (tempoLocal <= 10) {
+                    tocarTickTelao(tempoLocal);
+                }
+            }
+        }, 1000);
 
         function atualizarIconeAudioTelao() {
             const btn = document.getElementById('btnAudioProj');
@@ -316,7 +472,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             atualizarIconeAudioTelao();
-            if (somAtivo && estadoAtual === 'em_curso') {
+            if (somAtivo && estadoAtual === 'em_curso' && !gabaritoEstavaRevelado) {
                 trilhaSuspense.play().catch(() => {});
             }
         });
@@ -325,8 +481,8 @@
         if (qrEl && typeof QRCode !== 'undefined') {
             new QRCode(qrEl, {
                 text: `${BASE_APP_URL}/entrar/{{ $sala->codigo_acesso }}`,
-                width: 96,
-                height: 96,
+                width: 80,
+                height: 80,
                 colorDark: '#0f172a',
                 colorLight: '#ffffff',
                 correctLevel: QRCode.CorrectLevel.M,
@@ -338,7 +494,7 @@
             localStorage.setItem('biblia_show_projecao_som', somAtivo ? 'on' : 'off');
             atualizarIconeAudioTelao();
             if (somAtivo) {
-                if (estadoAtual === 'em_curso') {
+                if (estadoAtual === 'em_curso' && !gabaritoEstavaRevelado) {
                     trilhaSuspense.play().catch(() => {});
                 }
             } else {
@@ -346,25 +502,49 @@
             }
         }
 
+        const TEMAS_PARTICIPANTES = [
+            { cor: 'amber', avatar: 'bg-gradient-to-br from-amber-300 via-amber-500 to-amber-600 text-slate-950 border-2 border-amber-200 shadow-amber-500/40', borda: 'border-amber-400', icone: '👑', barra: 'from-amber-400 via-yellow-300 to-amber-500' },
+            { cor: 'emerald', avatar: 'bg-gradient-to-br from-emerald-300 via-emerald-500 to-emerald-700 text-slate-950 border-2 border-emerald-200 shadow-emerald-500/40', borda: 'border-emerald-400', icone: '🌿', barra: 'from-emerald-400 to-teal-500' },
+            { cor: 'cyan', avatar: 'bg-gradient-to-br from-cyan-300 via-cyan-500 to-blue-600 text-slate-950 border-2 border-cyan-200 shadow-cyan-500/40', borda: 'border-cyan-400', icone: '🕊️', barra: 'from-cyan-400 to-blue-500' },
+            { cor: 'purple', avatar: 'bg-gradient-to-br from-purple-300 via-purple-500 to-indigo-700 text-white border-2 border-purple-200 shadow-purple-500/40', borda: 'border-purple-400', icone: '✝️', barra: 'from-purple-400 to-indigo-500' },
+            { cor: 'rose', avatar: 'bg-gradient-to-br from-pink-400 via-rose-500 to-rose-700 text-white border-2 border-pink-200 shadow-rose-500/40', borda: 'border-rose-400', icone: '🌟', barra: 'from-pink-400 to-rose-600' },
+            { cor: 'orange', avatar: 'bg-gradient-to-br from-orange-300 via-amber-500 to-red-600 text-slate-950 border-2 border-orange-200 shadow-orange-500/40', borda: 'border-orange-400', icone: '🔥', barra: 'from-orange-400 to-red-500' },
+            { cor: 'blue', avatar: 'bg-gradient-to-br from-blue-300 via-blue-500 to-indigo-800 text-white border-2 border-blue-200 shadow-blue-500/40', borda: 'border-blue-400', icone: '🛡️', barra: 'from-blue-400 to-indigo-600' },
+            { cor: 'lime', avatar: 'bg-gradient-to-br from-lime-300 via-yellow-400 to-emerald-600 text-slate-950 border-2 border-lime-200 shadow-lime-500/40', borda: 'border-lime-400', icone: '⚡', barra: 'from-lime-400 to-yellow-400' },
+            { cor: 'red', avatar: 'bg-gradient-to-br from-red-400 via-rose-600 to-red-800 text-white border-2 border-red-200 shadow-red-500/40', borda: 'border-red-400', icone: '📖', barra: 'from-red-400 to-rose-600' },
+            { cor: 'teal', avatar: 'bg-gradient-to-br from-teal-300 via-teal-500 to-emerald-700 text-slate-950 border-2 border-teal-200 shadow-teal-500/40', borda: 'border-teal-400', icone: '⚓', barra: 'from-teal-400 to-emerald-600' }
+        ];
+
+        function obterTemaParticipante(p, idx = 0) {
+            const seed = p && typeof p.id !== 'undefined' ? Number(p.id) : idx;
+            return TEMAS_PARTICIPANTES[Math.abs(seed) % TEMAS_PARTICIPANTES.length];
+        }
+
         function renderizarRanking(ranking) {
             const list = document.getElementById('rankingList');
             if (!list) return;
 
             if (!ranking || ranking.length === 0) {
-                list.innerHTML = '<div class="text-center py-6 text-blue-200 text-sm">Escaneie o QR Code abaixo ou acesse <strong>/entrar/{{ $sala->codigo_acesso }}</strong></div>';
+                list.innerHTML = '<div class="text-center py-4 text-blue-200 text-xs">Escaneie o QR Code abaixo para entrar</div>';
                 return;
             }
 
-            list.innerHTML = ranking.slice(0, 8).map((p, index) => `
-                <div class="flex items-center gap-3 p-3 rounded-2xl ${index === 0 ? 'bg-gradient-to-r from-amber-500/25 to-amber-600/15 border-2 border-amber-400/70 shadow-lg' : 'bg-blue-950/80 border border-blue-400/30'}">
-                    <span class="text-lg font-black w-7 ${index === 0 ? 'text-amber-300' : 'text-blue-200'}">${index + 1}º</span>
-                    <div class="flex-1 min-w-0">
-                        <p class="font-bold text-white truncate text-sm sm:text-base">${p.nome || 'Participante'}</p>
-                        ${p.equipe ? `<p class="text-xs text-blue-200/70 truncate">${p.equipe}</p>` : ''}
+            list.innerHTML = ranking.slice(0, 6).map((p, index) => {
+                const tema = obterTemaParticipante(p, index);
+                return `
+                    <div class="flex items-center gap-2.5 p-2 rounded-xl ${index === 0 ? 'bg-gradient-to-r from-amber-500/25 to-amber-600/15 border-2 border-amber-400/70 shadow-lg' : 'bg-blue-950/80 border border-blue-400/30'}">
+                        <span class="text-sm font-black w-6 ${index === 0 ? 'text-amber-300' : 'text-blue-200'}">${index + 1}º</span>
+                        <div class="w-6 h-6 rounded-lg ${tema.avatar} text-xs font-black flex items-center justify-center shrink-0 shadow-sm">
+                            <span class="text-xs leading-none">${tema.icone}</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold text-white truncate text-xs sm:text-sm">${p.nome || 'Participante'}</p>
+                            ${p.equipe ? `<p class="text-[10px] text-blue-200/70 truncate">${p.equipe}</p>` : ''}
+                        </div>
+                        <span class="font-mono font-black text-amber-300 text-xs sm:text-sm">${p.pontuacao} pts</span>
                     </div>
-                    <span class="font-mono font-black text-amber-300 text-sm sm:text-base">${p.pontuacao} pts</span>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function renderizarCorrida(ranking) {
@@ -372,29 +552,31 @@
             if (!container) return;
 
             if (!ranking || ranking.length === 0) {
-                container.innerHTML = '<p class="text-xs text-blue-200 text-center py-4">Aguardando participantes entrarem na corrida...</p>';
+                container.innerHTML = '<p class="text-[11px] text-blue-200 text-center py-3">Carregando posições da corrida...</p>';
                 return;
             }
 
             const maxPontos = Math.max(100, ...ranking.map(r => Number(r.pontuacao) || 0));
 
             container.innerHTML = ranking.slice(0, 5).map((p, idx) => {
+                const tema = obterTemaParticipante(p, idx);
                 const pts = Number(p.pontuacao) || 0;
                 const perc = Math.min(100, Math.max(5, Math.round((pts / maxPontos) * 94)));
-                const medalhas = ['1º Lugar', '2º Lugar', '3º Lugar', '4º Lugar', '5º Lugar'];
+                const medalhas = ['1º', '2º', '3º', '4º', '5º'];
 
                 return `
                     <div class="space-y-1">
                         <div class="flex items-center justify-between text-xs font-bold">
                             <span class="text-white flex items-center gap-1.5 truncate">
                                 <span class="font-black ${idx === 0 ? 'text-amber-300' : 'text-blue-200'}">${medalhas[idx] || (idx + 1 + 'º')}</span>
+                                <span class="text-sm leading-none">${tema.icone}</span>
                                 <span class="truncate">${p.nome || 'Participante'}</span>
                                 ${p.equipe ? `<span class="text-[10px] text-blue-200/70">(${p.equipe})</span>` : ''}
                             </span>
                             <span class="font-mono text-amber-300 font-black">${pts} pts</span>
                         </div>
-                        <div class="h-4 w-full bg-blue-950/90 rounded-full overflow-hidden p-0.5 border border-blue-400/30 relative">
-                            <div class="h-full bg-gradient-to-r ${idx === 0 ? 'from-amber-400 via-yellow-300 to-amber-500 shadow-md shadow-amber-500/50' : 'from-blue-500 to-indigo-500'} rounded-full transition-all duration-700 relative"
+                        <div class="h-3.5 w-full bg-blue-950/90 rounded-full overflow-hidden p-0.5 border border-blue-400/30 relative">
+                            <div class="h-full bg-gradient-to-r ${tema.barra} rounded-full transition-all duration-700 relative shadow-sm"
                                  style="width: ${perc}%">
                             </div>
                         </div>
@@ -403,56 +585,124 @@
             }).join('');
         }
 
-        function renderizarRespostasRodada(participantes, respostas, gabaritoRevelado) {
+        function renderizarRespostasRodada(participantes, respostas, gabaritoRevelado, tempoEsgotado) {
+            ultimosParticipantes = participantes || ultimosParticipantes;
+            ultimasRespostas = respostas || ultimasRespostas;
+
             const grid = document.getElementById('gridParticipantesRodada');
             const contadorEl = document.getElementById('contadorRespostasRodada');
             if (!grid) return;
 
             if (!participantes || participantes.length === 0) {
-                grid.innerHTML = '<p class="text-xs text-blue-200 col-span-2 text-center py-4">Nenhum jogador conectado no momento.</p>';
-                if (contadorEl) contadorEl.textContent = '0 responderam';
+                grid.innerHTML = '<p class="text-xs text-blue-200 text-center py-6 font-bold">Nenhum jogador conectado no momento.</p>';
+                if (contadorEl) contadorEl.textContent = '0 resp.';
                 return;
             }
 
             const total = participantes.length;
             let respCount = 0;
+            const isTempoEsgotado = typeof tempoEsgotado !== 'undefined' ? !!tempoEsgotado : (tempoLocal <= 0 || !!gabaritoRevelado);
 
-            grid.innerHTML = participantes.map(p => {
+            grid.innerHTML = participantes.map((p, idx) => {
                 const resp = respostas && respostas[p.id];
                 const jaRespondeu = !!resp;
                 if (jaRespondeu) respCount++;
+                const tema = obterTemaParticipante(p, idx);
+                const inicial = (p.nome || 'P').charAt(0).toUpperCase();
 
                 let badgeHtml = '';
                 if (!jaRespondeu) {
-                    badgeHtml = `
-                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-blue-900/60 text-blue-200 border border-blue-400/30 animate-pulse">
-                            Pensando...
-                        </span>
-                    `;
+                    if (isTempoEsgotado) {
+                        badgeHtml = `
+                            <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-950/80 text-rose-300 border border-rose-500/50 font-bold text-xs sm:text-sm tracking-wide shadow">
+                                <svg class="w-4 h-4 text-rose-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>Tempo Esgotado</span>
+                            </div>
+                        `;
+                    } else {
+                        badgeHtml = `
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-900/80 text-blue-200 border border-blue-400/40 font-bold text-xs sm:text-sm tracking-wide shadow">
+                                <span class="relative flex h-2.5 w-2.5">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400"></span>
+                                </span>
+                                <span>Pensando...</span>
+                            </div>
+                        `;
+                    }
                 } else if (gabaritoRevelado) {
                     const acertou = !!resp.correta;
-                    badgeHtml = `
-                        <span class="text-xs font-black px-2.5 py-1 rounded-lg ${acertou ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/40' : 'bg-rose-600 text-white shadow-md shadow-rose-600/40'}">
-                            ${acertou ? '✓ Letra ' + resp.letra : '✗ Letra ' + resp.letra}
-                        </span>
-                    `;
+                    if (acertou) {
+                        badgeHtml = `
+                            <div class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-600 text-slate-950 shadow-lg shadow-emerald-500/50 border border-emerald-200 font-black">
+                                <span class="text-xs sm:text-sm uppercase tracking-wider text-emerald-950 flex items-center gap-1 font-extrabold">
+                                    <svg class="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                                    Acertou
+                                </span>
+                                <span class="px-2.5 py-0.5 rounded-lg bg-slate-950 text-emerald-300 font-mono font-black text-sm sm:text-base border border-emerald-300/60 shadow-inner">
+                                    [ ${resp.letra} ]
+                                </span>
+                            </div>
+                        `;
+                    } else {
+                        badgeHtml = `
+                            <div class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 text-white shadow-lg shadow-rose-600/50 border border-rose-300 font-black">
+                                <span class="text-xs sm:text-sm uppercase tracking-wider text-rose-100 flex items-center gap-1 font-extrabold">
+                                    <svg class="w-4 h-4 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    Errou
+                                </span>
+                                <span class="px-2.5 py-0.5 rounded-lg bg-slate-950 text-rose-300 font-mono font-black text-sm sm:text-base border border-rose-400/60 shadow-inner">
+                                    [ ${resp.letra} ]
+                                </span>
+                            </div>
+                        `;
+                    }
                 } else {
                     badgeHtml = `
-                        <span class="text-xs font-black px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-md shadow-amber-500/30">
-                            Bloqueou [ ${resp.letra} ]
-                        </span>
+                        <div class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-slate-950 shadow-lg shadow-amber-500/50 border border-amber-200 animate-pulse font-black">
+                            <span class="text-xs sm:text-sm uppercase tracking-wider text-amber-950 font-extrabold">Bloqueou</span>
+                            <span class="px-2.5 py-0.5 rounded-lg bg-slate-950 text-amber-300 font-mono font-black text-sm sm:text-base border border-amber-400/60 shadow-inner">
+                                [ ${resp.letra} ]
+                            </span>
+                        </div>
                     `;
                 }
 
+                let cardClasses = 'bg-blue-950/80 border border-blue-400/30';
+                let avatarClasses = tema.avatar;
+
+                if (jaRespondeu) {
+                    if (gabaritoRevelado) {
+                        cardClasses = resp.correta
+                            ? 'bg-gradient-to-r from-emerald-950/40 via-blue-950/90 to-blue-900/90 border-2 border-emerald-400 shadow-xl shadow-emerald-500/20 ring-1 ring-emerald-300/40'
+                            : 'bg-gradient-to-r from-rose-950/40 via-blue-950/90 to-blue-900/90 border-2 border-rose-500/70 shadow-xl shadow-rose-600/20 ring-1 ring-rose-400/40';
+                        avatarClasses = resp.correta
+                            ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-slate-950 border-2 border-emerald-200 shadow-emerald-500/40'
+                            : 'bg-gradient-to-br from-rose-500 to-rose-700 text-white border-2 border-rose-300 shadow-rose-600/40';
+                    } else {
+                        cardClasses = 'bg-gradient-to-r from-amber-950/50 via-blue-950/90 to-blue-900/90 border-2 border-amber-400 shadow-xl shadow-amber-500/25 ring-1 ring-amber-300/50';
+                    }
+                } else if (isTempoEsgotado) {
+                    cardClasses = 'bg-gradient-to-r from-rose-950/30 via-slate-900/90 to-blue-950/90 border border-rose-500/40 shadow-sm opacity-85';
+                    avatarClasses = 'bg-rose-950/70 border border-rose-400/40 text-rose-300';
+                }
+
+                const avatarHtml = `
+                    <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl ${avatarClasses} text-base sm:text-lg font-black flex items-center justify-center shadow-md shrink-0 relative">
+                        <span class="text-base sm:text-lg leading-none">${tema.icone}</span>
+                        <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-slate-950 border ${tema.borda} text-[9px] font-black text-white flex items-center justify-center leading-none">${inicial}</span>
+                    </div>
+                `;
+
                 return `
-                    <div class="flex items-center justify-between p-2.5 rounded-2xl bg-blue-950/80 border border-blue-400/30">
-                        <div class="flex items-center gap-2.5 min-w-0 pr-2">
-                            <div class="sm-avatar !w-7 !h-7 !text-xs shrink-0">
-                                ${(p.nome || 'P').charAt(0).toUpperCase()}
-                            </div>
+                    <div class="flex items-center justify-between p-3 sm:p-3.5 rounded-2xl ${cardClasses} transition-all duration-300">
+                        <div class="flex items-center gap-3 min-w-0 pr-2">
+                            ${avatarHtml}
                             <div class="min-w-0">
-                                <p class="text-xs font-bold text-white truncate">${p.nome || 'Participante'}</p>
-                                ${p.equipe ? `<p class="text-[10px] text-blue-200/70 truncate">${p.equipe.nome || p.equipe}</p>` : ''}
+                                <p class="text-sm sm:text-base font-black text-white truncate drop-shadow-sm">${p.nome || 'Participante'}</p>
+                                ${p.equipe ? `<p class="text-xs text-amber-200/80 font-bold truncate">${p.equipe.nome || p.equipe}</p>` : ''}
                             </div>
                         </div>
                         <div class="shrink-0">
@@ -463,7 +713,7 @@
             }).join('');
 
             if (contadorEl) {
-                contadorEl.textContent = `${respCount} de ${total} responderam`;
+                contadorEl.textContent = `${respCount}/${total} resp.`;
             }
         }
 
@@ -473,20 +723,17 @@
                 numEl.textContent = data.numero_pergunta;
             }
 
-            const timerEl = document.getElementById('timerSegundos');
-            const timerBox = document.getElementById('tempoRestanteBox');
-            if (timerEl && typeof data.tempo_restante !== 'undefined') {
+            if (typeof data.tempo_restante !== 'undefined') {
                 const seg = Number(data.tempo_restante);
-                timerEl.textContent = seg;
-                if (timerBox) {
-                    if (seg <= 5) {
-                        timerBox.className = 'sm-timer !w-14 !h-14 !text-xl is-critical';
-                    } else {
-                        timerBox.className = 'sm-timer !w-14 !h-14 !text-xl';
+                if (Math.abs(tempoLocal - seg) > 1 || seg > tempoLocal) {
+                    tempoLocal = seg;
+                    if (seg > 10) {
+                        ultimoSegundoTocado = null;
                     }
                 }
-                if (seg <= 10) {
-                    tocarTickTelao(seg);
+                atualizarTimerVisual(tempoLocal);
+                if (tempoLocal <= 10 && tempoLocal >= 0) {
+                    tocarTickTelao(tempoLocal);
                 }
             }
 
@@ -512,21 +759,29 @@
 
             if (questaoAtualId !== q.id) {
                 questaoAtualId = q.id;
+                ultimoSegundoTocado = null;
+                tempoLocal = Number(data.tempo_restante || 30);
                 gabaritoEstavaRevelado = gabaritoRevelado;
                 dicaEstavaAtiva = !!ajudas.dica_biblica;
                 convidadoEstavaAtivo = !!ajudas.dica_convidado;
                 if (somAtivo) {
-                    new Audio(`/audio/classico/fase${Math.min(4, fase)}.wav`).play().catch(() => {});
+                    new Audio(`${BASE_AUDIO_URL}/fase${Math.min(4, fase)}.wav`).play().catch(() => {});
+                    if (!gabaritoRevelado) {
+                        trilhaSuspense.play().catch(() => {});
+                    }
                 }
             } else {
                 // No Telão não tocamos áudio de acerto (certa1) nem de erro (errou1)
                 // porque vários participantes jogam ao mesmo tempo com respostas distintas.
                 // O feedback de acerto/erro é individual e toca direto no smartphone de cada um.
                 if (ajudas.dica_biblica && !dicaEstavaAtiva && somAtivo) {
-                    new Audio('/audio/classico/dica.wav').play().catch(() => {});
+                    new Audio(`${BASE_AUDIO_URL}/dica.wav`).play().catch(() => {});
                 }
                 if (ajudas.dica_convidado && !convidadoEstavaAtivo && somAtivo) {
-                    new Audio('/audio/classico/sabe1.wav').play().catch(() => {});
+                    new Audio(`${BASE_AUDIO_URL}/sabe1.wav`).play().catch(() => {});
+                }
+                if (gabaritoRevelado && !trilhaSuspense.paused) {
+                    trilhaSuspense.pause();
                 }
                 gabaritoEstavaRevelado = gabaritoRevelado;
                 dicaEstavaAtiva = !!ajudas.dica_biblica;
@@ -593,9 +848,11 @@
                 if (!resp.ok) return;
                 const data = await resp.json();
 
+                const isTempoEsgotado = Number(data.tempo_restante) <= 0 || !!data.tempo_esgotado || !!data.ajudas?.gabarito_revelado || tempoLocal <= 0;
+
                 renderizarRanking(data.ranking || []);
                 renderizarCorrida(data.ranking || []);
-                renderizarRespostasRodada(data.participantes || [], data.respostas_rodada || {}, !!data.ajudas?.gabarito_revelado);
+                renderizarRespostasRodada(data.participantes || [], data.respostas_rodada || {}, !!data.ajudas?.gabarito_revelado, isTempoEsgotado);
                 atualizarPergunta(data);
             } catch (e) {}
         }
