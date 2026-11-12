@@ -106,32 +106,65 @@
                 $valorPerguntaAtual = $placar_milhao['valor_pergunta'] ?? 10;
             @endphp
 
-            <!-- ===================== HUD MOBILE (Show do Milhão Bíblico) ===================== -->
-            <div class="lg:hidden flex items-center justify-between gap-2 mb-3 sm-panel p-3">
-                <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-200 text-slate-950 font-black text-base shrink-0 shadow-md">
-                        {{ mb_strtoupper(mb_substr($jogador_nome ?? 'P', 0, 1)) }}
-                    </div>
-                    <div class="min-w-0 leading-tight">
-                        <p class="text-xs font-black text-white truncate max-w-[120px]">{{ $jogador_nome ?? 'Participante' }}</p>
-                        <div class="flex items-center gap-1.5 mt-1" title="Erros cometidos">
-                            <span class="text-[9px] uppercase font-bold text-blue-200">Erros:</span>
-                            @for($i = 1; $i <= ($max_erros ?? 3); $i++)
-                                <span class="w-2.5 h-2.5 rounded-full {{ $i <= ($erros_count ?? 0) ? 'bg-rose-500 shadow-sm shadow-rose-500/80 border border-rose-300' : 'bg-blue-950 border border-blue-400/30' }}"></span>
-                            @endfor
+            <!-- ===================== HUD MOBILE: 2 DIVS LADO A LADO ===================== -->
+            <div class="lg:hidden grid grid-cols-2 gap-2 sm:gap-3 mb-3">
+                <!-- Card Esquerdo: Participante, Erros & Ações -->
+                <div class="sm-panel p-2.5 sm:p-3 flex flex-col justify-between shadow-xl">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-200 text-slate-950 font-black text-xs sm:text-sm shrink-0 shadow-md">
+                            {{ mb_strtoupper(mb_substr($jogador_nome ?? 'P', 0, 1)) }}
+                        </div>
+                        <div class="min-w-0 flex-1 leading-tight">
+                            <p class="text-xs font-black text-white truncate">{{ $jogador_nome ?? 'Participante' }}</p>
+                            <div class="flex items-center gap-1 mt-0.5" title="Erros cometidos">
+                                <span class="text-[8px] uppercase font-black text-blue-200">Erros:</span>
+                                @for($i = 1; $i <= ($max_erros ?? 3); $i++)
+                                    <span class="w-2 h-2 rounded-full {{ $i <= ($erros_count ?? 0) ? 'bg-rose-500 shadow-sm shadow-rose-500/80 border border-rose-300' : 'bg-blue-950 border border-blue-400/40' }}"></span>
+                                @endfor
+                            </div>
                         </div>
                     </div>
+                    <div class="flex items-center justify-between gap-1 mt-2 pt-2 border-t border-blue-400/20">
+                        <button type="button" onclick="abrirEscadaPremios()" class="sm-lifeline !w-7 !h-7 sm:!w-8 sm:!h-8 flex items-center justify-center cursor-pointer" title="Escada de Prêmios">
+                            <svg class="w-3.5 h-3.5 text-amber-300 fill-current" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0011 15.9V19H7v2h10v-2h-4v-3.1c1.94-.37 3.5-1.99 3.61-3.96C19.08 11.63 21 9.55 21 7V5c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
+                        </button>
+                        <button type="button" onclick="typeof abrirModalDefinicoes === 'function' && abrirModalDefinicoes()" class="sm-lifeline !w-7 !h-7 sm:!w-8 sm:!h-8 flex items-center justify-center cursor-pointer" title="Definições e Som">
+                            <svg class="w-3.5 h-3.5 text-blue-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        </button>
+                        <button type="button" onclick="abrirModalConfirmarParar()" class="sm-lifeline !w-7 !h-7 sm:!w-8 sm:!h-8 flex items-center justify-center !border-rose-400 cursor-pointer" title="Parar e ver resultado">
+                            <svg class="w-3.5 h-3.5 text-rose-300" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                        </button>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 shrink-0">
-                    <button type="button" onclick="abrirEscadaPremios()" class="sm-lifeline !w-9 !h-9 flex items-center justify-center" title="Escada de Prêmios">
-                        <svg class="w-4 h-4 text-amber-300 fill-current" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0011 15.9V19H7v2h10v-2h-4v-3.1c1.94-.37 3.5-1.99 3.61-3.96C19.08 11.63 21 9.55 21 7V5c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
-                    </button>
-                    <button type="button" onclick="typeof abrirModalDefinicoes === 'function' && abrirModalDefinicoes()" class="sm-lifeline !w-9 !h-9 flex items-center justify-center" title="Definições e Som">
-                        <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                    </button>
-                    <button type="button" onclick="abrirModalConfirmarParar()" class="sm-lifeline !w-9 !h-9 flex items-center justify-center !border-rose-400" title="Parar e ver resultado">
-                        <svg class="w-4 h-4 text-rose-300" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
-                    </button>
+
+                <!-- Card Direito: Rodada Atual, Fase & Tempo Restante -->
+                <div class="sm-panel p-2.5 sm:p-3 flex flex-col justify-between shadow-xl">
+                    <div class="flex items-start justify-between gap-1 min-w-0">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-200 text-slate-950 font-black text-xs sm:text-sm shrink-0 shadow-md">
+                                {{ $numero_pergunta }}
+                            </div>
+                            <div class="min-w-0 leading-tight">
+                                <span class="text-[10px] font-black uppercase text-amber-300 tracking-wider truncate block">
+                                    Q. {{ $numero_pergunta }}/{{ $total_perguntas }}
+                                </span>
+                                <span class="text-[9px] text-blue-200 truncate block font-bold">
+                                    {{ $pergunta['livro_nome'] ?? 'Escrituras' }}
+                                </span>
+                            </div>
+                        </div>
+                        <span class="sm-pill !px-1.5 !py-0.2 !text-[9px] font-black shrink-0">F{{ $fase_atual ?? 1 }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-1 mt-2 pt-2 border-t border-blue-400/20">
+                        <span class="text-[8px] sm:text-[9px] font-black uppercase tracking-wider text-blue-200">TEMPO:</span>
+                        <div id="timerContainerBoxMobile" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg bg-blue-950/90 border border-amber-400/50 text-amber-300 font-mono font-black text-xs sm:text-sm shadow-inner transition-all">
+                            <svg class="w-3 h-3 text-amber-400 animate-pulse shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="9"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 3"/>
+                            </svg>
+                            <span class="js-timer">{{ $tempo_restante }}</span>s
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -294,8 +327,8 @@
                 <!-- ARENA CENTRAL DO JOGO: TEMPORIZADOR, PERGUNTA E AJUDAS   -->
                 <!-- ======================================================== -->
                 <main class="lg:col-span-8 xl:col-span-8 space-y-4 sm:space-y-5">
-                    <!-- Barra de Destaque Superior: Pergunta & Cronômetro -->
-                    <div class="sm-panel p-4 sm:p-5 shadow-2xl flex flex-wrap items-center justify-between gap-4">
+                    <!-- Barra de Destaque Superior: Pergunta & Cronômetro (Visível apenas em Desktop, no Mobile fica no topo lado a lado) -->
+                    <div class="hidden lg:flex sm-panel p-4 sm:p-5 shadow-2xl items-center justify-between gap-4">
                         <div class="flex items-center gap-3.5">
                             <div class="w-12 h-12 rounded-2xl bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-200 text-slate-950 font-black text-xl shrink-0 shadow-lg shadow-amber-500/30">
                                 {{ $numero_pergunta }}
@@ -1594,9 +1627,11 @@
                         el.textContent = Math.max(0, tempo);
                     });
                     const box = document.getElementById('timerContainerBox');
+                    const boxMob = document.getElementById('timerContainerBoxMobile');
                     if (tempo <= 10) {
                         if (timerEl) timerEl.classList.add('timer-warning');
                         if (box) box.classList.add('timer-box-warning');
+                        if (boxMob) boxMob.classList.add('timer-box-warning');
                         tocarSomContagemRegressiva(tempo);
                     }
                     if (hiddenTempo) hiddenTempo.value = Math.max(0, tempoInicial - tempo);

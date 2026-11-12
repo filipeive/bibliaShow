@@ -23,9 +23,9 @@ class SoloGameScreen extends StatelessWidget {
 
         return PopScope(
           canPop: false,
-          onPopInvoked: (didPop) async {
+          onPopInvokedWithResult: (didPop, result) async {
             if (didPop) return;
-            final querSair = await ConfirmExitDialog.mostrar(
+            await ConfirmExitDialog.mostrar(
               context,
               pontuacaoAtual: game.pontuacao,
               perguntaAtual: game.perguntaNumero,
@@ -75,12 +75,12 @@ class SoloGameScreen extends StatelessWidget {
   Widget _buildTopBar(BuildContext context, GameEngineService game) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.panelBg,
-        border: const Border(bottom: BorderSide(color: AppColors.panelBorder)),
+        border: Border(bottom: BorderSide(color: AppColors.panelBorder)),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.between,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [

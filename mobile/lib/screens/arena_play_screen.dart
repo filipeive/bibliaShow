@@ -120,9 +120,9 @@ class _ArenaPlayScreenState extends State<ArenaPlayScreen> {
 
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
-        final querSair = await ConfirmExitDialog.mostrar(
+        await ConfirmExitDialog.mostrar(
           context,
           pontuacaoAtual: _pontuacao,
           perguntaAtual: _salaData?['numero_pergunta'] as int? ?? 1,
@@ -162,12 +162,12 @@ class _ArenaPlayScreenState extends State<ArenaPlayScreen> {
   Widget _buildHeader(int tempo) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.panelBg,
-        border: const Border(bottom: BorderSide(color: AppColors.panelBorder)),
+        border: Border(bottom: BorderSide(color: AppColors.panelBorder)),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.between,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [

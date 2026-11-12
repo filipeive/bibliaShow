@@ -1,6 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vibration/vibration.dart';
 
 class AudioService {
   static final AudioService instance = AudioService._internal();
@@ -62,34 +62,25 @@ class AudioService {
   Future<void> vibrate([int durationMs = 40]) async {
     if (_isMuted) return;
     try {
-      final hasVibrator = await Vibration.hasVibrator();
-      if (hasVibrator == true) {
-        await Vibration.vibrate(duration: durationMs);
-      }
+      await HapticFeedback.selectionClick();
     } catch (_) {}
   }
 
   Future<void> vibrateSuccess() async {
     if (_isMuted) return;
     try {
-      final hasPattern = await Vibration.hasCustomVibrationsSupport();
-      if (hasPattern == true) {
-        await Vibration.vibrate(pattern: [0, 50, 60, 100]);
-      } else {
-        await Vibration.vibrate(duration: 80);
-      }
+      await HapticFeedback.mediumImpact();
+      await Future.delayed(const Duration(milliseconds: 70));
+      await HapticFeedback.mediumImpact();
     } catch (_) {}
   }
 
   Future<void> vibrateError() async {
     if (_isMuted) return;
     try {
-      final hasPattern = await Vibration.hasCustomVibrationsSupport();
-      if (hasPattern == true) {
-        await Vibration.vibrate(pattern: [0, 120, 80, 150]);
-      } else {
-        await Vibration.vibrate(duration: 180);
-      }
+      await HapticFeedback.heavyImpact();
+      await Future.delayed(const Duration(milliseconds: 100));
+      await HapticFeedback.heavyImpact();
     } catch (_) {}
   }
 }
