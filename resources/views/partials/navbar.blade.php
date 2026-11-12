@@ -3,12 +3,29 @@
     $rotaAtual = request()->route()?->getName() ?? '';
     $nomeJogadorSessao = session('jogador_nome', auth()->user()?->nome ?? '');
     $hideOnMobile = $hideOnMobile ?? false;
+
+    $jogoAtivoNavbar = null;
+    try {
+        $dadosEngineNav = session('game_engine');
+        if (!empty($dadosEngineNav)) {
+            $engineNav = \App\Game\Engine\GameEngine::desserializarSeguro($dadosEngineNav);
+            if ($engineNav) {
+                $stNav = $engineNav->getState();
+                if (($stNav['estado'] ?? '') === 'em_curso' && !empty($stNav['pergunta_atual'])) {
+                    $jogoAtivoNavbar = [
+                        'numero' => $stNav['numero_pergunta'] ?? 1,
+                        'total' => $stNav['total_perguntas'] ?? 24,
+                    ];
+                }
+            }
+        }
+    } catch (\Throwable $e) {}
 @endphp
 <nav class="bg-gradient-to-b from-[#0e2169]/95 via-[#0a164a]/95 to-[#060e33]/98 border-b-2 border-amber-400/40 text-slate-100 backdrop-blur-md sticky top-0 z-50 shadow-2xl shadow-blue-950/60 {{ $hideOnMobile ? 'hidden sm:block' : '' }}">
     <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16 gap-2">
             <!-- Brand / Logo (Auditório Show do Milhão) -->
-            <a href="/" class="flex items-center gap-2.5 shrink-0 group">
+            <a href="/" onclick="if(typeof tentarSairJogoAoVivo === 'function') { return tentarSairJogoAoVivo(event, '/'); }" class="flex items-center gap-2.5 shrink-0 group">
                 <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-300 via-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/30 text-slate-950 group-hover:scale-105 transition border-2 border-amber-200">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
@@ -54,14 +71,23 @@
             <!-- Right Side Actions -->
             <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0 whitespace-nowrap">
                 @if(!request()->routeIs('game.*') && !request()->is('jogar*') && !request()->is('entrar*') && !($hideJogarAgora ?? false))
-                    <!-- Botão Principal Destacado: JOGAR AGORA (Desktop e Tablets) -->
-                    <button type="button" onclick="abrirModalJogarAgora()"
-                            class="sm-cta !w-auto !py-2 !px-4 sm:!px-5 !text-xs sm:!text-sm cursor-pointer shadow-lg hidden sm:inline-flex">
-                        <svg class="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
-                            <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
-                        </svg>
-                        <span>Jogar Agora</span>
-                    </button>
+                    @if($jogoAtivoNavbar)
+                        <!-- Botão de Continuar Jogo em Andamento -->
+                        <a href="{{ route('game.play') }}"
+                           class="sm-cta !w-auto !py-2 !px-4 sm:!px-5 !text-xs sm:!text-sm cursor-pointer shadow-lg hidden sm:inline-flex items-center gap-2 animate-pulse">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                            <span>Continuar Jogo ({{ $jogoAtivoNavbar['numero'] }}/{{ $jogoAtivoNavbar['total'] }})</span>
+                        </a>
+                    @else
+                        <!-- Botão Principal Destacado: JOGAR AGORA (Desktop e Tablets) -->
+                        <button type="button" onclick="abrirModalJogarAgora()"
+                                class="sm-cta !w-auto !py-2 !px-4 sm:!px-5 !text-xs sm:!text-sm cursor-pointer shadow-lg hidden sm:inline-flex">
+                            <svg class="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
+                                <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                            </svg>
+                            <span>Jogar Agora</span>
+                        </button>
+                    @endif
                 @endif
 
                 <!-- Botão de Definições (Sons & Jogo) - Desktop -->
@@ -122,6 +148,16 @@
 
     <!-- Dropdown / Drawer do Menu de 3 Pontinhos no Mobile -->
     <div id="menuTresPontinhosMobile" class="hidden sm:hidden border-t border-amber-500/20 bg-gradient-to-b from-[#0a164a]/98 to-[#060e33]/98 px-3.5 py-3 space-y-1.5 backdrop-blur-md shadow-2xl">
+        @if($jogoAtivoNavbar && !request()->routeIs('game.*'))
+            <a href="{{ route('game.play') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-black text-xs text-slate-950 bg-gradient-to-r from-amber-300 via-amber-400 to-amber-500 shadow-lg border border-amber-200 animate-pulse">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping shrink-0"></span>
+                <div>
+                    <div class="font-black text-xs">Continuar Jogo em Andamento</div>
+                    <div class="text-[10px] text-slate-900 font-bold">Pergunta {{ $jogoAtivoNavbar['numero'] }} de {{ $jogoAtivoNavbar['total'] }}</div>
+                </div>
+            </a>
+        @endif
         <button type="button" onclick="abrirModalDefinicoes(); toggleMenuTresPontinhosMobile();"
                 class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left font-bold text-xs text-blue-100 hover:bg-blue-900/50 transition border border-transparent hover:border-blue-400/30">
             <div class="w-8 h-8 rounded-lg bg-blue-900/60 border border-blue-400/30 flex items-center justify-center text-amber-400 shrink-0">

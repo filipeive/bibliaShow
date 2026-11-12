@@ -129,12 +129,9 @@
                     <button type="button" onclick="typeof abrirModalDefinicoes === 'function' && abrirModalDefinicoes()" class="sm-lifeline !w-9 !h-9 flex items-center justify-center" title="Definições e Som">
                         <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                     </button>
-                    <form action="{{ route('game.finish') }}" method="POST" class="inline">
-                        @csrf
-                        <button type="submit" class="sm-lifeline !w-9 !h-9 flex items-center justify-center !border-rose-400" title="Parar e ver resultado">
-                            <svg class="w-4 h-4 text-rose-300" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
-                        </button>
-                    </form>
+                    <button type="button" onclick="abrirModalConfirmarParar()" class="sm-lifeline !w-9 !h-9 flex items-center justify-center !border-rose-400" title="Parar e ver resultado">
+                        <svg class="w-4 h-4 text-rose-300" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                    </button>
                 </div>
             </div>
 
@@ -171,16 +168,14 @@
                                 <span>Reiniciar</span>
                             </a>
 
-                            <form action="{{ route('game.finish') }}" method="POST" class="inline w-full">
-                                @csrf
-                                <button type="submit"
-                                        class="w-full inline-flex items-center justify-center gap-2 text-xs bg-rose-600/30 hover:bg-rose-600/40 text-rose-200 border border-rose-400/50 py-2.5 px-3 rounded-xl font-bold transition shadow">
-                                    <svg class="w-3.5 h-3.5 text-rose-300 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                                        <rect x="6" y="6" width="12" height="12" rx="2"/>
-                                    </svg>
-                                    <span>Parar</span>
-                                </button>
-                            </form>
+                            <button type="button"
+                                    onclick="abrirModalConfirmarParar()"
+                                    class="w-full inline-flex items-center justify-center gap-2 text-xs bg-rose-600/30 hover:bg-rose-600/40 text-rose-200 border border-rose-400/50 py-2.5 px-3 rounded-xl font-bold transition shadow">
+                                <svg class="w-3.5 h-3.5 text-rose-300 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                                    <rect x="6" y="6" width="12" height="12" rx="2"/>
+                                </svg>
+                                <span>Parar</span>
+                            </button>
                         </div>
                     </div>
 
@@ -371,7 +366,7 @@
 
                         <!-- Card de Pergunta Oficial Show do Milhão (.sm-question) -->
                         <div class="sm-question p-6 sm:p-8 mb-5 sm:mb-6 min-h-[130px] sm:min-h-[150px] flex items-center justify-center text-center">
-                            <p class="sm-question-text text-lg sm:text-2xl font-black text-white leading-relaxed tracking-tight select-none">
+                            <p class="sm-question-text text-lg sm:text-4xl font-black text-white leading-relaxed tracking-tight select-none">
                                 {{ $pergunta['texto'] ?? $pergunta->texto }}
                             </p>
                         </div>
@@ -851,12 +846,123 @@
                 </div>
             </div>
 
+            <!-- Modal 4: Confirmação de Parar a Partida -->
+            <div id="modalConfirmarParar" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/85 backdrop-blur-md p-4">
+                <div class="sm-panel max-w-md w-full p-6 sm:p-8 text-center relative text-white shadow-2xl">
+                    <div class="inline-flex items-center justify-center mb-2">
+                        <span class="sm-pill text-xs uppercase tracking-wider">PARAR A PARTIDA</span>
+                    </div>
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-b from-rose-400 via-rose-600 to-rose-800 flex items-center justify-center border-2 border-rose-300 shadow-xl shadow-rose-500/30 text-white mx-auto mb-3">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <rect x="6" y="6" width="12" height="12" rx="2"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl sm:text-3xl font-black text-white sm-logo-title mb-2">Deseja Parar Agora?</h3>
+                    <p class="text-xs sm:text-sm text-blue-200 mb-3 leading-relaxed">
+                        Você já acumulou <strong class="text-amber-300 font-black text-base">{{ $pontuacao }} pontos</strong> nesta jornada!
+                    </p>
+                    <p class="text-xs text-blue-300/80 mb-6">
+                        Se parar agora, seus <strong>{{ $pontuacao }} pontos</strong> ficarão garantidos no Ranking Geral do Bíblia Show.
+                    </p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" onclick="fecharModalConfirmarParar()"
+                                class="py-3 px-4 rounded-full bg-blue-900/70 hover:bg-blue-800 text-blue-200 font-extrabold text-xs uppercase tracking-wider border-2 border-blue-400/40 transition">
+                            Continuar Jogando
+                        </button>
+                        <form action="{{ route('game.finish') }}" method="POST" class="inline" onsubmit="desarmarBeforeUnload()">
+                            @csrf
+                            <button type="submit" class="sm-cta !py-3 !text-xs cursor-pointer w-full">
+                                Sim, Parar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal 5: Confirmação de Saída / Pausa do Jogo -->
+            <div id="modalConfirmarSaida" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/85 backdrop-blur-md p-4">
+                <div class="sm-panel max-w-md w-full p-6 sm:p-8 text-center relative text-white shadow-2xl">
+                    <div class="inline-flex items-center justify-center mb-2">
+                        <span class="sm-pill text-xs uppercase tracking-wider">PAUSAR PARTIDA</span>
+                    </div>
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-200 shadow-xl shadow-amber-500/30 text-slate-950 mx-auto mb-3">
+                        <svg class="w-8 h-8 text-slate-950" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl sm:text-3xl font-black text-white sm-logo-title mb-2">Voltar ao Início?</h3>
+                    <p class="text-xs sm:text-sm text-blue-200 mb-4 leading-relaxed">
+                        Você está na <strong class="text-amber-300 font-black">Pergunta {{ $numero_pergunta }} de {{ $total_perguntas }}</strong>. Seu progresso continuará salvo para você continuar quando quiser!
+                    </p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" onclick="fecharModalConfirmarSaida()"
+                                class="sm-cta !py-3 !text-xs cursor-pointer">
+                            Continuar no Palco
+                        </button>
+                        <a id="linkDestinoSaida" href="/" onclick="desarmarBeforeUnload()"
+                           class="py-3 px-4 rounded-full bg-blue-900/70 hover:bg-blue-800 text-blue-200 font-extrabold text-xs uppercase tracking-wider border-2 border-blue-400/40 transition flex items-center justify-center">
+                            Ir para Início
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             <script>
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
                 const BASE_AUDIO_URL = "{{ asset('audio/classico') }}";
                 let precisaIdentificar = {{ !empty($precisa_identificacao) ? 'true' : 'false' }};
                 let perguntarContinuar = {{ !empty($perguntar_continuar) ? 'true' : 'false' }};
                 let jogoIniciado = !precisaIdentificar && !perguntarContinuar;
+
+                function abrirModalConfirmarParar() {
+                    vibrar(30);
+                    const m = document.getElementById('modalConfirmarParar');
+                    if (m) {
+                        m.classList.remove('hidden');
+                        m.classList.add('flex');
+                    }
+                }
+
+                function fecharModalConfirmarParar() {
+                    const m = document.getElementById('modalConfirmarParar');
+                    if (m) {
+                        m.classList.add('hidden');
+                        m.classList.remove('flex');
+                    }
+                }
+
+                function tentarSairJogoAoVivo(e, destinoUrl = '/') {
+                    if (!jogoIniciado || enviado) return true;
+                    if (e) e.preventDefault();
+                    const modal = document.getElementById('modalConfirmarSaida');
+                    const link = document.getElementById('linkDestinoSaida');
+                    if (link) link.href = destinoUrl;
+                    if (modal) {
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex');
+                    }
+                    return false;
+                }
+
+                function fecharModalConfirmarSaida() {
+                    const modal = document.getElementById('modalConfirmarSaida');
+                    if (modal) {
+                        modal.classList.add('hidden');
+                        modal.classList.remove('flex');
+                    }
+                }
+
+                let beforeUnloadArmado = true;
+                function desarmarBeforeUnload() {
+                    beforeUnloadArmado = false;
+                }
+
+                window.addEventListener('beforeunload', (e) => {
+                    if (beforeUnloadArmado && jogoIniciado && !enviado) {
+                        e.preventDefault();
+                        e.returnValue = '';
+                    }
+                });
 
                 function vibrar(padrao = 30) {
                     const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : (localStorage.getItem('biblia_show_som') !== 'off');
@@ -1358,6 +1464,7 @@
                             await tocarEfeitoComPromise(data.som_efeito);
 
                             if (data.perdeu_partida) {
+                                desarmarBeforeUnload();
                                 const modalFim = document.getElementById('modalFimAmigavel');
                                 const txtMsg = document.getElementById('textoMensagemAmigavel');
                                 const ptsFim = document.getElementById('pontosModalFim');
@@ -1375,10 +1482,12 @@
                             }
 
                             setTimeout(() => {
+                                desarmarBeforeUnload();
                                 window.location.href = data.redirect_url || "{{ route('game.play') }}";
                             }, 1800);
                         }, 1300);
                     } catch (e) {
+                        desarmarBeforeUnload();
                         document.getElementById('respostaSelecionada').value = indiceEscolhido ?? '';
                         document.getElementById('tempoEsgotadoInput').value = indiceEscolhido === null ? '1' : '0';
                         document.getElementById('respostaForm').submit();

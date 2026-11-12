@@ -20,6 +20,28 @@
 
 <body class="sm-stage text-slate-100 min-h-screen flex flex-col selection:bg-amber-500 selection:text-slate-950">
 
+    @php
+        $jogoAtivoInfo = null;
+        try {
+            $dadosEngine = session('game_engine');
+            if (!empty($dadosEngine)) {
+                $engine = \App\Game\Engine\GameEngine::desserializarSeguro($dadosEngine);
+                if ($engine) {
+                    $st = $engine->getState();
+                    if (($st['estado'] ?? '') === 'em_curso' && !empty($st['pergunta_atual'])) {
+                        $jogoAtivoInfo = [
+                            'numero' => $st['numero_pergunta'] ?? 1,
+                            'total' => $st['total_perguntas'] ?? 24,
+                            'fase' => $st['fase_atual'] ?? 1,
+                            'pontos' => $st['placar_individual'][1] ?? 0,
+                            'jogador' => session('jogador_nome', 'Participante'),
+                        ];
+                    }
+                }
+            }
+        } catch (\Throwable $e) {}
+    @endphp
+
     <!-- Navbar Estilizada -->
     @include('partials.navbar', ['dark' => true])
 
@@ -49,16 +71,60 @@
                         A recriação fiel do clássico dos anos 2000 no formato <strong>Show do Milhão</strong>: 4 fases (10, 20, 30 e 50 pontos), Cartas 50/50, Personagens Bíblicos e salas ao vivo para cultos e jovens!
                     </p>
 
-                    <!-- Ações Principais (Ultra-otimizadas para Mobile) -->
+                    <!-- BANNER FLUÍDO: Partida em Andamento Detectada -->
+                    @if($jogoAtivoInfo)
+                        <div class="sm-panel !p-4 border-2 !border-amber-300 shadow-2xl bg-gradient-to-r from-amber-500/25 via-blue-900/80 to-blue-950/90 text-left max-w-xl mx-auto lg:mx-0">
+                            <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <div class="w-12 h-12 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-200 text-slate-950 font-black text-xl shrink-0 shadow-lg shadow-amber-500/30">
+                                        {{ mb_strtoupper(mb_substr($jogoAtivoInfo['jogador'] ?? 'P', 0, 1)) }}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="flex items-center gap-2">
+                                            <span class="sm-pill !px-2 !py-0.5 !text-[9px] uppercase font-black">Partida em Curso</span>
+                                            <span class="text-xs font-black text-amber-300">{{ $jogoAtivoInfo['fase'] }}ª Fase</span>
+                                        </div>
+                                        <p class="font-black text-white text-sm sm:text-base truncate mt-0.5">
+                                            {{ $jogoAtivoInfo['jogador'] }} • Pergunta {{ $jogoAtivoInfo['numero'] }} de {{ $jogoAtivoInfo['total'] }} ({{ $jogoAtivoInfo['pontos'] }} pts)
+                                        </p>
+                                    </div>
+                                </div>
+                                <a href="{{ route('game.play') }}"
+                                   class="sm-cta !w-full sm:!w-auto !py-2.5 !px-5 !text-xs sm:!text-sm shrink-0 shadow-xl cursor-pointer">
+                                    Continuar Jogo →
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Ações Principais (Ultra-otimizadas para Mobile e Desktop) -->
                     <div class="space-y-3 pt-1 max-w-md mx-auto lg:mx-0">
-                        <!-- Botão Gigante Ouro: Jogar Modo Individual -->
-                        <a href="{{ route('game.play', ['novo' => 1]) }}"
-                           class="sm-cta !text-sm sm:!text-base cursor-pointer shadow-2xl py-3.5 sm:py-4">
-                            <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
-                                <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
-                            </svg>
-                            <span>Jogar</span>
-                        </a>
+                        @if($jogoAtivoInfo)
+                            <!-- Botão de Continuar Jogo em Andamento -->
+                            <a href="{{ route('game.play') }}"
+                               class="sm-cta !text-sm sm:!text-base cursor-pointer shadow-2xl py-3.5 sm:py-4">
+                                <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
+                                    <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                                </svg>
+                                <span>Continuar Partida (Pergunta {{ $jogoAtivoInfo['numero'] }})</span>
+                            </a>
+                            <div class="text-center">
+                                <a href="{{ route('game.play', ['novo' => 1]) }}"
+                                   onclick="return confirm('Deseja iniciar uma nova partida? O progresso da partida atual será reiniciado.');"
+                                   class="text-xs font-bold text-blue-300 hover:text-amber-300 hover:underline transition">
+                                    ⟳ Ou iniciar uma nova partida do zero
+                                </a>
+                            </div>
+                        @else
+                            <!-- Botão Ouro Clássico: Jogar Modo Individual -->
+                            <a href="{{ route('game.play', ['novo' => 1]) }}"
+                               class="sm-cta !text-sm sm:!text-base cursor-pointer shadow-2xl py-3.5 sm:py-4">
+                                <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
+                                    <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                                </svg>
+                                <span>Jogar Agora</span>
+                            </a>
+                        @endif
 
                         <!-- Caixa Rápida: Entrar em Sala por Código -->
                         <form action="{{ route('entrar.view') }}" method="GET"
@@ -96,7 +162,7 @@
                     </div>
                 </div>
 
-                <!-- Coluna Direita: Preview da Arena (Exibido no Desktop; Ocultado em Telas Pequenas para não poluir o celular!) -->
+                <!-- Coluna Direita: Preview da Arena (Show do Milhão Autêntico) -->
                 <div class="hidden lg:block lg:col-span-5">
                     <div class="sm-panel p-6 shadow-2xl relative">
                         <!-- Topo do Card Preview: Pílula Dourada e Cronômetro -->
@@ -112,7 +178,7 @@
                             <span class="sm-timer !w-9 !h-9 !text-xs !border-amber-400">60s</span>
                         </div>
 
-                        <!-- Pergunta Exemplo Real do Clássico -->
+                        <!-- Pergunta Exemplo Real do Clássico (.sm-question azul vibrante) -->
                         <div class="sm-question pt-4 pb-3.5 px-4 mb-3 shadow-lg">
                             <p class="text-[10px] font-bold uppercase tracking-wider text-blue-200/80 mb-1">Gênesis 6:14 • Pergunta #001</p>
                             <p class="sm-question-text text-base sm:text-lg leading-snug">
@@ -122,7 +188,7 @@
 
                         <!-- Balão do Convidado Bíblico -->
                         <div class="flex items-center gap-2 mb-3 px-1">
-                            <div class="sm-avatar !w-8 !h-8 text-xs">J</div>
+                            <div class="w-7 h-7 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border border-amber-200 text-slate-950 font-black text-xs">J</div>
                             <div class="sm-speech flex-1 text-xs">
                                 <span class="block text-[9px] uppercase tracking-wider text-blue-700 font-black">Convidado Jacó:</span>
                                 Parece que a resposta é <strong class="text-amber-600 font-black">B</strong>
@@ -161,16 +227,16 @@
                         <!-- Placar 3 Lingotes (ERRAR | PARAR | ACERTAR) -->
                         <div class="grid grid-cols-3 gap-2 pt-2 border-t border-blue-400/20">
                             <div class="sm-ingot is-errar">
-                                <div class="sm-ingot-value">0 pts</div>
                                 <div class="sm-ingot-label">Errar</div>
+                                <div class="sm-ingot-value">0 pts</div>
                             </div>
                             <div class="sm-ingot">
-                                <div class="sm-ingot-value">0 pts</div>
                                 <div class="sm-ingot-label">Parar</div>
+                                <div class="sm-ingot-value">0 pts</div>
                             </div>
                             <div class="sm-ingot is-acertar">
-                                <div class="sm-ingot-value">10 pts</div>
                                 <div class="sm-ingot-label">Acertar</div>
+                                <div class="sm-ingot-value">10 pts</div>
                             </div>
                         </div>
 
@@ -181,23 +247,23 @@
                 </div>
             </div>
 
-            <!-- Faixa Rápida de Estatísticas em Pílulas (Concisa em Mobile e Desktop) -->
+            <!-- Faixa Rápida de Estatísticas em Pílulas (Harmonia de Auditório) -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-10">
-                <div class="sm-panel p-3.5 text-center">
-                    <p class="text-2xl font-black text-amber-300">1.000+</p>
-                    <p class="text-[10px] sm:text-xs font-bold text-blue-200 uppercase tracking-wider mt-0.5">Questões Oficiais</p>
+                <div class="sm-panel p-4 text-center">
+                    <p class="text-2xl sm:text-3xl font-black text-amber-300">1.000+</p>
+                    <p class="text-[10px] sm:text-xs font-black text-blue-200 uppercase tracking-wider mt-1">Questões Oficiais</p>
                 </div>
-                <div class="sm-panel p-3.5 text-center">
-                    <p class="text-2xl font-black text-emerald-400">66 Livros</p>
-                    <p class="text-[10px] sm:text-xs font-bold text-blue-200 uppercase tracking-wider mt-0.5">Velho & Novo Testamento</p>
+                <div class="sm-panel p-4 text-center">
+                    <p class="text-2xl sm:text-3xl font-black text-emerald-300">66 Livros</p>
+                    <p class="text-[10px] sm:text-xs font-black text-blue-200 uppercase tracking-wider mt-1">Velho & Novo Testamento</p>
                 </div>
-                <div class="sm-panel p-3.5 text-center">
-                    <p class="text-2xl font-black text-blue-300">25 Sons</p>
-                    <p class="text-[10px] sm:text-xs font-bold text-blue-200 uppercase tracking-wider mt-0.5">Efeitos & Trilhas</p>
+                <div class="sm-panel p-4 text-center">
+                    <p class="text-2xl sm:text-3xl font-black text-blue-200">25 Sons</p>
+                    <p class="text-[10px] sm:text-xs font-black text-blue-200 uppercase tracking-wider mt-1">Efeitos & Trilhas</p>
                 </div>
-                <div class="sm-panel p-3.5 text-center">
-                    <p class="text-2xl font-black text-purple-300">4 Fases</p>
-                    <p class="text-[10px] sm:text-xs font-bold text-blue-200 uppercase tracking-wider mt-0.5">Escada do Milhão</p>
+                <div class="sm-panel p-4 text-center">
+                    <p class="text-2xl sm:text-3xl font-black text-amber-400">4 Fases</p>
+                    <p class="text-[10px] sm:text-xs font-black text-blue-200 uppercase tracking-wider mt-1">Escada do Milhão</p>
                 </div>
             </div>
         </div>
@@ -209,7 +275,7 @@
             <div class="flex items-center justify-between gap-4 mb-6">
                 <div>
                     <span class="text-[10px] font-black uppercase tracking-widest text-amber-300">Estrutura Oficial</span>
-                    <h2 class="text-xl sm:text-2xl font-black text-white mt-0.5">Mecânica das 4 Fases</h2>
+                    <h2 class="text-xl sm:text-2xl font-black text-white mt-0.5 sm-logo-title">Mecânica das 4 Fases</h2>
                 </div>
                 <a href="{{ route('curiosidades') }}" class="text-xs font-bold text-amber-300 hover:underline">
                     Ver Regras →
@@ -218,23 +284,23 @@
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                 <div class="sm-panel p-4 text-center">
-                    <span class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-200 font-black text-[10px] uppercase">1ª Fase</span>
-                    <h3 class="text-sm font-black text-white mt-1.5">Fácil</h3>
+                    <span class="px-2.5 py-0.5 rounded-full bg-blue-900 text-blue-200 font-black text-[10px] uppercase border border-blue-400/30">1ª Fase</span>
+                    <h3 class="text-sm font-black text-white mt-2">Fácil</h3>
                     <p class="text-xs text-emerald-300 font-bold mt-1">+10 pts / acerto</p>
                 </div>
                 <div class="sm-panel p-4 text-center">
-                    <span class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-200 font-black text-[10px] uppercase">2ª Fase</span>
-                    <h3 class="text-sm font-black text-white mt-1.5">Média</h3>
+                    <span class="px-2.5 py-0.5 rounded-full bg-blue-900 text-blue-200 font-black text-[10px] uppercase border border-blue-400/30">2ª Fase</span>
+                    <h3 class="text-sm font-black text-white mt-2">Média</h3>
                     <p class="text-xs text-emerald-300 font-bold mt-1">+20 pts / acerto</p>
                 </div>
                 <div class="sm-panel p-4 text-center">
-                    <span class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-200 font-black text-[10px] uppercase">3ª Fase</span>
-                    <h3 class="text-sm font-black text-white mt-1.5">Difícil</h3>
+                    <span class="px-2.5 py-0.5 rounded-full bg-blue-900 text-blue-200 font-black text-[10px] uppercase border border-blue-400/30">3ª Fase</span>
+                    <h3 class="text-sm font-black text-white mt-2">Difícil</h3>
                     <p class="text-xs text-emerald-300 font-bold mt-1">+30 pts / acerto</p>
                 </div>
-                <div class="sm-panel p-4 text-center border-2 !border-amber-400/60">
-                    <span class="px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[10px] uppercase">4ª Fase</span>
-                    <h3 class="text-sm font-black text-amber-300 mt-1.5">Desafio</h3>
+                <div class="sm-panel p-4 text-center border-2 !border-amber-300">
+                    <span class="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[10px] uppercase shadow">4ª Fase</span>
+                    <h3 class="text-sm font-black text-amber-300 mt-2">Desafio Final</h3>
                     <p class="text-xs text-amber-300 font-bold mt-1">+50 pts / acerto</p>
                 </div>
             </div>
@@ -247,7 +313,7 @@
             <div class="flex items-center justify-between gap-4 mb-6">
                 <div>
                     <span class="text-[10px] font-black uppercase tracking-widest text-amber-300">Estudos Históricos</span>
-                    <h2 class="text-xl sm:text-2xl font-black text-white mt-0.5">Enciclopédia Ilustrada</h2>
+                    <h2 class="text-xl sm:text-2xl font-black text-white mt-0.5 sm-logo-title">Enciclopédia Ilustrada</h2>
                 </div>
                 <a href="{{ route('curiosidades') }}" class="text-xs font-bold text-amber-300 hover:underline">
                     Ver os 10 artigos →
@@ -261,11 +327,11 @@
                         ['img' => '/images/classico/Septuaginta.jpg', 'titulo' => 'A Septuaginta', 'desc' => 'Tradução grega no Egito.'],
                         ['img' => '/images/classico/Portugues.jpg', 'titulo' => 'Em Português', 'desc' => 'João Ferreira de Almeida.'],
                     ] as $card)
-                    <a href="{{ route('curiosidades') }}" class="sm-panel overflow-hidden group block transition hover:scale-[1.02]">
+                    <a href="{{ route('curiosidades') }}" class="sm-panel overflow-hidden group block transition hover:scale-[1.02] shadow-xl">
                         <div class="h-24 sm:h-32 overflow-hidden relative bg-blue-950">
-                            <img src="{{ $card['img'] }}" alt="{{ $card['titulo'] }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-85">
+                            <img src="{{ $card['img'] }}" alt="{{ $card['titulo'] }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-90">
                         </div>
-                        <div class="p-3">
+                        <div class="p-3.5">
                             <h3 class="font-black text-white text-xs sm:text-sm truncate">{{ $card['titulo'] }}</h3>
                             <p class="text-[10px] text-blue-200 mt-0.5 truncate">{{ $card['desc'] }}</p>
                         </div>
@@ -279,7 +345,7 @@
     <div class="sm-crowd w-full mt-auto"></div>
 
     <!-- Footer Clássico -->
-    <footer class="border-t border-blue-400/20 bg-[#060e33] py-6 px-4 sm:px-6 lg:px-8 text-xs text-blue-200">
+    <footer class="border-t-2 border-blue-400/20 bg-[#060e33] py-6 px-4 sm:px-6 lg:px-8 text-xs text-blue-200">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-2">
                 <span class="sm-pill !px-2 !py-0.5 !text-[9px]">2.0</span>
@@ -296,7 +362,6 @@
     </footer>
 
     <script>
-        // Toca automaticamente a trilha clássica ao entrar na página inicial
         let musicaHome = null;
 
         function iniciarAudioHome() {
