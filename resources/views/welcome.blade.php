@@ -118,7 +118,7 @@
 
                         <!-- Entrada Rápida em Sala por Código PIN -->
                         <form action="{{ route('entrar.view') }}" method="GET"
-                              onsubmit="event.preventDefault(); const c = this.codigo.value.trim().toUpperCase(); window.location.href = c ? '/entrar/' + c : '/entrar';"
+                              onsubmit="event.preventDefault(); const c = this.codigo.value.trim().toUpperCase(); window.location.href = '{{ url('/entrar') }}' + (c ? '/' + c : '');"
                               class="sm-panel !p-2 flex items-center gap-2 shadow-xl">
                             <div class="pl-3 flex items-center gap-2 text-amber-300 font-black text-xs uppercase shrink-0">
                                 <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

@@ -180,7 +180,7 @@
                             </div>
                         @empty
                             <div class="text-center py-6 text-blue-200 text-sm">
-                                Escaneie o QR Code abaixo ou acesse <strong>/entrar/{{ $sala->codigo_acesso }}</strong>
+                                Escaneie o QR Code abaixo ou acesse <strong>{{ parse_url(url('/'), PHP_URL_PATH) }}/entrar/{{ $sala->codigo_acesso }}</strong>
                             </div>
                         @endforelse
                     </div>
@@ -192,7 +192,7 @@
                     <div class="text-left">
                         <span class="sm-pill !px-3 !py-0.5 !text-[10px] uppercase tracking-wider mb-1">Participe pelo Celular</span>
                         <p class="text-2xl font-mono font-black text-amber-300 mt-1">{{ $sala->codigo_acesso }}</p>
-                        <p class="text-xs text-blue-200 mt-1 font-bold">/entrar/{{ $sala->codigo_acesso }}</p>
+                        <p class="text-xs text-blue-200 mt-1 font-bold">{{ parse_url(url('/'), PHP_URL_PATH) }}/entrar/{{ $sala->codigo_acesso }}</p>
                     </div>
                 </div>
             </div>
@@ -250,6 +250,10 @@
     </div>
 
     <script>
+        const BASE_APP_URL = (() => {
+            const subpath = "{{ parse_url(url('/'), PHP_URL_PATH) }}" || '';
+            return (window.location.origin + subpath).replace(/\/+$/, '');
+        })();
         const letras = ['A', 'B', 'C', 'D'];
         let questaoAtualId = {{ $pergunta['id'] ?? 'null' }};
         let estadoAtual = '{{ $estado }}';
@@ -320,7 +324,7 @@
         const qrEl = document.getElementById('qrcodeProj');
         if (qrEl && typeof QRCode !== 'undefined') {
             new QRCode(qrEl, {
-                text: window.location.origin + '/entrar/{{ $sala->codigo_acesso }}',
+                text: `${BASE_APP_URL}/entrar/{{ $sala->codigo_acesso }}`,
                 width: 96,
                 height: 96,
                 colorDark: '#0f172a',
@@ -583,7 +587,7 @@
 
         async function sincronizarProjecao() {
             try {
-                const resp = await fetch('/api/salas/{{ $sala->id }}', {
+                const resp = await fetch(`${BASE_APP_URL}/api/salas/{{ $sala->id }}`, {
                     headers: { 'Accept': 'application/json' }
                 });
                 if (!resp.ok) return;

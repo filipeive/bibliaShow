@@ -70,9 +70,9 @@ class _ArenaJoinScreenState extends State<ArenaJoinScreen> {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (_) => ArenaPlayScreen(
-              salaId: sala['id'] as int,
+              salaId: (sala['id'] as num).toInt(),
               codigoSala: codigo,
-              participanteId: participante['id'] as int,
+              participanteId: (participante['id'] as num).toInt(),
               jogadorNome: nome,
             ),
           ),

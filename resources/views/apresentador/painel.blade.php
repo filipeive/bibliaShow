@@ -200,6 +200,11 @@
     </div>
 
     <script>
+        const BASE_APP_URL = (() => {
+            const subpath = "{{ parse_url(url('/'), PHP_URL_PATH) }}" || '';
+            return (window.location.origin + subpath).replace(/\/+$/, '');
+        })();
+
         function mostrarToastPainel(mensagem, sucesso = true) {
             const toast = document.getElementById('toastPainel');
             const content = document.getElementById('toastPainelContent');
@@ -225,7 +230,7 @@
             const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
             try {
-                const resp = await fetch(`/apresentador/salas/${salaId}`, {
+                const resp = await fetch(`${BASE_APP_URL}/apresentador/salas/${salaId}`, {
                     method: 'DELETE',
                     headers: {
                         'Accept': 'application/json',

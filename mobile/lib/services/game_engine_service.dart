@@ -95,7 +95,7 @@ class GameEngineService extends ChangeNotifier {
     _perguntas = [...f1, ...f2, ...f3, ...f4];
     status = GameStatus.playing;
 
-    _audio.playFx('inicio');
+    _audio.playFase(1);
     _audio.playBackground('suspense');
     _iniciarCronometro();
     notifyListeners();
@@ -119,9 +119,9 @@ class GameEngineService extends ChangeNotifier {
       if (tempoRestante > 0) {
         tempoRestante--;
         if (tempoRestante <= 10 && tempoRestante > 0) {
-          _audio.playFx(tempoRestante <= 3 ? 'tempo_alerta' : 'tempo_tick');
+          _audio.playTimerTick(tempoRestante);
         } else if (tempoRestante == 0) {
-          _audio.playFx('ks');
+          _audio.playTimerTick(0);
           _tratarTempoEsgotado();
         }
         notifyListeners();
@@ -155,19 +155,20 @@ class GameEngineService extends ChangeNotifier {
     acertouUltima = ehCorreta;
 
     _audio.playFx('tecla');
+    _audio.playTension(variante: _indicePerguntaAtual);
     _audio.vibrate(50);
     notifyListeners();
 
-    // Delay de suspense de auditório (1.2 segundos)
-    await Future.delayed(const Duration(milliseconds: 1200));
+    // Delay de suspense de auditório (1.8 segundos com voz/tensão clássica)
+    await Future.delayed(const Duration(milliseconds: 1800));
 
     if (ehCorreta) {
       _pontuacaoAcumulada += valorPerguntaAtual;
-      _audio.playFx('certa1');
+      _audio.playVerdict(isCorrect: true, fase: faseAtual);
       _audio.vibrateSuccess();
     } else {
       _errosCometidos++;
-      _audio.playFx('errou1');
+      _audio.playVerdict(isCorrect: false, fase: faseAtual);
       _audio.vibrateError();
     }
 
@@ -187,9 +188,17 @@ class GameEngineService extends ChangeNotifier {
 
   void proximaPergunta() {
     if (_indicePerguntaAtual + 1 < _perguntas.length) {
+      final faseAnterior = faseAtual;
       _indicePerguntaAtual++;
       _resetarAjudasRodada();
       status = GameStatus.playing;
+
+      // Se mudou de fase (1->2, 2->3, 3->4) toca vinheta de abertura da fase
+      if (faseAtual != faseAnterior) {
+        _audio.playFase(faseAtual);
+      }
+      // Mantém/retoma a clássica trilha de suspense no fundo da pergunta
+      _audio.playBackground('suspense');
       _iniciarCronometro();
       notifyListeners();
     } else {

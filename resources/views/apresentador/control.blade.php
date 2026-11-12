@@ -484,10 +484,14 @@
     </div>
 
     <script>
+        const BASE_APP_URL = (() => {
+            const subpath = "{{ parse_url(url('/'), PHP_URL_PATH) }}" || '';
+            return (window.location.origin + subpath).replace(/\/+$/, '');
+        })();
         const qrContainer = document.getElementById('qrcode');
         if (qrContainer && typeof QRCode !== 'undefined') {
             new QRCode(qrContainer, {
-                text: window.location.origin + '/entrar/{{ $sala->codigo_acesso }}',
+                text: `${BASE_APP_URL}/entrar/{{ $sala->codigo_acesso }}`,
                 width: 145,
                 height: 145,
                 colorDark: '#0a192f',
@@ -796,7 +800,7 @@
 
         async function sincronizarParticipantes() {
             try {
-                const resp = await fetch('/api/salas/{{ $sala->id }}', {
+                const resp = await fetch(`${BASE_APP_URL}/api/salas/{{ $sala->id }}`, {
                     headers: { 'Accept': 'application/json' }
                 });
                 if (!resp.ok) return;

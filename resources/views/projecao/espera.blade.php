@@ -45,7 +45,7 @@
                 <div class="flex flex-col items-center gap-3">
                     <div id="qrcodeLobby" class="p-4 bg-white rounded-2xl shadow-2xl border-4 border-amber-400"></div>
                     <p class="text-xs text-blue-200 mt-1">
-                        Ou acesse no navegador: <strong class="text-amber-300 font-bold">/entrar/{{ $sala->codigo_acesso }}</strong>
+                        Ou acesse no navegador: <strong class="text-amber-300 font-bold">{{ parse_url(url('/'), PHP_URL_PATH) }}/entrar/{{ $sala->codigo_acesso }}</strong>
                     </p>
                 </div>
 
@@ -100,6 +100,10 @@
     </footer>
 
     <script>
+        const BASE_APP_URL = (() => {
+            const subpath = "{{ parse_url(url('/'), PHP_URL_PATH) }}" || '';
+            return (window.location.origin + subpath).replace(/\/+$/, '');
+        })();
         const salaId = {{ $sala->id ?? $salaId }};
         const codigoAcesso = '{{ $sala->codigo_acesso ?? "" }}';
 
@@ -107,7 +111,7 @@
         const qrBox = document.getElementById('qrcodeLobby');
         if (qrBox && typeof QRCode !== 'undefined' && codigoAcesso) {
             new QRCode(qrBox, {
-                text: window.location.origin + '/entrar/' + codigoAcesso,
+                text: BASE_APP_URL + '/entrar/' + codigoAcesso,
                 width: 170,
                 height: 170,
                 colorDark: '#0f172a',
@@ -122,7 +126,7 @@
             if (jogoIniciou) return;
 
             try {
-                const resp = await fetch(`/api/salas/${salaId}`, {
+                const resp = await fetch(`${BASE_APP_URL}/api/salas/${salaId}`, {
                     headers: { 'Accept': 'application/json' }
                 });
                 if (!resp.ok) return;

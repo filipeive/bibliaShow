@@ -264,7 +264,7 @@
                         <p class="text-xs text-blue-200">Digite o código de 6 caracteres do telão para responder:</p>
                     </div>
                 </div>
-                <form onsubmit="event.preventDefault(); const c = document.getElementById('inputCodigoModalNavbar').value.trim().toUpperCase(); window.location.href = c ? ('/entrar/' + c) : '{{ route('entrar.view') }}';"
+                <form onsubmit="event.preventDefault(); const c = document.getElementById('inputCodigoModalNavbar').value.trim().toUpperCase(); window.location.href = '{{ url('/entrar') }}' + (c ? '/' + c : '');"
                       class="flex items-center gap-2 shrink-0">
                     <input type="text" id="inputCodigoModalNavbar" maxlength="6" placeholder="CÓDIGO"
                            class="w-28 px-3 py-2.5 rounded-xl bg-blue-950 border border-blue-400/50 text-amber-400 font-mono font-black uppercase text-center tracking-widest text-sm focus:border-amber-400 outline-none">

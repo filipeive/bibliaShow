@@ -452,6 +452,10 @@
     <!-- ============================================================== -->
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+        const BASE_APP_URL = (() => {
+            const subpath = "{{ parse_url(url('/'), PHP_URL_PATH) }}" || '';
+            return (window.location.origin + subpath).replace(/\/+$/, '');
+        })();
         const BASE_AUDIO_URL = "{{ asset('audio/classico') }}";
         const letras = ['A', 'B', 'C', 'D'];
 
@@ -602,7 +606,7 @@
             }
 
             try {
-                const response = await fetch('/api/salas/entrar', {
+                const response = await fetch(`${BASE_APP_URL}/api/salas/entrar`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -617,7 +621,13 @@
                     }),
                 });
 
-                const data = await response.json();
+                const rawText = await response.text();
+                let data = {};
+                try {
+                    data = JSON.parse(rawText);
+                } catch (parseErr) {
+                    throw new Error(`Resposta inválida do servidor (${response.status}). Verifique o link da arena.`);
+                }
 
                 if (!response.ok) {
                     const msg = data.error || (data.errors ? Object.values(data.errors).flat().join(' ') : 'Erro ao entrar na sala.');
@@ -723,7 +733,7 @@
             if (!estadoSessao.salaId) return;
 
             try {
-                const url = `/api/salas/${estadoSessao.salaId}?participante_id=${estadoSessao.participanteId || ''}`;
+                const url = `${BASE_APP_URL}/api/salas/${estadoSessao.salaId}?participante_id=${estadoSessao.participanteId || ''}`;
                 const resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
                 if (!resp.ok) return;
                 const data = await resp.json();
@@ -907,7 +917,7 @@
             tocarAudio('tecla.wav');
 
             try {
-                const resp = await fetch(`/api/salas/${estadoSessao.salaId}/ajuda`, {
+                const resp = await fetch(`${BASE_APP_URL}/api/salas/${estadoSessao.salaId}/ajuda`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1168,7 +1178,7 @@
             vibrar(40);
 
             try {
-                const resp = await fetch(`/api/salas/${estadoSessao.salaId}/responder`, {
+                const resp = await fetch(`${BASE_APP_URL}/api/salas/${estadoSessao.salaId}/responder`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1355,7 +1365,7 @@
             if (!estadoSessao.salaId || !estadoSessao.participanteId) return;
 
             try {
-                const resp = await fetch(`/api/salas/${estadoSessao.salaId}/participantes/${estadoSessao.participanteId}/equipe`, {
+                const resp = await fetch(`${BASE_APP_URL}/api/salas/${estadoSessao.salaId}/participantes/${estadoSessao.participanteId}/equipe`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

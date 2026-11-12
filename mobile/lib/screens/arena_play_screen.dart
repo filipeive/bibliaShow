@@ -47,7 +47,10 @@ class _ArenaPlayScreenState extends State<ArenaPlayScreen> {
 
   Future<void> _sincronizar() async {
     try {
-      final data = await ApiService.instance.obterEstadoSala(widget.salaId);
+      final data = await ApiService.instance.obterEstadoSala(
+        widget.salaId,
+        participanteId: widget.participanteId,
+      );
       if (!mounted) return;
 
       setState(() {
@@ -63,7 +66,7 @@ class _ArenaPlayScreenState extends State<ArenaPlayScreen> {
 
         final q = data['pergunta_atual'] as Map<String, dynamic>?;
         if (q != null) {
-          final id = q['id'] as int;
+          final id = (q['id'] as num?)?.toInt() ?? (data['numero_pergunta'] as num?)?.toInt();
           if (_questaoIdAtual != id) {
             _questaoIdAtual = id;
             _opcaoBloqueada = null;
@@ -93,18 +96,23 @@ class _ArenaPlayScreenState extends State<ArenaPlayScreen> {
   }
 
   Future<void> _bloquearResposta(int idx) async {
-    if (_opcaoBloqueada != null || _questaoIdAtual == null) return;
+    if (_opcaoBloqueada != null) return;
+    final q = _salaData?['pergunta_atual'] as Map<String, dynamic>?;
+    final opcoes = (q?['opcoes'] as List?) ?? [];
+    if (idx >= opcoes.length) return;
 
     setState(() => _opcaoBloqueada = idx);
     AudioService.instance.playFx('tecla');
+    AudioService.instance.playTension();
     AudioService.instance.vibrate(50);
 
     try {
+      final opcaoTexto = opcoes[idx].toString();
       await ApiService.instance.responderRodada(
         salaId: widget.salaId,
         participanteId: widget.participanteId,
-        questaoId: _questaoIdAtual!,
-        indiceOpcao: idx,
+        questaoId: _questaoIdAtual,
+        resposta: opcaoTexto,
       );
     } catch (_) {}
   }
