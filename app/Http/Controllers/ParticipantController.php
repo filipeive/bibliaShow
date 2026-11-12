@@ -35,12 +35,10 @@ class ParticipantController extends Controller
 
         $validated = $validator->validated();
 
-        $sala = Sala::where('codigo_acesso', strtoupper(trim($validated['codigo_acesso'])))
-            ->where('status', '!=', 'terminada')
-            ->first();
+        $sala = Sala::where('codigo_acesso', strtoupper(trim($validated['codigo_acesso'])))->first();
 
         if (! $sala) {
-            return response()->json(['error' => 'Sala não encontrada ou já encerrada.'], 404);
+            return response()->json(['error' => 'Sala não encontrada. Verifique o PIN digitado.'], 404);
         }
 
         $equipeId = $validated['equipe_id'] ?? null;
@@ -115,12 +113,10 @@ class ParticipantController extends Controller
     {
         $sala = null;
         if ($codigo) {
-            $sala = Sala::where('codigo_acesso', strtoupper(trim($codigo)))
-                ->where('status', '!=', 'terminada')
-                ->first();
+            $sala = Sala::where('codigo_acesso', strtoupper(trim($codigo)))->first();
 
             if (! $sala) {
-                abort(404, 'Sala não encontrada ou encerrada.');
+                abort(404, 'Sala não encontrada. Verifique o código digitado.');
             }
         }
 
@@ -132,8 +128,13 @@ class ParticipantController extends Controller
         $participantes = $sala->participantes()->conectados()->with('equipe')->orderByDesc('pontuacao_total')->get();
         $equipes = $sala->equipes()->get();
 
-        $jogo = Jogo::where('sala_id', $sala->id)->latest()->first();
-        $estadoJogo = $sala->status === 'terminada' ? 'terminado' : ($jogo?->estado ?? 'aguardando');
+        $jogo = Jogo::where('sala_id', $sala->id)
+            ->whereIn('estado', ['em_curso', 'pausado', 'aguardando'])
+            ->latest('id')
+            ->first()
+            ?? Jogo::where('sala_id', $sala->id)->latest('id')->first();
+
+        $estadoJogo = $jogo?->estado ?? ($sala->status === 'terminada' ? 'terminado' : 'aguardando');
         $perguntaPublica = null;
         $numeroPergunta = 1;
         $totalPerguntas = 24;

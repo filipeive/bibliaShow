@@ -37,7 +37,7 @@
                 <!-- Botões de Ação do Hero: Jogar Solo + BAIXAR APK ANDROID + WhatsApp -->
                 <div class="mt-6 flex flex-wrap items-center gap-3">
                     <!-- Botão de Download APK Android em Destaque -->
-                    <a href="/downloads/biblia-show.apk" download="biblia-show.apk"
+                    <a href="{{ asset('downloads/biblia-show-v2.apk') }}" download="biblia-show-v2.apk"
                        class="sm-arcade-btn is-gold !py-3 !px-6 !text-xs sm:!text-sm inline-flex items-center gap-2.5 shadow-2xl">
                         <!-- Ícone Android SVG -->
                         <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24">
@@ -107,7 +107,7 @@
                             <p class="text-[11px] text-blue-200">Instale no celular para jogar com vibração e sons</p>
                         </div>
                     </div>
-                    <a href="/downloads/biblia-show.apk" download="biblia-show.apk"
+                    <a href="{{ asset('downloads/biblia-show-v2.apk') }}" download="biblia-show-v2.apk"
                        class="w-full sm-arcade-btn is-gold !py-2.5 !text-xs flex items-center justify-center gap-2">
                         <svg class="w-4 h-4 fill-none stroke-current" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />

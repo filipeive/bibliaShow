@@ -105,7 +105,7 @@
                     <span>Novo Jogo</span>
                 </button>
 
-                <a href="/"
+                <a href="{{ url('/') }}"
                    class="{{ $classeBotaoAcao }} bg-blue-950/90 hover:bg-blue-900 border border-blue-400/30 text-blue-300">
                     <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />

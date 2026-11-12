@@ -932,7 +932,7 @@
                                 class="sm-cta !py-3 !text-xs cursor-pointer">
                             Continuar no Palco
                         </button>
-                        <a id="linkDestinoSaida" href="/" onclick="desarmarBeforeUnload()"
+                        <a id="linkDestinoSaida" href="{{ url('/') }}" onclick="desarmarBeforeUnload()"
                            class="py-3 px-4 rounded-full bg-blue-900/70 hover:bg-blue-800 text-blue-200 font-extrabold text-xs uppercase tracking-wider border-2 border-blue-400/40 transition flex items-center justify-center">
                             Ir para Início
                         </a>
@@ -964,7 +964,7 @@
                     }
                 }
 
-                function tentarSairJogoAoVivo(e, destinoUrl = '/') {
+                function tentarSairJogoAoVivo(e, destinoUrl = '{{ url('/') }}') {
                     if (!jogoIniciado || enviado) return true;
                     if (e) e.preventDefault();
                     const modal = document.getElementById('modalConfirmarSaida');

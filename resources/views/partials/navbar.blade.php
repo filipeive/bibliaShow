@@ -25,7 +25,7 @@
     <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16 gap-2">
             <!-- Brand / Logo (Auditório Show do Milhão) -->
-            <a href="/" onclick="if(typeof tentarSairJogoAoVivo === 'function') { return tentarSairJogoAoVivo(event, '/'); }" class="flex items-center gap-2.5 shrink-0 group">
+            <a href="{{ url('/') }}" onclick="if(typeof tentarSairJogoAoVivo === 'function') { return tentarSairJogoAoVivo(event, '{{ url('/') }}'); }" class="flex items-center gap-2.5 shrink-0 group">
                 <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-300 via-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/30 text-slate-950 group-hover:scale-105 transition border-2 border-amber-200">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
@@ -61,13 +61,13 @@
                     @endif
                 @endif
 
-                <!-- Botão Menu Elegante (Desktop & Mobile) -->
-                <button type="button" id="btnToggleMenuGlobal" onclick="toggleNavbarMenuGlobal(event)" title="Abrir Menu"
-                        class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-2xl bg-blue-950/90 hover:bg-blue-900 border-2 border-amber-400/50 hover:border-amber-300 text-amber-300 font-black text-xs uppercase tracking-wider shadow-lg active:scale-95 transition cursor-pointer">
-                    <svg class="w-4 h-4 text-amber-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <!-- Botão Menu Elegante (Desktop & Mobile - Apenas Ícone) -->
+                <button type="button" id="btnToggleMenuGlobal" onclick="toggleNavbarMenuGlobal(event)" title="Abrir Menu" aria-label="Abrir Menu"
+                        class="w-10 h-10 inline-flex items-center justify-center rounded-2xl bg-blue-950/90 hover:bg-blue-900 border-2 border-amber-400/50 hover:border-amber-300 text-amber-300 shadow-lg active:scale-95 transition cursor-pointer">
+                    <svg class="w-5 h-5 text-amber-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg>
-                    <span>Menu</span>
+                    <span class="sr-only">Menu</span>
                 </button>
             </div>
         </div>

@@ -67,10 +67,10 @@ class ApresentadorController extends Controller
         $questoes = $this->selecionarQuestoesSala($qtd, $request->input('dificuldade_id'));
 
         $engine = new GameEngine(
-            new RandomSelector(),
-            new StandardScoring(),
-            new CountdownTimer(),
-            new GameState()
+            new RandomSelector,
+            new StandardScoring,
+            new CountdownTimer,
+            new GameState
         );
         $engine->start($questoes);
 
@@ -109,22 +109,26 @@ class ApresentadorController extends Controller
         $sala = $this->verificarAcessoSala($request, $salaId);
         $sala->load(['participantes.equipe', 'equipes']);
 
-        if ($request->boolean('nova_partida')) {
-            session()->forget('game_engine_' . $salaId);
+        if ($request->boolean('nova_partida') || $sala->status === 'terminada') {
+            session()->forget('game_engine_'.$salaId);
             Jogo::where('sala_id', $salaId)->whereIn('estado', ['aguardando', 'em_curso', 'pausado'])->update(['estado' => 'terminado']);
             $sala->update(['status' => 'em_curso']);
         }
 
         $engine = $this->carregarEngineDaSala($salaId);
 
-        if (!$engine) {
+        if ($engine && ($engine->getState()['estado'] ?? '') === 'em_curso' && $sala->status !== 'em_curso') {
+            $sala->update(['status' => 'em_curso']);
+        }
+
+        if (! $engine) {
             $questoes = $this->selecionarQuestoesSala(24);
 
             $engine = new GameEngine(
-                new RandomSelector(),
-                new StandardScoring(),
-                new CountdownTimer(),
-                new GameState()
+                new RandomSelector,
+                new StandardScoring,
+                new CountdownTimer,
+                new GameState
             );
 
             $engine->start($questoes);
@@ -189,7 +193,7 @@ class ApresentadorController extends Controller
         ]);
 
         $engine = $this->carregarEngineDaSala($salaId);
-        if (!$engine) {
+        if (! $engine) {
             return back()->with('error', 'Sessão de jogo não encontrada.');
         }
 
@@ -225,22 +229,24 @@ class ApresentadorController extends Controller
 
         $this->salvarEngineNaSala($salaId, $engine);
 
-        if (!$resultado['sucesso']) {
+        if (! $resultado['sucesso']) {
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([
                     'sucesso' => false,
                     'mensagem' => $resultado['mensagem'] ?? 'Não foi possível usar este recurso.',
                 ], 422);
             }
+
             return back()->with('error', $resultado['mensagem'] ?? 'Não foi possível usar este recurso.');
         }
 
-        if (!empty($resultado['som_efeito'])) {
+        if (! empty($resultado['som_efeito'])) {
             session()->flash('som_efeito', $resultado['som_efeito']);
         }
 
         if ($request->wantsJson() || $request->ajax()) {
             $estadoAtualizado = $engine->getState();
+
             return response()->json([
                 'sucesso' => true,
                 'mensagem' => $resultado['mensagem'] ?? 'Recurso ativado com sucesso!',
@@ -294,7 +300,7 @@ class ApresentadorController extends Controller
         $equipe = Equipe::create([
             'sala_id' => $salaId,
             'nome' => $request->nome,
-            'cor' => $request->cor ?? '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT),
+            'cor' => $request->cor ?? '#'.str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT),
         ]);
 
         $this->tentarBroadcast(new RankingAtualizado((int) $salaId, []));
@@ -310,10 +316,11 @@ class ApresentadorController extends Controller
     {
         $this->verificarAcessoSala($request, $salaId);
         $engine = $this->carregarEngineDaSala($salaId);
-        if (!$engine) {
+        if (! $engine) {
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json(['sucesso' => false, 'mensagem' => 'Sessão de jogo não encontrada.'], 404);
             }
+
             return back()->with('error', 'Sessão de jogo não encontrada.');
         }
 
@@ -331,11 +338,12 @@ class ApresentadorController extends Controller
                     'redirect' => route('apresentador.resultado', $salaId),
                 ]);
             }
+
             return redirect()->route('apresentador.resultado', $salaId);
         }
 
         $faseDepois = $estado['fase_atual'] ?? 1;
-        $som = $faseDepois > $faseAntes ? ('fase' . min(4, $faseDepois)) : 'inicio';
+        $som = $faseDepois > $faseAntes ? ('fase'.min(4, $faseDepois)) : 'inicio';
         session()->flash('som_efeito', $som);
 
         $this->tentarBroadcast(new PerguntaIniciada(
@@ -372,10 +380,11 @@ class ApresentadorController extends Controller
     {
         $this->verificarAcessoSala($request, $salaId);
         $engine = $this->carregarEngineDaSala($salaId);
-        if (!$engine) {
+        if (! $engine) {
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json(['sucesso' => false, 'mensagem' => 'Sessão de jogo não encontrada.'], 404);
             }
+
             return back()->with('error', 'Sessão de jogo não encontrada.');
         }
 
@@ -405,10 +414,11 @@ class ApresentadorController extends Controller
     {
         $this->verificarAcessoSala($request, $salaId);
         $engine = $this->carregarEngineDaSala($salaId);
-        if (!$engine) {
+        if (! $engine) {
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json(['sucesso' => false, 'mensagem' => 'Sessão de jogo não encontrada.'], 404);
             }
+
             return back()->with('error', 'Sessão de jogo não encontrada.');
         }
 
@@ -465,7 +475,7 @@ class ApresentadorController extends Controller
         $nome = $sala->nome;
         $codigo = $sala->codigo_acesso;
 
-        session()->forget('game_engine_' . $salaId);
+        session()->forget('game_engine_'.$salaId);
 
         try {
             foreach ($sala->jogos as $j) {
@@ -495,7 +505,7 @@ class ApresentadorController extends Controller
         $sala = $this->verificarAcessoSala($request, $salaId);
 
         $engine = $this->carregarEngineDaSala($salaId);
-        if (!$engine) {
+        if (! $engine) {
             return redirect()->route('apresentador.control', $salaId);
         }
 
@@ -528,7 +538,7 @@ class ApresentadorController extends Controller
 
         for ($nivel = 1; $nivel <= 4; $nivel++) {
             $nivelModel = NivelDificuldade::where('nivel', $nivel)->first();
-            if (!$nivelModel) {
+            if (! $nivelModel) {
                 continue;
             }
 
@@ -581,24 +591,33 @@ class ApresentadorController extends Controller
             }
         }
 
-        $dados = session('game_engine_' . $salaId);
+        $dados = session('game_engine_'.$salaId);
+
         return GameEngine::desserializarSeguro($dados);
     }
 
     private function salvarEngineNaSala($salaId, GameEngine $engine): void
     {
         $jsonState = $engine->toJsonState();
-        session(['game_engine_' . $salaId => $jsonState]);
+        session(['game_engine_'.$salaId => $jsonState]);
 
         $estado = $engine->getState();
         $perguntaId = $estado['pergunta_atual']['id'] ?? null;
 
+        $sala = Sala::find($salaId);
+        if ($sala) {
+            $statusSala = ($estado['estado'] === 'terminado') ? 'terminada' : 'em_curso';
+            if ($sala->status !== $statusSala) {
+                $sala->update(['status' => $statusSala]);
+            }
+        }
+
         $jogo = Jogo::where('sala_id', $salaId)
             ->whereIn('estado', ['aguardando', 'em_curso', 'pausado'])
-            ->latest()
+            ->latest('id')
             ->first();
 
-        if (!$jogo) {
+        if (! $jogo) {
             Jogo::create([
                 'sala_id' => $salaId,
                 'estado' => $estado['estado'],
