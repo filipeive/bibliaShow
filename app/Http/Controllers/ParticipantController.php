@@ -13,6 +13,8 @@ use App\Models\Questao;
 use App\Models\Resposta;
 use App\Models\Sala;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -37,19 +39,19 @@ class ParticipantController extends Controller
             ->where('status', '!=', 'terminada')
             ->first();
 
-        if (!$sala) {
+        if (! $sala) {
             return response()->json(['error' => 'Sala não encontrada ou já encerrada.'], 404);
         }
 
         $equipeId = $validated['equipe_id'] ?? null;
-        if (!$equipeId && !empty($validated['equipe_nome'])) {
+        if (! $equipeId && ! empty($validated['equipe_nome'])) {
             $equipe = Equipe::firstOrCreate(
                 [
                     'sala_id' => $sala->id,
                     'nome' => trim($validated['equipe_nome']),
                 ],
                 [
-                    'cor' => '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT),
+                    'cor' => '#'.str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT),
                 ]
             );
             $equipeId = $equipe->id;
@@ -78,7 +80,7 @@ class ParticipantController extends Controller
             ]);
         }
 
-        session(['participante_id_' . $sala->id => $participante->id]);
+        session(['participante_id_'.$sala->id => $participante->id]);
 
         $participante->load('equipe');
 
@@ -117,7 +119,7 @@ class ParticipantController extends Controller
                 ->where('status', '!=', 'terminada')
                 ->first();
 
-            if (!$sala) {
+            if (! $sala) {
                 abort(404, 'Sala não encontrada ou encerrada.');
             }
         }
@@ -157,7 +159,7 @@ class ParticipantController extends Controller
                 $tempoRestante = $st['tempo_restante'] ?? 60;
                 $ajudasMotor = $st['ajudas'] ?? [];
 
-                $gabaritoRevelado = !empty($ajudasMotor['gabarito_revelado']);
+                $gabaritoRevelado = ! empty($ajudasMotor['gabarito_revelado']);
                 $ajudasAtivas = [
                     'opcoes_eliminadas' => $ajudasMotor['opcoes_eliminadas'] ?? [],
                     'dica_biblica' => $ajudasMotor['dica_biblica'] ?? null,
@@ -165,7 +167,7 @@ class ParticipantController extends Controller
                     'gabarito_revelado' => $gabaritoRevelado,
                 ];
 
-                if (!empty($st['pergunta_atual'])) {
+                if (! empty($st['pergunta_atual'])) {
                     $q = $st['pergunta_atual'];
                     $opcoes = $q['opcoes'] ?? [];
                     if (is_string($opcoes)) {
@@ -174,12 +176,12 @@ class ParticipantController extends Controller
 
                     // Resolver ID real se desajustado por migração ou reseed
                     $qId = $q['id'] ?? null;
-                    if ($qId && !Questao::where('id', $qId)->exists()) {
+                    if ($qId && ! Questao::where('id', $qId)->exists()) {
                         $qReal = null;
-                        if (!empty($q['codigo_classico'])) {
+                        if (! empty($q['codigo_classico'])) {
                             $qReal = Questao::where('codigo_classico', $q['codigo_classico'])->first();
                         }
-                        if (!$qReal && !empty($q['texto'])) {
+                        if (! $qReal && ! empty($q['texto'])) {
                             $qReal = Questao::where('texto', $q['texto'])->first();
                         }
                         if ($qReal) {
@@ -204,7 +206,7 @@ class ParticipantController extends Controller
 
         $jaRespondeu = false;
         $respostasRodada = [];
-        if ($jogo && $perguntaPublica && !empty($perguntaPublica['id'])) {
+        if ($jogo && $perguntaPublica && ! empty($perguntaPublica['id'])) {
             $todasRespostas = Resposta::where('jogo_id', $jogo->id)
                 ->where(function ($query) use ($perguntaPublica) {
                     $query->where('questao_id', $perguntaPublica['id']);
@@ -253,13 +255,13 @@ class ParticipantController extends Controller
 
                     $pIdKey = $perguntaPublica['id'] ?? $numeroPergunta;
                     $hist = $partAjudas['historico_por_pergunta'][$pIdKey] ?? [];
-                    if (!empty($hist['dica_biblica'])) {
+                    if (! empty($hist['dica_biblica'])) {
                         $ajudasAtivas['dica_biblica'] = $hist['dica_biblica'];
                     }
-                    if (!empty($hist['dica_convidado'])) {
+                    if (! empty($hist['dica_convidado'])) {
                         $ajudasAtivas['dica_convidado'] = $hist['dica_convidado'];
                     }
-                    if (!empty($hist['opcoes_eliminadas'])) {
+                    if (! empty($hist['opcoes_eliminadas'])) {
                         $ajudasAtivas['opcoes_eliminadas'] = array_values(array_unique(array_merge(
                             $ajudasAtivas['opcoes_eliminadas'] ?? [],
                             $hist['opcoes_eliminadas']
@@ -269,7 +271,7 @@ class ParticipantController extends Controller
             }
         }
 
-        if (!isset($ajudasAtivas['dicas_restantes'])) {
+        if (! isset($ajudasAtivas['dicas_restantes'])) {
             $ajudasAtivas['dicas_restantes'] = 3;
             $ajudasAtivas['cartas_restantes'] = 1;
             $ajudasAtivas['convidados_restantes'] = 3;
@@ -323,12 +325,12 @@ class ParticipantController extends Controller
         $validated = $validator->validated();
 
         $participante = Participante::find($validated['participante_id']);
-        if (!$participante || (int) $participante->sala_id !== (int) $sala->id) {
+        if (! $participante || (int) $participante->sala_id !== (int) $sala->id) {
             return response()->json(['error' => 'Participante não encontrado nesta sala.'], 404);
         }
 
         $jogo = $sala->jogoAtivo()->first();
-        if (!$jogo) {
+        if (! $jogo) {
             $jogo = Jogo::create([
                 'sala_id' => $sala->id,
                 'estado' => 'em_curso',
@@ -344,7 +346,7 @@ class ParticipantController extends Controller
                 if ($estadoMotor['estado'] !== 'em_curso') {
                     return response()->json(['error' => 'A rodada está pausada ou já foi encerrada.'], 403);
                 }
-                if (!empty($estadoMotor['tempo_esgotado'])) {
+                if (! empty($estadoMotor['tempo_esgotado'])) {
                     return response()->json(['error' => 'Tempo esgotado para esta pergunta! Resposta não computada.'], 408);
                 }
             }
@@ -357,27 +359,27 @@ class ParticipantController extends Controller
             $questao = Questao::with('dificuldade')->find($questaoId);
         }
 
-        if (!$questao && $jogo && $jogo->dados_motor) {
+        if (! $questao && $jogo && $jogo->dados_motor) {
             $engine = GameEngine::desserializarSeguro($jogo->dados_motor);
             if ($engine instanceof GameEngine) {
                 $curQ = $engine->getCurrentQuestion();
                 if ($curQ) {
-                    if (!empty($curQ['id'])) {
+                    if (! empty($curQ['id'])) {
                         $questao = Questao::with('dificuldade')->find($curQ['id']);
                     }
-                    if (!$questao && !empty($curQ['codigo_classico'])) {
+                    if (! $questao && ! empty($curQ['codigo_classico'])) {
                         $questao = Questao::with('dificuldade')->where('codigo_classico', $curQ['codigo_classico'])->first();
                     }
-                    if (!$questao && !empty($curQ['texto'])) {
+                    if (! $questao && ! empty($curQ['texto'])) {
                         $questao = Questao::with('dificuldade')->where('texto', $curQ['texto'])->first();
                     }
                 }
             }
         }
-        if (!$questao && $questaoId && is_numeric($questaoId)) {
+        if (! $questao && $questaoId && is_numeric($questaoId)) {
             $questao = Questao::with('dificuldade')->where('id', ((int) $questaoId) + 1000)->first();
         }
-        if (!$questao) {
+        if (! $questao) {
             return response()->json(['error' => 'Questão não encontrada no banco de dados.'], 404);
         }
 
@@ -424,7 +426,7 @@ class ParticipantController extends Controller
         };
         $pontos = $acertou ? $pontosBaseFase : 0;
 
-        \Illuminate\Support\Facades\DB::transaction(function () use (
+        DB::transaction(function () use (
             $jogo,
             $questaoIdReal,
             $participante,
@@ -513,159 +515,190 @@ class ParticipantController extends Controller
 
     public function usarAjuda(Request $request, Sala $sala)
     {
-        $validator = Validator::make($request->all(), [
-            'participante_id' => 'required|exists:participantes,id',
-            'tipo' => 'required|in:dica,cartas,convidado',
-            'indice_convidado' => 'nullable|integer|min:0|max:2',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        $validated = $validator->validated();
-        $participante = Participante::find($validated['participante_id']);
-
-        if (!$participante || (int) $participante->sala_id !== (int) $sala->id) {
-            return response()->json(['error' => 'Participante não pertence a esta sala.'], 404);
-        }
-
-        $jogo = $sala->jogoAtivo()->first();
-        if (!$jogo || !$jogo->dados_motor) {
-            return response()->json(['error' => 'Partida não está em andamento.'], 400);
-        }
-
-        $engine = GameEngine::desserializarSeguro($jogo->dados_motor);
-        if (!($engine instanceof GameEngine)) {
-            return response()->json(['error' => 'Estado do jogo inválido.'], 500);
-        }
-
-        $estado = $engine->getState();
-        if ($estado['estado'] !== 'em_curso') {
-            return response()->json(['error' => 'A rodada está pausada ou não iniciada.'], 403);
-        }
-
-        if (!empty($estado['tempo_esgotado']) || ($estado['tempo_restante'] ?? 0) <= 0) {
-            return response()->json(['error' => 'Tempo esgotado para esta pergunta.'], 408);
-        }
-
-        $curQ = $engine->getCurrentQuestion();
-        if (!$curQ) {
-            return response()->json(['error' => 'Nenhuma pergunta ativa no momento.'], 404);
-        }
-
-        $ajudasUsadas = $participante->ajudas_usadas ?? [
-            'dicas_usadas' => 0,
-            'cartas_usadas' => 0,
-            'convidados_usados' => 0,
-            'historico_por_pergunta' => [],
-        ];
-
-        $perguntaKey = $curQ['id'] ?? ($estado['numero_pergunta'] ?? 1);
-        $ajudasDestaPergunta = $ajudasUsadas['historico_por_pergunta'][$perguntaKey] ?? [];
-        $tipo = $validated['tipo'];
-
-        if ($tipo === 'dica') {
-            if (($ajudasUsadas['dicas_usadas'] ?? 0) >= 3) {
-                return response()->json(['error' => 'Você já utilizou todas as 3 Dicas Bíblicas permitidas.'], 422);
-            }
-
-            $ref = $curQ['referencia_biblica'] ?? null;
-            if (!$ref) {
-                $ref = 'Referência Bíblica: Consulte o livro de ' . ($curQ['livro_nome'] ?? 'Escrituras Sagradas');
-            }
-
-            $ajudasUsadas['dicas_usadas'] = ($ajudasUsadas['dicas_usadas'] ?? 0) + 1;
-            $ajudasDestaPergunta['dica_biblica'] = $ref;
-            $ajudasUsadas['historico_por_pergunta'][$perguntaKey] = $ajudasDestaPergunta;
-            $participante->update(['ajudas_usadas' => $ajudasUsadas]);
-
-            return response()->json([
-                'sucesso' => true,
-                'tipo' => 'dica',
-                'dica_biblica' => $ref,
-                'dicas_restantes' => max(0, 3 - $ajudasUsadas['dicas_usadas']),
-                'mensagem' => 'Dica Bíblica revelada!',
-                'som_efeito' => 'dica',
+        try {
+            $validator = Validator::make($request->all(), [
+                'participante_id' => 'required|exists:participantes,id',
+                'tipo' => 'required|in:dica,cartas,convidado',
+                'indice_convidado' => 'nullable|integer|min:0|max:2',
             ]);
-        }
 
-        if ($tipo === 'cartas') {
-            if (($ajudasUsadas['cartas_usadas'] ?? 0) >= 1) {
-                return response()->json(['error' => 'Você já utilizou as Cartas 50/50 nesta partida.'], 422);
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()->first()], 422);
             }
 
-            $opcoes = $curQ['opcoes'] ?? [];
-            if (is_string($opcoes)) {
-                $opcoes = json_decode($opcoes, true) ?: [];
+            $validated = $validator->validated();
+            $participante = Participante::find($validated['participante_id']);
+
+            if (! $participante || (int) $participante->sala_id !== (int) $sala->id) {
+                return response()->json(['error' => 'Participante não pertence a esta sala.'], 404);
             }
 
-            $corretaIdx = null;
-            foreach ($opcoes as $idx => $opTxt) {
-                if (mb_strtolower(trim((string) $opTxt), 'UTF-8') === mb_strtolower(trim((string) ($curQ['resposta_correta'] ?? '')), 'UTF-8')) {
-                    $corretaIdx = $idx;
-                    break;
+            $jogo = $sala->jogoAtivo()->first();
+            if (! $jogo || ! $jogo->dados_motor) {
+                return response()->json(['error' => 'Partida não está em andamento.'], 400);
+            }
+
+            $engine = GameEngine::desserializarSeguro($jogo->dados_motor);
+            if (! ($engine instanceof GameEngine)) {
+                return response()->json(['error' => 'Sincronizando estado da partida. Tente em instantes.'], 409);
+            }
+
+            $estado = $engine->getState();
+            if ($estado['estado'] !== 'em_curso') {
+                return response()->json(['error' => 'A rodada está pausada ou não iniciada.'], 403);
+            }
+
+            if (! empty($estado['tempo_esgotado']) || ($estado['tempo_restante'] ?? 0) <= 0) {
+                return response()->json(['error' => 'Tempo esgotado para esta pergunta.'], 408);
+            }
+
+            $curQ = $engine->getCurrentQuestion();
+            if (! $curQ) {
+                return response()->json(['error' => 'Nenhuma pergunta ativa no momento.'], 404);
+            }
+
+            $ajudasRaw = $participante->ajudas_usadas;
+            $ajudasUsadas = is_array($ajudasRaw) ? $ajudasRaw : [];
+            $ajudasUsadas['dicas_usadas'] = (int) ($ajudasUsadas['dicas_usadas'] ?? 0);
+            $ajudasUsadas['cartas_usadas'] = (int) ($ajudasUsadas['cartas_usadas'] ?? 0);
+            $ajudasUsadas['convidados_usados'] = (int) ($ajudasUsadas['convidados_usados'] ?? 0);
+            if (! isset($ajudasUsadas['historico_por_pergunta']) || ! is_array($ajudasUsadas['historico_por_pergunta'])) {
+                $ajudasUsadas['historico_por_pergunta'] = [];
+            }
+
+            $perguntaKey = (string) ($curQ['id'] ?? ($estado['numero_pergunta'] ?? 1));
+            $ajudasDestaPergunta = $ajudasUsadas['historico_por_pergunta'][$perguntaKey] ?? [];
+            $tipo = $validated['tipo'];
+
+            if ($tipo === 'dica') {
+                if ($ajudasUsadas['dicas_usadas'] >= 3) {
+                    return response()->json(['error' => 'Você já utilizou todas as 3 Dicas Bíblicas permitidas.'], 422);
                 }
+
+                $ref = $curQ['referencia_biblica'] ?? null;
+                if (! $ref) {
+                    $ref = 'Referência Bíblica: Consulte o livro de '.($curQ['livro_nome'] ?? 'Escrituras Sagradas');
+                }
+
+                $ajudasUsadas['dicas_usadas']++;
+                $ajudasDestaPergunta['dica_biblica'] = $ref;
+                $ajudasUsadas['historico_por_pergunta'][$perguntaKey] = $ajudasDestaPergunta;
+                $participante->update(['ajudas_usadas' => $ajudasUsadas]);
+
+                return response()->json([
+                    'sucesso' => true,
+                    'tipo' => 'dica',
+                    'dica_biblica' => $ref,
+                    'dicas_restantes' => max(0, 3 - $ajudasUsadas['dicas_usadas']),
+                    'mensagem' => 'Dica Bíblica revelada!',
+                    'som_efeito' => 'dica',
+                ]);
             }
 
-            $erradas = array_values(array_filter(array_keys($opcoes), fn ($i) => $i !== $corretaIdx));
-            shuffle($erradas);
-            $eliminadas = array_slice($erradas, 0, 2);
-            sort($eliminadas);
+            if ($tipo === 'cartas') {
+                if ($ajudasUsadas['cartas_usadas'] >= 1) {
+                    return response()->json(['error' => 'Você já utilizou as Cartas 50/50 nesta partida.'], 422);
+                }
 
-            $ajudasUsadas['cartas_usadas'] = ($ajudasUsadas['cartas_usadas'] ?? 0) + 1;
-            $ajudasDestaPergunta['opcoes_eliminadas'] = $eliminadas;
-            $ajudasUsadas['historico_por_pergunta'][$perguntaKey] = $ajudasDestaPergunta;
-            $participante->update(['ajudas_usadas' => $ajudasUsadas]);
+                $opcoes = $curQ['opcoes'] ?? [];
+                if (is_string($opcoes)) {
+                    $opcoes = json_decode($opcoes, true) ?: [];
+                }
+
+                $corretaRaw = trim((string) ($curQ['resposta_correta'] ?? ''));
+                $corretaLower = mb_strtolower($corretaRaw, 'UTF-8');
+                $corretaIdx = null;
+
+                if (is_numeric($corretaRaw) && isset($opcoes[(int) $corretaRaw])) {
+                    $corretaIdx = (int) $corretaRaw;
+                } else {
+                    foreach ($opcoes as $idx => $opTxt) {
+                        if (mb_strtolower(trim((string) $opTxt), 'UTF-8') === $corretaLower) {
+                            $corretaIdx = (int) $idx;
+                            break;
+                        }
+                    }
+                }
+
+                $erradas = [];
+                foreach ($opcoes as $idx => $opTxt) {
+                    $i = (int) $idx;
+                    if ($corretaIdx !== null && $i === $corretaIdx) {
+                        continue;
+                    }
+                    $erradas[] = $i;
+                }
+
+                if ($corretaIdx === null && count($erradas) > 2) {
+                    array_shift($erradas);
+                }
+
+                shuffle($erradas);
+                $eliminadas = array_values(array_slice($erradas, 0, min(2, count($erradas))));
+                sort($eliminadas);
+
+                $ajudasUsadas['cartas_usadas']++;
+                $ajudasDestaPergunta['opcoes_eliminadas'] = $eliminadas;
+                $ajudasUsadas['historico_por_pergunta'][$perguntaKey] = $ajudasDestaPergunta;
+                $participante->update(['ajudas_usadas' => $ajudasUsadas]);
+
+                return response()->json([
+                    'sucesso' => true,
+                    'tipo' => 'cartas',
+                    'opcoes_eliminadas' => $eliminadas,
+                    'cartas_restantes' => 0,
+                    'mensagem' => 'Cartas (50/50) eliminaram 2 alternativas incorretas!',
+                    'som_efeito' => 'ajuda',
+                ]);
+            }
+
+            if ($tipo === 'convidado') {
+                if ($ajudasUsadas['convidados_usados'] >= 3) {
+                    return response()->json(['error' => 'Você já consultou os Convidados Bíblicos 3 vezes.'], 422);
+                }
+
+                $idxConvidado = (int) ($validated['indice_convidado'] ?? 0);
+                $ajudasQ = $curQ['ajudas'] ?? [];
+                if (is_string($ajudasQ)) {
+                    $ajudasQ = json_decode($ajudasQ, true) ?: [];
+                }
+                $convidados = $ajudasQ['convidados'] ?? ['Paulo', 'Pedro', 'Moisés'];
+                $nomeConvidado = $convidados[$idxConvidado] ?? $convidados[0] ?? 'Personagem Bíblico';
+
+                $msgConvidado = $idxConvidado < 2
+                    ? 'Pelo meu conhecimento das Escrituras, creio firmemente na alternativa correta!'
+                    : 'Este acontecimento ocorreu fora da minha época bíblica, por isso não posso opinar com certeza.';
+
+                $dicaConvidado = [
+                    'convidado' => $nomeConvidado,
+                    'mensagem' => $msgConvidado,
+                ];
+
+                $ajudasUsadas['convidados_usados']++;
+                $ajudasDestaPergunta['dica_convidado'] = $dicaConvidado;
+                $ajudasUsadas['historico_por_pergunta'][$perguntaKey] = $ajudasDestaPergunta;
+                $participante->update(['ajudas_usadas' => $ajudasUsadas]);
+
+                return response()->json([
+                    'sucesso' => true,
+                    'tipo' => 'convidado',
+                    'dica_convidado' => $dicaConvidado,
+                    'convidados_restantes' => max(0, 3 - $ajudasUsadas['convidados_usados']),
+                    'mensagem' => "{$nomeConvidado} foi consultado!",
+                    'som_efeito' => 'sabe1',
+                ]);
+            }
+
+            return response()->json(['error' => 'Tipo de ajuda inválido.'], 400);
+        } catch (\Throwable $e) {
+            Log::error('Erro ao processar ajuda multijogador: '.$e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
 
             return response()->json([
-                'sucesso' => true,
-                'tipo' => 'cartas',
-                'opcoes_eliminadas' => $eliminadas,
-                'cartas_restantes' => 0,
-                'mensagem' => 'Cartas (50/50) eliminaram 2 alternativas incorretas!',
-                'som_efeito' => 'ajuda',
-            ]);
+                'error' => 'Não foi possível utilizar este recurso agora. Tente novamente.',
+            ], 400);
         }
-
-        if ($tipo === 'convidado') {
-            if (($ajudasUsadas['convidados_usados'] ?? 0) >= 3) {
-                return response()->json(['error' => 'Você já consultou os Convidados Bíblicos 3 vezes.'], 422);
-            }
-
-            $idxConvidado = (int) ($validated['indice_convidado'] ?? 0);
-            $ajudasQ = $curQ['ajudas'] ?? [];
-            if (is_string($ajudasQ)) {
-                $ajudasQ = json_decode($ajudasQ, true) ?: [];
-            }
-            $convidados = $ajudasQ['convidados'] ?? ['Paulo', 'Pedro', 'Moisés'];
-            $nomeConvidado = $convidados[$idxConvidado] ?? $convidados[0] ?? 'Personagem Bíblico';
-
-            $msgConvidado = $idxConvidado < 2
-                ? "Pelo meu conhecimento das Escrituras, creio firmemente na alternativa correta!"
-                : "Este acontecimento ocorreu fora da minha época bíblica, por isso não posso opinar.";
-
-            $dicaConvidado = [
-                'convidado' => $nomeConvidado,
-                'mensagem' => $msgConvidado,
-            ];
-
-            $ajudasUsadas['convidados_usados'] = ($ajudasUsadas['convidados_usados'] ?? 0) + 1;
-            $ajudasDestaPergunta['dica_convidado'] = $dicaConvidado;
-            $ajudasUsadas['historico_por_pergunta'][$perguntaKey] = $ajudasDestaPergunta;
-            $participante->update(['ajudas_usadas' => $ajudasUsadas]);
-
-            return response()->json([
-                'sucesso' => true,
-                'tipo' => 'convidado',
-                'dica_convidado' => $dicaConvidado,
-                'convidados_restantes' => max(0, 3 - $ajudasUsadas['convidados_usados']),
-                'mensagem' => "{$nomeConvidado} foi consultado!",
-                'som_efeito' => 'sabe1',
-            ]);
-        }
-
-        return response()->json(['error' => 'Tipo de ajuda inválido.'], 400);
     }
 
     public function juntarEquipe(Request $request, Sala $sala, Participante $participante)
@@ -686,20 +719,20 @@ class ParticipantController extends Controller
         $equipeId = $request->input('equipe_id');
         $equipeNome = trim((string) $request->input('equipe_nome'));
 
-        if (!empty($equipeNome)) {
+        if (! empty($equipeNome)) {
             $equipe = Equipe::firstOrCreate(
                 [
                     'sala_id' => $sala->id,
                     'nome' => $equipeNome,
                 ],
                 [
-                    'cor' => '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT),
+                    'cor' => '#'.str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT),
                 ]
             );
             $equipeId = $equipe->id;
         } elseif ($equipeId && is_numeric($equipeId) && (int) $equipeId > 0) {
             $equipe = Equipe::where('sala_id', $sala->id)->where('id', (int) $equipeId)->first();
-            if (!$equipe) {
+            if (! $equipe) {
                 return response()->json(['error' => 'Equipe não encontrada nesta sala.'], 404);
             }
             $equipeId = $equipe->id;
@@ -714,7 +747,7 @@ class ParticipantController extends Controller
 
         return response()->json([
             'sucesso' => true,
-            'mensagem' => $participante->equipe ? "Você agora faz parte da equipe «{$participante->equipe->nome}»!" : "Você agora joga individualmente na sala.",
+            'mensagem' => $participante->equipe ? "Você agora faz parte da equipe «{$participante->equipe->nome}»!" : 'Você agora joga individualmente na sala.',
             'equipe_id' => $participante->equipe_id,
             'equipe_nome' => $participante->equipe?->nome,
             'participante' => $participante,

@@ -9,30 +9,53 @@ use App\Game\Engine\Contracts\TimerInterface;
 use App\Game\Engine\Events\GameFinished;
 use App\Game\Engine\Events\QuestionAnswered;
 use App\Game\Engine\Events\QuestionStarted;
+use App\Game\Engine\Scoring\StandardScoring;
+use App\Game\Engine\Selectors\RandomSelector;
 use App\Game\Engine\State\GameState;
+use App\Game\Engine\Timers\CountdownTimer;
 
 class GameEngine
 {
     private QuestionSelectorInterface $selector;
+
     private ScoringInterface $scoring;
+
     private TimerInterface $timer;
+
     private GameStateInterface $state;
+
     private array $questions = [];
+
     private int $currentIndex = -1;
+
     private array $participants = [];
+
     private array $answers = [];
+
     private int $pulosRestantes = 3;
+
     private int $dicasRestantes = 3;
+
     private int $ajudasConvidadosRestantes = 3;
+
     private bool $ajudaCartasUsada = false;
+
     private array $opcoesEliminadasAtual = [];
+
     private ?array $dicaConvidadoAtual = null;
+
     private ?string $dicaBiblicaAtual = null;
+
     private bool $convidadoConsultadoNaPergunta = false;
+
     private bool $gabaritoReveladoAtual = false;
+
     private int $errosCount = 0;
+
     private int $maxErros = 3;
+
     private int $temposEsgotadosCount = 0;
+
     private int $maxTemposEsgotados = 3;
 
     public function __construct(
@@ -44,7 +67,7 @@ class GameEngine
         $this->selector = $selector;
         $this->scoring = $scoring;
         $this->timer = $timer;
-        $this->state = $state ?? new GameState();
+        $this->state = $state ?? new GameState;
     }
 
     public function start(array $questions, array $participants = []): void
@@ -81,6 +104,7 @@ class GameEngine
 
         if ($this->currentIndex >= count($this->questions)) {
             $this->finishGame();
+
             return;
         }
 
@@ -185,7 +209,7 @@ class GameEngine
     public static function fromJsonState(string $json): ?self
     {
         $data = json_decode($json, true);
-        if (!is_array($data) || empty($data['version'])) {
+        if (! is_array($data) || empty($data['version'])) {
             return null;
         }
 
@@ -195,10 +219,10 @@ class GameEngine
     public static function fromStateArray(array $data): self
     {
         $engine = new self(
-            new \App\Game\Engine\Selectors\RandomSelector(),
-            new \App\Game\Engine\Scoring\StandardScoring(),
-            new \App\Game\Engine\Timers\CountdownTimer(),
-            new \App\Game\Engine\State\GameState()
+            new RandomSelector,
+            new StandardScoring,
+            new CountdownTimer,
+            new GameState
         );
 
         $engine->questions = $data['questions'] ?? [];
@@ -219,14 +243,14 @@ class GameEngine
         $engine->temposEsgotadosCount = (int) ($data['temposEsgotadosCount'] ?? 0);
         $engine->maxTemposEsgotados = (int) ($data['maxTemposEsgotados'] ?? 3);
 
-        if (!empty($data['state_data']) && is_array($data['state_data'])) {
+        if (! empty($data['state_data']) && is_array($data['state_data'])) {
             $sd = $data['state_data'];
             $engine->state->setEstado($sd['estado'] ?? 'aguardando');
             $engine->state->setPerguntaAtual($sd['perguntaAtual'] ?? null);
             $engine->state->setPontuacao((int) ($sd['pontuacao'] ?? 0));
             $engine->state->setRanking($sd['ranking'] ?? []);
 
-            if (!empty($sd['historicoPerguntas']) && is_array($sd['historicoPerguntas'])) {
+            if (! empty($sd['historicoPerguntas']) && is_array($sd['historicoPerguntas'])) {
                 $stateRef = new \ReflectionClass($engine->state);
                 if ($stateRef->hasProperty('historicoPerguntas')) {
                     $prop = $stateRef->getProperty('historicoPerguntas');
@@ -235,7 +259,7 @@ class GameEngine
             }
         }
 
-        if (!empty($data['timer_data']) && is_array($data['timer_data'])) {
+        if (! empty($data['timer_data']) && is_array($data['timer_data'])) {
             $td = $data['timer_data'];
             $timerRef = new \ReflectionClass($engine->timer);
             if ($timerRef->hasProperty('limite')) {
@@ -254,7 +278,7 @@ class GameEngine
 
     public static function desserializarSeguro(?string $conteudo): ?self
     {
-        if (!$conteudo || trim($conteudo) === '') {
+        if (! $conteudo || trim($conteudo) === '') {
             return null;
         }
 
@@ -272,10 +296,10 @@ class GameEngine
         if (str_starts_with($trimmed, 'O:') || str_starts_with($trimmed, 'a:') || str_starts_with($trimmed, 'C:')) {
             $allowedClasses = [
                 self::class,
-                \App\Game\Engine\State\GameState::class,
-                \App\Game\Engine\Timers\CountdownTimer::class,
-                \App\Game\Engine\Scoring\StandardScoring::class,
-                \App\Game\Engine\Selectors\RandomSelector::class,
+                GameState::class,
+                CountdownTimer::class,
+                StandardScoring::class,
+                RandomSelector::class,
             ];
             $obj = @unserialize($trimmed, ['allowed_classes' => $allowedClasses]);
             if ($obj instanceof self) {
@@ -288,7 +312,7 @@ class GameEngine
 
     private function encontrarIndiceCorreto($question): ?int
     {
-        if (!$question) {
+        if (! $question) {
             return null;
         }
 
@@ -298,7 +322,7 @@ class GameEngine
             $opcoes = json_decode($opcoes, true) ?: [];
         }
 
-        if (!is_array($opcoes)) {
+        if (! is_array($opcoes)) {
             return null;
         }
 
@@ -327,7 +351,7 @@ class GameEngine
         $referenciaBiblica = $question['referencia_biblica'] ?? $question->referencia_biblica ?? '';
         $textoPergunta = $question['texto'] ?? $question->texto ?? '';
 
-        if (!$correct) {
+        if (! $correct) {
             $this->errosCount++;
         }
 
@@ -363,7 +387,7 @@ class GameEngine
             'pontos' => $points,
             'fase_anterior' => $faseAntes,
             'nova_fase' => ($this->state->getEstado() === 'em_curso' && $faseDepois > $faseAntes) ? $faseDepois : null,
-            'som_efeito' => $correct ? ('certa' . rand(1, 3)) : ('errou' . rand(1, 3)),
+            'som_efeito' => $correct ? ('certa'.rand(1, 3)) : ('errou'.rand(1, 3)),
             'resposta_dada' => $answer,
             'resposta_correta' => $respostaCorreta,
             'indice_correto' => $indiceCorreto,
@@ -446,7 +470,7 @@ class GameEngine
         }
 
         $question = $this->state->getPerguntaAtual();
-        if (!$question) {
+        if (! $question) {
             return ['sucesso' => false, 'mensagem' => 'Nenhuma pergunta ativa.'];
         }
 
@@ -470,7 +494,7 @@ class GameEngine
             'som_efeito' => 'dica',
             'dicas_restantes' => $this->dicasRestantes,
             'dica_biblica' => $this->dicaBiblicaAtual,
-            'mensagem' => 'Dica bíblica revelada! Restam ' . $this->dicasRestantes . ' dica(s).',
+            'mensagem' => 'Dica bíblica revelada! Restam '.$this->dicasRestantes.' dica(s).',
         ];
     }
 
@@ -501,7 +525,7 @@ class GameEngine
             'sucesso' => true,
             'som_efeito' => 'inicio',
             'pulos_restantes' => $this->pulosRestantes,
-            'mensagem' => 'Pergunta trocada! Restam ' . $this->pulosRestantes . ' pulo(s).',
+            'mensagem' => 'Pergunta trocada! Restam '.$this->pulosRestantes.' pulo(s).',
         ];
     }
 
@@ -512,7 +536,7 @@ class GameEngine
         }
 
         $question = $this->state->getPerguntaAtual();
-        if (!$question) {
+        if (! $question) {
             return ['sucesso' => false, 'mensagem' => 'Nenhuma pergunta ativa.'];
         }
 
@@ -521,17 +545,39 @@ class GameEngine
             $opcoes = json_decode($opcoes, true) ?: [];
         }
 
-        $correta = mb_strtolower(trim($question['resposta_correta'] ?? ''), 'UTF-8');
-        $indicesErrados = [];
+        $corretaRaw = trim((string) ($question['resposta_correta'] ?? ''));
+        $corretaLower = mb_strtolower($corretaRaw, 'UTF-8');
+        $indiceCorreto = null;
 
-        foreach ($opcoes as $idx => $opcao) {
-            if (mb_strtolower(trim((string) $opcao), 'UTF-8') !== $correta) {
-                $indicesErrados[] = (int) $idx;
+        // Se a resposta correta for indicada pelo índice numérico direto (0, 1, 2, 3)
+        if (is_numeric($corretaRaw) && isset($opcoes[(int) $corretaRaw])) {
+            $indiceCorreto = (int) $corretaRaw;
+        } else {
+            // Procura pelo texto da alternativa
+            foreach ($opcoes as $idx => $opcao) {
+                if (mb_strtolower(trim((string) $opcao), 'UTF-8') === $corretaLower) {
+                    $indiceCorreto = (int) $idx;
+                    break;
+                }
             }
         }
 
+        $indicesErrados = [];
+        foreach ($opcoes as $idx => $opcao) {
+            $i = (int) $idx;
+            if ($indiceCorreto !== null && $i === $indiceCorreto) {
+                continue;
+            }
+            $indicesErrados[] = $i;
+        }
+
+        if ($indiceCorreto === null && count($indicesErrados) > 2) {
+            // Proteção extra se não encontrou o índice da correta
+            array_shift($indicesErrados);
+        }
+
         shuffle($indicesErrados);
-        $this->opcoesEliminadasAtual = array_slice($indicesErrados, 0, 2);
+        $this->opcoesEliminadasAtual = array_values(array_slice($indicesErrados, 0, min(2, count($indicesErrados))));
         $this->ajudaCartasUsada = true;
 
         return [
@@ -553,7 +599,7 @@ class GameEngine
         }
 
         $question = $this->state->getPerguntaAtual();
-        if (!$question) {
+        if (! $question) {
             return ['sucesso' => false, 'mensagem' => 'Nenhuma pergunta ativa.'];
         }
 
@@ -585,12 +631,12 @@ class GameEngine
 
         $this->ajudasConvidadosRestantes--;
         $this->convidadoConsultadoNaPergunta = true;
-        $somConvidado = 'sabe' . min(3, max(1, $numeroEscolhido));
+        $somConvidado = 'sabe'.min(3, max(1, $numeroEscolhido));
 
         if ($numeroEscolhido === $errado) {
             $fala = $comentarioAjuda
                 ? "«{$comentarioAjuda}» — Por isso {$nomeConvidado} não teve relação direta com este acontecimento!"
-                : "«Não vivi na época deste relato bíblico, portanto não posso confirmar a alternativa correta!»";
+                : '«Não vivi na época deste relato bíblico, portanto não posso confirmar a alternativa correta!»';
 
             $this->dicaConvidadoAtual = [
                 'convidado' => $nomeConvidado,
@@ -620,11 +666,11 @@ class GameEngine
     public function revelarGabarito(): array
     {
         $question = $this->state->getPerguntaAtual();
-        if (!$question) {
+        if (! $question) {
             return ['sucesso' => false, 'mensagem' => 'Nenhuma pergunta ativa.'];
         }
 
-        $this->gabaritoReveladoAtual = !$this->gabaritoReveladoAtual;
+        $this->gabaritoReveladoAtual = ! $this->gabaritoReveladoAtual;
 
         return [
             'sucesso' => true,
@@ -670,7 +716,7 @@ class GameEngine
     {
         $sequencia = 0;
         for ($i = count($this->answers) - 1; $i >= 0; $i--) {
-            if (!empty($this->answers[$i]['acertou'])) {
+            if (! empty($this->answers[$i]['acertou'])) {
                 $sequencia++;
             } else {
                 break;
@@ -735,7 +781,7 @@ class GameEngine
 
     public function getResults(): array
     {
-        $acertos = count(array_filter($this->answers, fn ($a) => !empty($a['acertou'])));
+        $acertos = count(array_filter($this->answers, fn ($a) => ! empty($a['acertou'])));
 
         return [
             'estado' => $this->state->getEstado(),

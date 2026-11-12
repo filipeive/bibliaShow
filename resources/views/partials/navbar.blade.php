@@ -54,7 +54,7 @@
             <!-- Right Side Actions -->
             <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0 whitespace-nowrap">
                 @if(!request()->routeIs('game.*') && !request()->is('jogar*') && !request()->is('entrar*') && !($hideJogarAgora ?? false))
-                    <!-- Botão Principal Destacado: JOGAR AGORA (Apenas em telas sm ou superiores, para liberar espaço no mobile) -->
+                    <!-- Botão Principal Destacado: JOGAR AGORA (Desktop e Tablets) -->
                     <button type="button" onclick="abrirModalJogarAgora()"
                             class="sm-cta !w-auto !py-2 !px-4 sm:!px-5 !text-xs sm:!text-sm cursor-pointer shadow-lg hidden sm:inline-flex">
                         <svg class="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
@@ -64,9 +64,9 @@
                     </button>
                 @endif
 
-                <!-- Botão de Definições (Sons & Jogo) -->
+                <!-- Botão de Definições (Sons & Jogo) - Desktop -->
                 <button type="button" onclick="abrirModalDefinicoes()" title="Definições de Som e Jogo"
-                        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold bg-blue-950/80 hover:bg-blue-900 border border-blue-400/40 text-blue-200 transition shadow">
+                        class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold bg-blue-950/80 hover:bg-blue-900 border border-blue-400/40 text-blue-200 transition shadow">
                     <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -74,9 +74,9 @@
                     <span class="hidden md:inline" id="badgeStatusSomNav">Definições</span>
                 </button>
 
-                <!-- Link Sobre o Jogo -->
+                <!-- Link Sobre o Jogo - Desktop -->
                 <a href="{{ route('sobre') }}" title="Sobre o Bíblia Show e Créditos"
-                   class="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold {{ request()->routeIs('sobre') ? 'bg-amber-500/25 text-amber-300 border border-amber-400/60' : 'bg-blue-950/80 hover:bg-blue-900 text-blue-200 border border-blue-400/40' }} transition shadow">
+                   class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-bold {{ request()->routeIs('sobre') ? 'bg-amber-500/25 text-amber-300 border border-amber-400/60' : 'bg-blue-950/80 hover:bg-blue-900 text-blue-200 border border-blue-400/40' }} transition shadow">
                     <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                     </svg>
@@ -89,7 +89,7 @@
                         <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
                         <span class="max-w-[110px] truncate">{{ auth()->user()->nome }}</span>
                     </a>
-                    <form action="{{ route('logout') }}" method="POST" class="inline">
+                    <form action="{{ route('logout') }}" method="POST" class="hidden sm:inline">
                         @csrf
                         <button type="submit" title="Sair da conta"
                                 class="inline-flex items-center gap-1 px-3 py-2 rounded-full text-xs font-bold bg-rose-950/70 hover:bg-rose-900 text-rose-300 border border-rose-500/40 transition">
@@ -99,24 +99,99 @@
                             <span class="hidden sm:inline">Sair</span>
                         </button>
                     </form>
-
-                    <!-- Mobile Hamburger Button (Somente autenticado) -->
-                    <button type="button" onclick="document.getElementById('mobileMenuBiblia').classList.toggle('hidden')"
-                            class="lg:hidden inline-flex items-center justify-center p-2 rounded-xl bg-blue-950 text-blue-200 border border-blue-500/30">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                        </svg>
-                    </button>
                 @else
                     <a href="{{ route('login') }}"
-                       class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-black bg-blue-950/80 hover:bg-blue-900 text-amber-300 border border-amber-400/40 shadow transition">
+                       class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-black bg-blue-950/80 hover:bg-blue-900 text-amber-300 border border-amber-400/40 shadow transition">
                         <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                         </svg>
                         <span>Login</span>
                     </a>
                 @endauth
+
+                <!-- Menu de 3 Pontinhos no Mobile (⋮) -->
+                <button type="button" onclick="toggleMenuTresPontinhosMobile()" title="Mais opções"
+                        class="sm:hidden inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-blue-950/90 border-2 border-amber-400/50 text-amber-300 shadow-md active:scale-95 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm0 6.75a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm0 6.75a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" />
+                    </svg>
+                </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Dropdown / Drawer do Menu de 3 Pontinhos no Mobile -->
+    <div id="menuTresPontinhosMobile" class="hidden sm:hidden border-t border-amber-500/20 bg-gradient-to-b from-[#0a164a]/98 to-[#060e33]/98 px-3.5 py-3 space-y-1.5 backdrop-blur-md shadow-2xl">
+        <button type="button" onclick="abrirModalDefinicoes(); toggleMenuTresPontinhosMobile();"
+                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left font-bold text-xs text-blue-100 hover:bg-blue-900/50 transition border border-transparent hover:border-blue-400/30">
+            <div class="w-8 h-8 rounded-lg bg-blue-900/60 border border-blue-400/30 flex items-center justify-center text-amber-400 shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </div>
+            <div>
+                <div class="text-white font-extrabold">Definições</div>
+                <div class="text-[10px] text-blue-300">Sons de auditório, efeitos e vibrações</div>
+            </div>
+        </button>
+
+        <a href="{{ route('sobre') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs text-blue-100 hover:bg-blue-900/50 transition border border-transparent hover:border-blue-400/30">
+            <div class="w-8 h-8 rounded-lg bg-blue-900/60 border border-blue-400/30 flex items-center justify-center text-amber-400 shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                </svg>
+            </div>
+            <div>
+                <div class="text-white font-extrabold">Sobre o Jogo & Baixar APK</div>
+                <div class="text-[10px] text-blue-300">Instale no celular Android ou conheça o projeto</div>
+            </div>
+        </a>
+
+        <a href="{{ route('curiosidades') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-xs text-blue-100 hover:bg-blue-900/50 transition border border-transparent hover:border-blue-400/30">
+            <div class="w-8 h-8 rounded-lg bg-blue-900/60 border border-blue-400/30 flex items-center justify-center text-emerald-400 shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                </svg>
+            </div>
+            <div>
+                <div class="text-white font-extrabold">Regras das 4 Fases</div>
+                <div class="text-[10px] text-blue-300">Escada de pontuação e dicas bíblicas</div>
+            </div>
+        </a>
+
+        @auth
+            <div class="pt-2 border-t border-blue-400/20 space-y-1">
+                <a href="{{ route('apresentador.painel') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold text-xs text-white hover:bg-blue-900/50">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Painel do Apresentador
+                </a>
+                <a href="{{ route('perguntas.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold text-xs text-white hover:bg-blue-900/50">
+                    <span class="w-2 h-2 rounded-full bg-amber-400"></span> Banco de Perguntas
+                </a>
+                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl font-bold text-xs text-white hover:bg-blue-900/50">
+                    <span class="w-2 h-2 rounded-full bg-rose-400"></span> Painel Admin ({{ auth()->user()->nome }})
+                </a>
+                <form action="{{ route('logout') }}" method="POST" class="pt-1">
+                    @csrf
+                    <button type="submit" class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-left font-bold text-xs text-rose-300 hover:bg-rose-950/60">
+                        <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
+                        Sair da Conta
+                    </button>
+                </form>
+            </div>
+        @else
+            <div class="pt-2 border-t border-blue-400/20">
+                <a href="{{ route('login') }}" class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-black text-xs text-slate-950 bg-gradient-to-r from-amber-300 to-amber-500 shadow-lg">
+                    <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
+                    <span>Entrar / Acesso do Apresentador</span>
+                </a>
+            </div>
+        @endauth
+    </div>
         </div>
     </div>
 
@@ -494,6 +569,11 @@
     function fecharModalDefinicoes() {
         const m = document.getElementById('modalDefinicoes');
         if (m) m.classList.add('hidden');
+    }
+
+    function toggleMenuTresPontinhosMobile() {
+        const m = document.getElementById('menuTresPontinhosMobile');
+        if (m) m.classList.toggle('hidden');
     }
 
     document.addEventListener('DOMContentLoaded', atualizarUISomGlobal);

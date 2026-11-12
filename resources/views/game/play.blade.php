@@ -362,43 +362,31 @@
                                 <span class="text-amber-300 text-sm">{{ $pontuacao }}</span><span class="text-[8px] opacity-80">PTS</span>
                             </div>
                         </div>
-                        <div class="hidden lg:flex flex-wrap items-center justify-between gap-2 mb-4">
-                            <div class="flex flex-wrap items-center gap-2">
-                                @if(!empty($pergunta['livro_nome']))
-                                    <span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                        </svg>
-                                        {{ $pergunta['livro_nome'] }}
-                                    </span>
-                                @endif
-                                @if(!empty($pergunta['categoria_nome']))
-                                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30">
-                                        {{ $pergunta['categoria_nome'] }}
-                                    </span>
-                                @endif
-                                @if(!empty($pergunta['codigo_classico']))
-                                    <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
-                                        #{{ $pergunta['codigo_classico'] }}
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-
-                        <!-- Caixa de Enunciado Estilo Show do Milhão -->
-                        <div class="sm-question lg:hidden pt-7 pb-4 px-4 mb-3">
-                            <p class="sm-question-text text-[17px] sm:text-xl">
-                                {{ $pergunta['texto'] ?? $pergunta->texto }}
-                            </p>
+                        <!-- Badges Bíblicos (Livro, Categoria, #Código) - Topo Unificado -->
+                        <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
                             @if(!empty($pergunta['livro_nome']))
-                                <p class="text-[10px] font-bold uppercase tracking-wider text-blue-200/80 mt-2 flex items-center justify-center gap-1.5">
-                                    <svg class="w-3.5 h-3.5 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+                                <span class="inline-flex items-center gap-1.5 text-xs font-black px-3.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm">
+                                    <svg class="w-3.5 h-3.5 text-amber-300" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+                                    </svg>
                                     <span>{{ $pergunta['livro_nome'] }}</span>
-                                </p>
+                                </span>
+                            @endif
+                            @if(!empty($pergunta['categoria_nome']))
+                                <span class="text-xs font-extrabold px-3.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                                    {{ $pergunta['categoria_nome'] }}
+                                </span>
+                            @endif
+                            @if(!empty($pergunta['codigo_classico']) || !empty($pergunta['id']))
+                                <span class="text-xs font-mono font-bold px-3 py-1 rounded-full bg-slate-900/80 text-amber-300/80 border border-amber-400/20">
+                                    #{{ $pergunta['codigo_classico'] ?? $pergunta['id'] }}
+                                </span>
                             @endif
                         </div>
-                        <div class="hidden lg:block bg-gradient-to-r from-red-950/80 via-slate-900 to-red-950/80 border-2 border-amber-400/50 rounded-2xl p-5 sm:p-7 mb-6 shadow-inner">
-                            <p class="text-lg sm:text-2xl font-extrabold text-white leading-relaxed tracking-tight">
+
+                        <!-- Card de Pergunta Ampliado & Destacado (Show do Milhão Bíblico) -->
+                        <div class="relative bg-gradient-to-b from-[#2e0c15] via-[#1a060b] to-[#250910] border-2 border-amber-500/60 rounded-2xl sm:rounded-3xl p-5 sm:p-8 mb-4 sm:mb-6 shadow-[0_0_25px_rgba(245,158,11,0.22)] min-h-[115px] sm:min-h-[145px] flex items-center justify-center text-center">
+                            <p class="text-base sm:text-2xl font-black text-white leading-relaxed tracking-tight select-none">
                                 {{ $pergunta['texto'] ?? $pergunta->texto }}
                             </p>
                         </div>
@@ -449,9 +437,9 @@
 
                         <!-- MOBILE: Ajudas circulares (estilo Show do Milhão) -->
                         <div class="lg:hidden flex items-center justify-center gap-3 mb-3">
-                            <button type="button" onclick="abrirCartasMobile()" class="sm-lifeline" title="Cartas: eliminar 2 alternativas" @if($cartasUsada) disabled @endif>
+                            <button type="button" onclick="abrirCartasMobile()" id="btnLifelineCartasMobile" class="sm-lifeline" title="Cartas: eliminar 2 alternativas" @if($cartasUsada) disabled @endif>
                                 −2
-                                <span class="sm-badge">{{ $cartasUsada ? 0 : 1 }}</span>
+                                <span class="sm-badge" id="badgeCartasCountMobile">{{ $cartasUsada ? 0 : 1 }}</span>
                             </button>
                             <button type="button" onclick="abrirConvidadosMobile()" class="sm-lifeline flex items-center justify-center" title="Convidados bíblicos" @if($convidadosUsada || $convidadosRestantes <= 0) disabled @endif>
                                 <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
@@ -541,6 +529,11 @@
                             <div class="sm-ingot-value">{{ $placar_milhao['acertar'] ?? ($pontuacao + 10) }}</div>
                             <div class="sm-ingot-label">Acertar</div>
                         </div>
+                    </div>
+
+                    <!-- Rodapé clássico Show do Milhão no mobile -->
+                    <div class="lg:hidden mt-2 bg-gradient-to-r from-red-800 via-red-600 to-red-800 text-white font-black text-xs py-2 px-3 text-center rounded-xl uppercase tracking-wider shadow-md border border-red-500/40">
+                        Não sabe a resposta? Use ajuda!
                     </div>
 
                     <!-- Área Destacada de Dicas & Ajudas do Clássico Bíblia Show -->
@@ -709,22 +702,33 @@
                 </div>
             </div>
 
-            <!-- ===== MOBILE: Cartas (eliminar 2) ===== -->
-            <div id="modalCartasMobile" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm items-center justify-center p-4" onclick="if(event.target===this) fecharCartasMobile()">
-                <div class="sm-panel w-full max-w-xs">
-                    <div class="sm-panel-title px-4 py-2.5 text-center font-black text-white tracking-wider">CARTAS</div>
-                    <div class="p-4">
-                        <p class="text-center text-xs font-bold text-blue-100 mb-3">Vire uma carta para eliminar 2 alternativas erradas</p>
+            <!-- ===== MODAL: Cartas (eliminar 2 alternativas) ===== -->
+            <div id="modalCartasMobile" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md items-center justify-center p-4" onclick="if(event.target===this) fecharCartasMobile()">
+                <div class="sm-panel w-full max-w-sm text-center relative overflow-hidden border-2 border-amber-400/60 shadow-2xl">
+                    <div class="sm-panel-title px-4 py-3 text-center flex items-center justify-between">
+                        <span class="text-xs uppercase tracking-widest font-black text-amber-300 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                            AJUDA DAS CARTAS
+                        </span>
+                        <button type="button" onclick="fecharCartasMobile()" class="text-slate-400 hover:text-white text-base">✕</button>
+                    </div>
+                    <div class="p-5">
+                        <p class="text-xs font-extrabold text-blue-100 mb-4">Escolha uma das 4 cartas para virar e eliminar 2 opções incorretas:</p>
                         <form action="{{ route('game.lifeline') }}" method="POST" id="formCartasMobile">
                             @csrf
                             <input type="hidden" name="tipo" value="cartas">
-                            <div class="grid grid-cols-2 gap-3">
+                            <div class="grid grid-cols-2 gap-3.5 max-w-[260px] mx-auto">
                                 @for($c = 0; $c < 4; $c++)
-                                    <button type="submit" class="sm-card-back" onclick="vibrar(40)">✝</button>
+                                    <button type="button" onclick="virarCartaEscolhida(this)" class="sm-card-back group relative overflow-hidden focus:outline-none cursor-pointer" title="Virar Carta {{ $c + 1 }}">
+                                        <div class="card-inner w-full h-full flex flex-col items-center justify-center pointer-events-none">
+                                            <span class="text-2xl font-black text-amber-300 drop-shadow-md">✝</span>
+                                            <span class="text-[9px] font-black uppercase tracking-wider text-amber-200 mt-1">BÍBLIA</span>
+                                        </div>
+                                    </button>
                                 @endfor
                             </div>
                         </form>
-                        <button type="button" onclick="fecharCartasMobile()" class="sm-cta mt-4 !py-2.5 text-sm">Voltar</button>
+                        <button type="button" onclick="fecharCartasMobile()" class="sm-cta mt-5 !py-2.5 text-xs font-black">Voltar ao Jogo</button>
                     </div>
                 </div>
             </div>
@@ -755,25 +759,30 @@
             </div>
 
             <!-- Modal 0: Continuar Como [Nome] ou Trocar de Participante -->
-            <div id="modalContinuarComo" class="fixed inset-0 z-50 {{ !empty($perguntar_continuar) ? 'flex' : 'hidden' }} items-center justify-center bg-slate-950/90 backdrop-blur-md p-4">
-                <div class="bg-slate-900 border-2 border-amber-400 rounded-3xl max-w-md w-full p-6 sm:p-8 text-center shadow-2xl">
-                    <div class="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-9 h-9" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <div id="modalContinuarComo" class="fixed inset-0 z-50 {{ !empty($perguntar_continuar) ? 'flex' : 'hidden' }} items-center justify-center bg-slate-950/85 backdrop-blur-md p-4">
+                <div class="sm-panel max-w-md w-full p-6 sm:p-8 text-center relative text-white shadow-2xl">
+                    <div class="inline-flex items-center justify-center mb-3">
+                        <span class="sm-pill text-xs uppercase tracking-wider flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-amber-950 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <span>Arena Bíblia Show</span>
+                        </span>
+                    </div>
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-200 shadow-xl shadow-amber-500/30 text-amber-950 mx-auto mb-3">
+                        <svg class="w-8 h-8 text-amber-950" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                         </svg>
                     </div>
-                    <p class="text-xs font-black uppercase tracking-widest text-amber-400 mb-1">Arena Bíblia Show</p>
-                    <h3 class="text-2xl font-black text-white mb-2">Continuar Partida?</h3>
-                    <p class="text-sm text-slate-300 mb-6">
-                        Você deseja continuar jogando como <strong class="text-amber-400 text-base font-black">{{ $jogador_nome }}</strong> ou deseja entrar com outro nome?
+                    <h3 class="text-2xl sm:text-3xl font-black text-white sm-logo-title mb-2">Continuar Partida?</h3>
+                    <p class="text-xs sm:text-sm text-blue-200 mb-6 leading-relaxed">
+                        Você deseja continuar jogando como <strong class="text-amber-300 text-base font-black">{{ $jogador_nome }}</strong> ou deseja entrar com outro nome?
                     </p>
                     <div class="space-y-3">
                         <button type="button" id="btnContinuarComoAtual" onclick="confirmarContinuarComo()"
-                                class="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm uppercase tracking-wider shadow-lg transition transform hover:-translate-y-0.5">
+                                class="sm-cta !py-3.5 !text-sm cursor-pointer">
                             Continuar como {{ $jogador_nome }} →
                         </button>
                         <button type="button" onclick="trocarParaNovoParticipante()"
-                                class="w-full py-3 px-6 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs uppercase tracking-wider border border-slate-700 transition">
+                                class="w-full py-3 px-5 rounded-full bg-blue-900/60 hover:bg-blue-800 text-blue-200 font-bold text-xs uppercase tracking-wider border border-blue-400/40 transition">
                             Entrar com Outro Nome / Participante
                         </button>
                     </div>
@@ -781,26 +790,31 @@
             </div>
 
             <!-- Modal 1: Identificação Clássica do Jogador ao Iniciar -->
-            <div id="modalNomeJogador" class="fixed inset-0 z-50 {{ !empty($precisa_identificacao) ? 'flex' : 'hidden' }} items-center justify-center bg-slate-950/90 backdrop-blur-md p-4">
-                <div class="bg-slate-900 border-2 border-amber-400 rounded-3xl max-w-md w-full p-6 sm:p-8 text-center shadow-2xl">
-                    <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <div id="modalNomeJogador" class="fixed inset-0 z-50 {{ !empty($precisa_identificacao) ? 'flex' : 'hidden' }} items-center justify-center bg-slate-950/85 backdrop-blur-md p-4">
+                <div class="sm-panel max-w-md w-full p-6 sm:p-8 text-center relative text-white shadow-2xl">
+                    <div class="inline-flex items-center justify-center mb-3">
+                        <span class="sm-pill text-xs uppercase tracking-wider flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-amber-950 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <span>Bíblia Show Clássico</span>
+                        </span>
+                    </div>
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-200 shadow-xl shadow-amber-500/30 text-amber-950 mx-auto mb-3">
+                        <svg class="w-8 h-8 text-amber-950" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                         </svg>
                     </div>
-                    <p class="text-xs font-black uppercase tracking-widest text-amber-400 mb-1">Bíblia Show Clássico</p>
-                    <h3 class="text-2xl font-black text-white mb-2">Qual é o seu nome?</h3>
-                    <p class="text-xs sm:text-sm text-slate-300 mb-5">
-                        Seu nome aparecerá no palco e será registrado no <strong>Ranking Geral do Bíblia Show</strong> ao final da partida!
+                    <h3 class="text-2xl sm:text-3xl font-black text-white sm-logo-title mb-2">Qual é o seu nome?</h3>
+                    <p class="text-xs sm:text-sm text-blue-200 mb-5 leading-relaxed">
+                        Seu nome aparecerá no palco e será registrado no <strong class="text-amber-300 font-black">Ranking Geral do Bíblia Show</strong> ao final da partida!
                     </p>
                     <form id="formDefinirJogador" action="{{ route('game.player') }}" method="POST" onsubmit="submeterNomeJogador(event)" class="space-y-4">
                         @csrf
                         <input type="text" name="jogador_nome" id="inputNomeJogadorModal" required maxlength="60"
                                value="{{ ($jogador_nome ?? '') !== 'Participante' ? ($jogador_nome ?? '') : '' }}"
                                placeholder="Digite seu nome ou apelido..."
-                               class="w-full px-4 py-3.5 rounded-xl bg-slate-950 border border-amber-500/40 text-white font-bold text-center text-base focus:ring-2 focus:ring-amber-400 outline-none">
+                               class="w-full px-4 py-3.5 rounded-xl bg-blue-950/90 border border-blue-400/50 text-white font-bold text-center text-base focus:border-amber-400 focus:ring-2 focus:ring-amber-400 outline-none placeholder-blue-300/40 shadow-inner">
                         <button type="submit" id="btnIniciarPartidaModal"
-                                class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm uppercase tracking-wider shadow-lg transition">
+                                class="sm-cta !py-3.5 !text-sm cursor-pointer">
                             Começar Partida! →
                         </button>
                     </form>
@@ -808,25 +822,28 @@
             </div>
 
             <!-- Modal 2: "Você tem certeza?" (Estilo Show do Milhão) -->
-            <div id="modalCerteza" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
-                <div class="bg-slate-900 border-2 border-amber-400 rounded-3xl max-w-md w-full p-6 sm:p-8 text-center shadow-2xl">
-                    <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <div id="modalCerteza" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/85 backdrop-blur-md p-4">
+                <div class="sm-panel max-w-md w-full p-6 sm:p-8 text-center relative text-white shadow-2xl">
+                    <div class="inline-flex items-center justify-center mb-2">
+                        <span class="sm-pill text-xs uppercase tracking-wider">RESPOSTA FINAL</span>
+                    </div>
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-200 shadow-xl shadow-amber-500/30 text-amber-950 mx-auto mb-3">
+                        <svg class="w-8 h-8 text-amber-950" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
-                    <h3 class="text-2xl font-black text-white mb-2">Você tem certeza?</h3>
-                    <p class="text-sm text-slate-300 mb-6">
+                    <h3 class="text-2xl sm:text-3xl font-black text-white sm-logo-title mb-2">Você tem certeza?</h3>
+                    <p class="text-xs sm:text-sm text-blue-200 mb-5">
                         Alternativa escolhida:
-                        <span id="modalAlternativaTexto" class="block mt-2 p-3 rounded-xl bg-slate-800 border border-amber-500/30 text-amber-300 font-bold text-base"></span>
+                        <span id="modalAlternativaTexto" class="block mt-2 p-3 rounded-2xl bg-blue-950/90 border border-amber-400/60 text-amber-300 font-black text-base shadow-inner"></span>
                     </p>
                     <div class="grid grid-cols-2 gap-3">
                         <button type="button" onclick="fecharConfirmacao()"
-                                class="py-3.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-extrabold text-sm border border-slate-700 transition">
+                                class="py-3 px-4 rounded-full bg-blue-900/70 hover:bg-blue-800 text-blue-200 font-extrabold text-xs uppercase tracking-wider border border-blue-400/40 transition">
                             NÃO, VOLTAR
                         </button>
                         <button type="button" onclick="confirmarRespostaFinal()"
-                                class="py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-black text-sm shadow-lg transition">
+                                class="sm-cta !py-3 !text-xs cursor-pointer">
                             SIM, CONFIRMAR!
                         </button>
                     </div>
@@ -834,22 +851,24 @@
             </div>
 
             <!-- Modal 3: Mensagem Amigável de Fim de Jogo (antes de ir para /jogar/resultado) -->
-            <div id="modalFimAmigavel" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/90 backdrop-blur-md p-4">
-                <div class="bg-slate-900 border-2 border-amber-400 rounded-3xl max-w-lg w-full p-6 sm:p-8 text-center shadow-2xl">
-                    <div class="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-9 h-9" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <div id="modalFimAmigavel" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/85 backdrop-blur-md p-4">
+                <div class="sm-panel max-w-lg w-full p-6 sm:p-8 text-center relative text-white shadow-2xl">
+                    <div class="inline-flex items-center justify-center mb-2">
+                        <span class="sm-pill text-xs uppercase tracking-wider">FIM DA JORNADA</span>
+                    </div>
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-200 shadow-xl shadow-amber-500/30 text-amber-950 mx-auto mb-3">
+                        <svg class="w-8 h-8 text-amber-950" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
                         </svg>
                     </div>
-                    <p class="text-xs font-black uppercase tracking-widest text-amber-400 mb-1">Fim da Jornada nesta Partida</p>
-                    <h3 class="text-2xl font-black text-white mb-3">Valeu pela participação, {{ $jogador_nome ?? 'Participante' }}!</h3>
-                    <p id="textoMensagemAmigavel" class="text-sm sm:text-base text-slate-300 leading-relaxed mb-6"></p>
-                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 mb-6">
-                        <p class="text-xs uppercase font-bold text-slate-400">Sua Pontuação Registrada no Ranking</p>
-                        <p id="pontosModalFim" class="text-3xl font-black text-amber-400 mt-1">{{ $pontuacao }} pts</p>
+                    <h3 class="text-2xl sm:text-3xl font-black text-white sm-logo-title mb-2">Valeu pela participação, {{ $jogador_nome ?? 'Participante' }}!</h3>
+                    <p id="textoMensagemAmigavel" class="text-xs sm:text-sm text-blue-200 leading-relaxed mb-6"></p>
+                    <div class="sm-ingot max-w-xs mx-auto p-3 mb-6">
+                        <div class="sm-ingot-label">Sua Pontuação no Ranking</div>
+                        <div id="pontosModalFim" class="sm-ingot-value !text-2xl mt-0.5">{{ $pontuacao }} pts</div>
                     </div>
                     <a id="btnIrParaResultado" href="{{ route('game.result') }}"
-                       class="block w-full py-4 px-6 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-sm uppercase tracking-wider shadow-xl transition">
+                       class="sm-cta !py-3.5 !text-sm cursor-pointer">
                         Ver Meu Resultado e Ranking Geral →
                     </a>
                 </div>
@@ -1417,6 +1436,67 @@
                 function fecharCartasMobile() {
                     const m = document.getElementById('modalCartasMobile');
                     if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+                }
+
+                async function virarCartaEscolhida(btn) {
+                    if (btn.classList.contains('is-flipped')) return;
+                    btn.classList.add('is-flipped', 'pointer-events-none');
+                    vibrar(50);
+                    tocarAudio('ajuda');
+
+                    const inner = btn.querySelector('.card-inner');
+                    if (inner) {
+                        inner.innerHTML = '<span class="text-2xl font-black text-amber-300">−2</span><span class="text-[8px] font-black uppercase text-amber-200 mt-0.5">ELIMINOU 2</span>';
+                    }
+
+                    try {
+                        const resp = await fetch("{{ route('game.lifeline') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                            },
+                            body: JSON.stringify({ tipo: 'cartas' }),
+                        });
+
+                        const data = await resp.json();
+                        if (data.sucesso) {
+                            const eliminadas = data.opcoes_eliminadas || [];
+                            setTimeout(() => {
+                                fecharCartasMobile();
+                                aplicarEliminadasNaTela(eliminadas);
+                                document.querySelectorAll('#btnLifelineCartasMobile').forEach(b => {
+                                    b.disabled = true;
+                                    b.classList.add('opacity-40', 'cursor-not-allowed');
+                                });
+                                document.querySelectorAll('#badgeCartasCountMobile').forEach(b => b.textContent = '0');
+                            }, 500);
+                            return;
+                        }
+                    } catch (e) {
+                        console.warn('Fallback submit form cartas:', e);
+                    }
+
+                    document.getElementById('formCartasMobile').submit();
+                }
+
+                function aplicarEliminadasNaTela(indices) {
+                    if (!Array.isArray(indices)) return;
+                    indices.forEach(idx => {
+                        const btn = document.getElementById(`btnOpcao_${idx}`);
+                        if (btn) {
+                            btn.disabled = true;
+                            btn.classList.remove('group');
+                            btn.classList.add('is-eliminada', 'opacity-30', 'line-through', 'cursor-not-allowed', 'pointer-events-none');
+                            const statusTag = document.getElementById(`statusTag_${idx}`);
+                            if (statusTag) {
+                                statusTag.textContent = 'ELIMINADA';
+                                statusTag.classList.remove('hidden');
+                                statusTag.classList.add('bg-rose-950/80', 'text-rose-300', 'border', 'border-rose-500/40');
+                            }
+                        }
+                    });
                 }
                 function abrirConvidadosMobile() {
                     const m = document.getElementById('modalConvidadosMobile');

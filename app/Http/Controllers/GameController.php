@@ -11,6 +11,7 @@ use App\Models\Categoria;
 use App\Models\NivelDificuldade;
 use App\Models\Questao;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class GameController extends Controller
 {
@@ -42,6 +43,7 @@ class GameController extends Controller
     public function confirmarJogador(Request $request)
     {
         $request->session()->put('jogador_confirmado', true);
+
         return response()->json([
             'sucesso' => true,
             'jogador_nome' => (string) $request->session()->get('jogador_nome', 'Participante'),
@@ -68,27 +70,27 @@ class GameController extends Controller
         if ($request->boolean('trocar_nome')) {
             $precisaIdentificacao = true;
             $request->session()->forget('jogador_confirmado');
-        } elseif (!$jogadorConfirmado) {
-            if (!$precisaIdentificacao) {
+        } elseif (! $jogadorConfirmado) {
+            if (! $precisaIdentificacao) {
                 $perguntarContinuarComo = true;
             } else {
                 $precisaIdentificacao = true;
             }
-        } elseif ($request->boolean('confirmar_nome') && !$precisaIdentificacao) {
+        } elseif ($request->boolean('confirmar_nome') && ! $precisaIdentificacao) {
             $perguntarContinuarComo = true;
         }
 
         $engine = $this->carregarEngineDaSessao($request);
         $iniciouAgora = false;
 
-        if (!$engine || $engine->getState()['estado'] === 'terminado') {
+        if (! $engine || $engine->getState()['estado'] === 'terminado') {
             $questoes = $this->selecionarQuestoesPartida($request);
 
             $engine = new GameEngine(
-                new RandomSelector(),
-                new StandardScoring(),
-                new CountdownTimer(),
-                new GameState()
+                new RandomSelector,
+                new StandardScoring,
+                new CountdownTimer,
+                new GameState
             );
 
             $engine->start($questoes, [['id' => 1, 'nome' => $jogadorNome ?: 'Participante']]);
@@ -139,22 +141,24 @@ class GameController extends Controller
 
         $engine = $this->carregarEngineDaSessao($request);
 
-        if (!$engine) {
+        if (! $engine) {
             if ($request->expectsJson()) {
                 return response()->json([
                     'redirect_url' => route('game.play', ['novo' => 1]),
                     'error' => 'Sessão expirada.',
                 ]);
             }
+
             return redirect()->route('game.play', ['novo' => 1])
                 ->with('error', 'Sessão de jogo expirada. Uma nova partida foi iniciada.');
         }
 
         $pergunta = $engine->getState()['pergunta_atual'];
-        if (!$pergunta) {
+        if (! $pergunta) {
             if ($request->expectsJson()) {
                 return response()->json(['redirect_url' => route('game.play', ['novo' => 1])]);
             }
+
             return redirect()->route('game.play', ['novo' => 1]);
         }
 
@@ -181,17 +185,17 @@ class GameController extends Controller
         $nomeJogador = (string) $request->session()->get('jogador_nome', $request->user()?->nome ?? 'Participante');
 
         // Se atingiu 3 erros ou 3 tempos esgotados: encerra a partida com mensagem amigável e leva para /jogar/resultado
-        if (!empty($resultado['reiniciar_por_erros']) || !empty($resultado['reiniciar_por_tempo'])) {
+        if (! empty($resultado['reiniciar_por_erros']) || ! empty($resultado['reiniciar_por_tempo'])) {
             $engine->finishGame();
             $resultadosPartida = $engine->getResults();
 
-            $msgAmigavel = !empty($resultado['reiniciar_por_erros'])
+            $msgAmigavel = ! empty($resultado['reiniciar_por_erros'])
                 ? "Que jornada incrível, {$nomeJogador}! Você alcançou o limite de 3 respostas incorretas nesta partida. Não desanime: cada pergunta é uma oportunidade de aprender mais sobre as Escrituras. Veja abaixo seu resumo e escolha quando quiser jogar novamente!"
                 : "Boa tentativa, {$nomeJogador}! O cronômetro esgotou em 3 perguntas nesta partida. Respire fundo, confira sua pontuação no Ranking abaixo e inicie uma nova tentativa quando estiver pronto!";
 
             $resultadosPartida['jogador_nome'] = $nomeJogador;
             $resultadosPartida['perdeu_partida'] = true;
-            $resultadosPartida['motivo_fim'] = !empty($resultado['reiniciar_por_erros']) ? 'limite_erros' : 'tempo_esgotado';
+            $resultadosPartida['motivo_fim'] = ! empty($resultado['reiniciar_por_erros']) ? 'limite_erros' : 'tempo_esgotado';
             $resultadosPartida['mensagem_amigavel'] = $msgAmigavel;
 
             $this->registrarNoRankingIndividual($nomeJogador, $resultadosPartida);
@@ -259,44 +263,88 @@ class GameController extends Controller
             'convidado_indice' => 'nullable|integer|min:0|max:2',
         ]);
 
-        $engine = $this->carregarEngineDaSessao($request);
-        if (!$engine) {
-            return redirect()->route('game.play', ['novo' => 1]);
+        try {
+            $engine = $this->carregarEngineDaSessao($request);
+            if (! $engine) {
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'sucesso' => false,
+                        'mensagem' => 'Sessão expirada. Reiniciando a partida...',
+                        'redirect_url' => route('game.play', ['novo' => 1]),
+                    ], 200);
+                }
+
+                return redirect()->route('game.play', ['novo' => 1]);
+            }
+
+            $tipo = $request->input('tipo');
+
+            if ($tipo === 'pulo') {
+                $idsJaUsados = collect($engine->getResults()['historico_perguntas'] ?? [])
+                    ->pluck('id')
+                    ->filter()
+                    ->all();
+
+                $reservaModel = Questao::aprovadas()
+                    ->with(['livro', 'dificuldade', 'categoria'])
+                    ->whereNotIn('id', $idsJaUsados)
+                    ->inRandomOrder()
+                    ->first();
+
+                $reserva = $reservaModel ? $this->formatarQuestaoParaMotor($reservaModel) : null;
+                $retorno = $engine->usarPulo($reserva);
+            } elseif ($tipo === 'cartas') {
+                $retorno = $engine->usarCartas();
+            } elseif ($tipo === 'dica') {
+                $retorno = $engine->usarDica();
+            } else {
+                $indice = (int) $request->input('convidado_indice', 0);
+                $retorno = $engine->consultarConvidado($indice);
+            }
+
+            $this->salvarEngineNaSessao($request, $engine);
+
+            if ($engine->getState()['estado'] === 'terminado') {
+                $request->session()->put('resultados', $engine->getResults());
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json([
+                        'sucesso' => true,
+                        'terminado' => true,
+                        'redirect_url' => route('game.result'),
+                    ]);
+                }
+
+                return redirect()->route('game.result');
+            }
+
+            if ($request->expectsJson() || $request->ajax()) {
+                $estado = $engine->getState();
+
+                return response()->json([
+                    'sucesso' => $retorno['sucesso'] ?? true,
+                    'tipo' => $tipo,
+                    'dados' => $retorno,
+                    'opcoes_eliminadas' => $retorno['opcoes_eliminadas'] ?? ($estado['ajudas']['opcoes_eliminadas'] ?? []),
+                    'ajudas' => $estado['ajudas'] ?? [],
+                    'mensagem' => $retorno['mensagem'] ?? 'Ajuda utilizada com sucesso!',
+                ]);
+            }
+
+            return redirect()->route('game.play')->with('ajuda_feedback', $retorno);
+        } catch (\Throwable $e) {
+            Log::error('Erro ao acionar ajuda individual: '.$e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'sucesso' => false,
+                    'mensagem' => 'Não foi possível utilizar este recurso agora. Tente novamente.',
+                ], 200);
+            }
+
+            return redirect()->route('game.play')->with('error', 'Não foi possível acionar a ajuda agora.');
         }
-
-        $tipo = $request->input('tipo');
-
-        if ($tipo === 'pulo') {
-            $idsJaUsados = collect($engine->getResults()['historico_perguntas'] ?? [])
-                ->pluck('id')
-                ->filter()
-                ->all();
-
-            $reservaModel = Questao::aprovadas()
-                ->with(['livro', 'dificuldade', 'categoria'])
-                ->whereNotIn('id', $idsJaUsados)
-                ->inRandomOrder()
-                ->first();
-
-            $reserva = $reservaModel ? $this->formatarQuestaoParaMotor($reservaModel) : null;
-            $retorno = $engine->usarPulo($reserva);
-        } elseif ($tipo === 'cartas') {
-            $retorno = $engine->usarCartas();
-        } elseif ($tipo === 'dica') {
-            $retorno = $engine->usarDica();
-        } else {
-            $indice = (int) $request->input('convidado_indice', 0);
-            $retorno = $engine->consultarConvidado($indice);
-        }
-
-        $this->salvarEngineNaSessao($request, $engine);
-
-        if ($engine->getState()['estado'] === 'terminado') {
-            $request->session()->put('resultados', $engine->getResults());
-            return redirect()->route('game.result');
-        }
-
-        return redirect()->route('game.play')->with('ajuda_feedback', $retorno);
     }
 
     public function encerrar(Request $request)
@@ -314,6 +362,7 @@ class GameController extends Controller
 
             $request->session()->put('resultados', $resultados);
             $request->session()->forget(['game_engine', 'jogador_confirmado']);
+
             return redirect()->route('game.result');
         }
 
@@ -325,7 +374,7 @@ class GameController extends Controller
         $resultados = $request->session()->get('resultados');
         $nomeJogador = (string) $request->session()->get('jogador_nome', $request->user()?->nome ?? 'Participante');
 
-        if (!$resultados) {
+        if (! $resultados) {
             $engine = $this->carregarEngineDaSessao($request);
             if ($engine) {
                 $resultados = $engine->getResults();
@@ -333,7 +382,7 @@ class GameController extends Controller
             }
         }
 
-        if (!$resultados) {
+        if (! $resultados) {
             return redirect()->route('game.play', ['novo' => 1]);
         }
 
@@ -362,7 +411,7 @@ class GameController extends Controller
     private function obterRankingIndividual(): array
     {
         $path = $this->obterArquivoRanking();
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             $inicial = [
                 ['nome' => 'Daniel', 'pontuacao' => 2400, 'acertos' => 24, 'data' => 'Clássico'],
                 ['nome' => 'Débora', 'pontuacao' => 1950, 'acertos' => 20, 'data' => 'Clássico'],
@@ -371,10 +420,12 @@ class GameController extends Controller
                 ['nome' => 'Timóteo', 'pontuacao' => 900, 'acertos' => 10, 'data' => 'Clássico'],
             ];
             @file_put_contents($path, json_encode($inicial, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
             return $inicial;
         }
 
         $dados = json_decode((string) file_get_contents($path), true);
+
         return is_array($dados) ? $dados : [];
     }
 
@@ -396,6 +447,7 @@ class GameController extends Controller
             if (($b['pontuacao'] ?? 0) !== ($a['pontuacao'] ?? 0)) {
                 return ($b['pontuacao'] ?? 0) <=> ($a['pontuacao'] ?? 0);
             }
+
             return ($b['acertos'] ?? 0) <=> ($a['acertos'] ?? 0);
         });
 
@@ -420,7 +472,7 @@ class GameController extends Controller
                 ->map(fn (Questao $q) => $this->formatarQuestaoParaMotor($q))
                 ->toArray();
 
-            if (!empty($filtradas)) {
+            if (! empty($filtradas)) {
                 return $filtradas;
             }
         }

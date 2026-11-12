@@ -290,13 +290,13 @@
     <!-- GAVETA / MODAL DESLIZANTE DE RANKING & EQUIPES DA SALA        -->
     <!-- ============================================================== -->
     <div id="drawerRanking" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all">
-        <div class="bg-slate-900 border-t-2 sm:border-2 border-amber-400 rounded-t-3xl sm:rounded-3xl max-w-md w-full p-5 text-slate-100 shadow-2xl relative max-h-[85vh] flex flex-col">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="sm-panel rounded-t-3xl sm:rounded-3xl max-w-md w-full p-5 text-slate-100 shadow-2xl relative max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between pb-3 border-b border-blue-400/20">
                 <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0011 15.9V19H7v2h10v-2h-4v-3.1c1.94-.37 3.5-1.99 3.61-3.96C19.08 11.63 21 9.55 21 7V5c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
-                    <h3 class="text-base sm:text-lg font-black text-white">Placar da Sala Ao Vivo</h3>
+                    <svg class="w-5 h-5 text-amber-300 fill-current" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0011 15.9V19H7v2h10v-2h-4v-3.1c1.94-.37 3.5-1.99 3.61-3.96C19.08 11.63 21 9.55 21 7V5c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
+                    <h3 class="text-base sm:text-lg font-black text-white sm-logo-title">Placar da Sala Ao Vivo</h3>
                 </div>
-                <button type="button" onclick="fecharDrawerRanking()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-black">
+                <button type="button" onclick="fecharDrawerRanking()" class="sm-lifeline !w-8 !h-8 flex items-center justify-center font-black">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -304,11 +304,11 @@
             <!-- Abas Jogadores / Equipes -->
             <div class="flex items-center gap-2 my-3">
                 <button type="button" id="tabJogadores" onclick="alternarTabRanking('jogadores')"
-                        class="flex-1 text-xs font-black py-2 rounded-xl bg-amber-500 text-slate-950 transition">
+                        class="flex-1 text-xs font-black py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 transition shadow">
                     Jogadores
                 </button>
                 <button type="button" id="tabEquipes" onclick="alternarTabRanking('equipes')"
-                        class="flex-1 text-xs font-black py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white transition">
+                        class="flex-1 text-xs font-black py-2 rounded-xl bg-blue-900/60 text-blue-200 hover:text-white border border-blue-400/30 transition">
                     Equipes / Células
                 </button>
             </div>
@@ -320,8 +320,8 @@
             </div>
 
             <!-- Rodapé da Gaveta: Gerenciar Equipe ou Sair -->
-            <div class="border-t border-slate-800 pt-3 mt-3 flex items-center justify-between gap-2">
-                <button type="button" onclick="abrirModalTrocarEquipe()" class="text-xs font-bold text-blue-400 hover:text-blue-300 underline">
+            <div class="border-t border-blue-400/20 pt-3 mt-3 flex items-center justify-between gap-2">
+                <button type="button" onclick="abrirModalTrocarEquipe()" class="text-xs font-bold text-amber-300 hover:text-amber-200 underline">
                     Trocar / Criar Equipe
                 </button>
                 <button type="button" onclick="sairDaSala()" class="text-xs text-rose-400 hover:text-rose-300 font-bold">
@@ -332,19 +332,43 @@
     </div>
 
     <!-- Modal das Cartas 50/50 (Estilo Show do Milhão) -->
-    <div id="modalCartasMobile" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="sm-panel w-full max-w-xs text-center p-4">
-            <div class="sm-panel-title py-2.5 px-3 text-white font-black text-sm tracking-wider uppercase mb-3 rounded-xl">
-                CARTAS DO MILHÃO
+    <div id="modalCartasMobile" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4" onclick="if(event.target===this) fecharModalCartasParticipante()">
+        <div class="sm-panel w-full max-w-sm text-center p-5 border-2 border-amber-400/60 shadow-2xl relative">
+            <div class="sm-panel-title py-2.5 px-3 text-white font-black text-xs tracking-wider uppercase mb-4 rounded-xl flex items-center justify-between">
+                <span class="flex items-center gap-2 text-amber-300">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                    CARTAS DO MILHÃO
+                </span>
+                <button type="button" onclick="fecharModalCartasParticipante()" class="text-slate-400 hover:text-white text-base">✕</button>
             </div>
-            <p class="text-xs text-blue-100 font-bold mb-3">Toque em uma carta para eliminar 2 alternativas incorretas:</p>
-            <div class="grid grid-cols-2 gap-3 mb-4">
-                <button type="button" onclick="confirmarCartaEscolhida(0)" class="sm-card-back">✝</button>
-                <button type="button" onclick="confirmarCartaEscolhida(1)" class="sm-card-back">✝</button>
-                <button type="button" onclick="confirmarCartaEscolhida(2)" class="sm-card-back">✝</button>
-                <button type="button" onclick="confirmarCartaEscolhida(3)" class="sm-card-back">✝</button>
+            <p class="text-xs text-blue-100 font-extrabold mb-4">Toque em uma carta para eliminar 2 alternativas incorretas:</p>
+            <div class="grid grid-cols-2 gap-3.5 max-w-[260px] mx-auto mb-4">
+                <button type="button" onclick="confirmarCartaEscolhida(0)" class="sm-card-back group cursor-pointer" title="Carta 1">
+                    <div class="w-full h-full flex flex-col items-center justify-center pointer-events-none">
+                        <span class="text-2xl font-black text-amber-300 drop-shadow-md">✝</span>
+                        <span class="text-[9px] font-black uppercase tracking-wider text-amber-200 mt-1">BÍBLIA</span>
+                    </div>
+                </button>
+                <button type="button" onclick="confirmarCartaEscolhida(1)" class="sm-card-back group cursor-pointer" title="Carta 2">
+                    <div class="w-full h-full flex flex-col items-center justify-center pointer-events-none">
+                        <span class="text-2xl font-black text-amber-300 drop-shadow-md">✝</span>
+                        <span class="text-[9px] font-black uppercase tracking-wider text-amber-200 mt-1">BÍBLIA</span>
+                    </div>
+                </button>
+                <button type="button" onclick="confirmarCartaEscolhida(2)" class="sm-card-back group cursor-pointer" title="Carta 3">
+                    <div class="w-full h-full flex flex-col items-center justify-center pointer-events-none">
+                        <span class="text-2xl font-black text-amber-300 drop-shadow-md">✝</span>
+                        <span class="text-[9px] font-black uppercase tracking-wider text-amber-200 mt-1">BÍBLIA</span>
+                    </div>
+                </button>
+                <button type="button" onclick="confirmarCartaEscolhida(3)" class="sm-card-back group cursor-pointer" title="Carta 4">
+                    <div class="w-full h-full flex flex-col items-center justify-center pointer-events-none">
+                        <span class="text-2xl font-black text-amber-300 drop-shadow-md">✝</span>
+                        <span class="text-[9px] font-black uppercase tracking-wider text-amber-200 mt-1">BÍBLIA</span>
+                    </div>
+                </button>
             </div>
-            <button type="button" onclick="fecharModalCartasParticipante()" class="sm-cta text-xs py-2">
+            <button type="button" onclick="fecharModalCartasParticipante()" class="sm-cta text-xs py-2.5 font-black">
                 Voltar à Pergunta
             </button>
         </div>
@@ -352,36 +376,36 @@
 
     <!-- Modal Escolha de Convidado Bíblico -->
     <div id="modalConvidadoMobile" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-slate-900 border-2 border-amber-400 rounded-3xl max-w-sm w-full p-5 text-slate-100 shadow-2xl relative">
-            <button type="button" onclick="fecharModalConvidadoMobile()" class="absolute top-4 right-4 text-slate-400 hover:text-white font-black text-lg">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        <div class="sm-panel max-w-sm w-full p-5 text-slate-100 shadow-2xl relative">
+            <button type="button" onclick="fecharModalConvidadoMobile()" class="absolute top-4 right-4 sm-lifeline !w-8 !h-8 flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
             <div class="flex items-center gap-2 mb-2">
-                <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
-                <h3 class="text-base font-black text-white">Consultar Convidado Bíblico</h3>
+                <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
+                <h3 class="text-base font-black text-white sm-logo-title">Consultar Convidado Bíblico</h3>
             </div>
-            <p class="text-xs text-slate-400 mb-3">Escolha um dos personagens para obter ajuda na pergunta:</p>
+            <p class="text-xs text-blue-200 mb-3">Escolha um dos personagens para obter ajuda na pergunta:</p>
             <div class="space-y-2">
-                <button type="button" onclick="usarAjudaMobile('convidado', 0)" class="w-full p-2.5 rounded-xl bg-blue-950/80 border border-blue-500/40 hover:border-amber-400 text-left font-bold text-xs flex items-center justify-between text-white transition active:scale-95">
+                <button type="button" onclick="usarAjudaMobile('convidado', 0)" class="w-full p-2.5 rounded-xl bg-blue-950/80 border border-blue-400/40 hover:border-amber-400 text-left font-bold text-xs flex items-center justify-between text-white transition active:scale-95">
                     <div>
                         <p class="font-black text-white">1. Jacó</p>
-                        <p class="text-[10px] text-slate-400 font-normal">Patriarca de Israel</p>
+                        <p class="text-[10px] text-blue-200 font-normal">Patriarca de Israel</p>
                     </div>
-                    <span class="text-[9px] text-emerald-400 font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/30">Sabe a certa</span>
+                    <span class="text-[9px] text-emerald-300 font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/30">Sabe a certa</span>
                 </button>
-                <button type="button" onclick="usarAjudaMobile('convidado', 1)" class="w-full p-2.5 rounded-xl bg-blue-950/80 border border-blue-500/40 hover:border-amber-400 text-left font-bold text-xs flex items-center justify-between text-white transition active:scale-95">
+                <button type="button" onclick="usarAjudaMobile('convidado', 1)" class="w-full p-2.5 rounded-xl bg-blue-950/80 border border-blue-400/40 hover:border-amber-400 text-left font-bold text-xs flex items-center justify-between text-white transition active:scale-95">
                     <div>
                         <p class="font-black text-white">2. Paulo</p>
-                        <p class="text-[10px] text-slate-400 font-normal">Apóstolo dos Gentios</p>
+                        <p class="text-[10px] text-blue-200 font-normal">Apóstolo dos Gentios</p>
                     </div>
-                    <span class="text-[9px] text-emerald-400 font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/30">Sabe a certa</span>
+                    <span class="text-[9px] text-emerald-300 font-extrabold uppercase px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/30">Sabe a certa</span>
                 </button>
-                <button type="button" onclick="usarAjudaMobile('convidado', 2)" class="w-full p-2.5 rounded-xl bg-blue-950/80 border border-blue-500/40 hover:border-amber-400 text-left font-bold text-xs flex items-center justify-between text-white transition active:scale-95">
+                <button type="button" onclick="usarAjudaMobile('convidado', 2)" class="w-full p-2.5 rounded-xl bg-blue-950/80 border border-blue-400/40 hover:border-amber-400 text-left font-bold text-xs flex items-center justify-between text-white transition active:scale-95">
                     <div>
                         <p class="font-black text-white">3. Jafé</p>
-                        <p class="text-[10px] text-slate-400 font-normal">Filho de Noé</p>
+                        <p class="text-[10px] text-blue-200 font-normal">Filho de Noé</p>
                     </div>
-                    <span class="text-[9px] text-amber-400 font-extrabold uppercase px-2 py-0.5 rounded bg-amber-950/60 border border-amber-500/30">Histórico</span>
+                    <span class="text-[9px] text-amber-300 font-extrabold uppercase px-2 py-0.5 rounded bg-amber-950/60 border border-amber-500/30">Histórico</span>
                 </button>
             </div>
         </div>
@@ -389,34 +413,34 @@
 
     <!-- Modal para Juntar-se ou Trocar de Equipe na Sala -->
     <div id="modalTrocarEquipe" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-slate-900 border-2 border-amber-400 rounded-3xl max-w-md w-full p-5 text-slate-100 shadow-2xl relative">
-            <button type="button" onclick="fecharModalTrocarEquipe()" class="absolute top-4 right-4 text-slate-400 hover:text-white font-black text-lg">✕</button>
+        <div class="sm-panel max-w-md w-full p-5 text-slate-100 shadow-2xl relative">
+            <button type="button" onclick="fecharModalTrocarEquipe()" class="absolute top-4 right-4 sm-lifeline !w-8 !h-8 flex items-center justify-center font-black">✕</button>
             <div class="flex items-center gap-2 mb-2">
-                <span class="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
+                <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                     </svg>
                 </span>
-                <h3 class="text-base font-black text-white">Equipes / Células da Sala</h3>
+                <h3 class="text-base font-black text-white sm-logo-title">Equipes / Células da Sala</h3>
             </div>
-            <p class="text-xs text-slate-400 mb-3">Escolha uma equipe criada pelo apresentador para pontuar em conjunto:</p>
+            <p class="text-xs text-blue-200 mb-3">Escolha uma equipe criada pelo apresentador para pontuar em conjunto:</p>
 
             <div id="listaEquipesModal" class="space-y-1.5 max-h-48 overflow-y-auto pr-1 mb-3">
-                <p class="text-xs text-slate-500">Carregando equipes...</p>
+                <p class="text-xs text-blue-300/60">Carregando equipes...</p>
             </div>
 
-            <div class="border-t border-slate-800 pt-3 space-y-2">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Ou crie uma nova equipe:</p>
+            <div class="border-t border-blue-400/20 pt-3 space-y-2">
+                <p class="text-[10px] font-bold text-amber-300 uppercase tracking-wider">Ou crie uma nova equipe:</p>
                 <div class="flex gap-2">
                     <input type="text" id="inputNovaEquipeModal" placeholder="Ex.: Tribo de Judá"
-                           class="flex-1 px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white outline-none focus:border-amber-400 font-bold">
+                           class="flex-1 px-3 py-2 rounded-xl bg-blue-950/90 border border-blue-400/50 text-xs text-white outline-none focus:border-amber-400 font-bold placeholder-blue-300/40">
                     <button type="button" onclick="criarEquipeModal()"
-                            class="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase shadow transition active:scale-95">
+                            class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase shadow transition active:scale-95 cursor-pointer">
                         Criar
                     </button>
                 </div>
                 <button type="button" onclick="sairEquipeModal()"
-                        class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition">
+                        class="w-full py-2.5 rounded-xl bg-blue-900/60 hover:bg-blue-800 text-blue-200 font-bold text-xs border border-blue-400/30 transition">
                     Jogar Individualmente (Sem Equipe)
                 </button>
             </div>
