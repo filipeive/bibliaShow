@@ -50,14 +50,15 @@
                             <span>Continuar Jogo ({{ $jogoAtivoNavbar['numero'] }}/{{ $jogoAtivoNavbar['total'] }})</span>
                         </a>
                     @else
-                        <!-- Botão Único Principal: JOGAR AGORA -->
-                        <button type="button" onclick="abrirModalJogarAgora()"
-                                class="sm-cta !w-auto !py-2 !px-4 sm:!px-6 !text-xs sm:!text-sm cursor-pointer shadow-xl inline-flex items-center gap-2">
+                        <!-- Botão Único Principal: JOGAR AGORA (vai direto à rota do jogador) -->
+                        <a href="{{ route('game.play', ['novo' => 1]) }}"
+                           onclick="if(typeof pararLocucaoNavbar==='function') pararLocucaoNavbar();"
+                           class="sm-cta !w-auto !py-2 !px-4 sm:!px-6 !text-xs sm:!text-sm cursor-pointer shadow-xl inline-flex items-center gap-2">
                             <svg class="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
                                 <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
                             </svg>
                             <span>Jogar Agora</span>
-                        </button>
+                        </a>
                     @endif
                 @endif
 
