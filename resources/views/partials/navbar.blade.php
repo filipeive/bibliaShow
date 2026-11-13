@@ -177,10 +177,11 @@
             @endauth
         </div>
     </div>
+</nav>
 
 <!-- Modal "Jogar Agora" (Tema Show do Milhão Palco) -->
-<div id="modalJogarAgora" class="hidden fixed inset-0 z-[60] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="sm-panel max-w-2xl w-full p-6 sm:p-8 relative text-white">
+<div id="modalJogarAgora" class="hidden fixed inset-0 z-[60] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div class="sm-panel max-w-2xl w-full p-5 sm:p-8 relative text-white max-h-[90vh] overflow-y-auto my-auto">
         <button type="button" onclick="fecharModalJogarAgora()" title="Fechar"
                 class="absolute top-4 right-4 sm-lifeline !w-9 !h-9 cursor-pointer z-10 flex items-center justify-center">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -279,8 +280,8 @@
 </div>
 
 <!-- Modal de Definições (Tema Show do Milhão Palco) -->
-<div id="modalDefinicoes" class="hidden fixed inset-0 z-[65] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="sm-panel max-w-lg w-full p-6 sm:p-7 relative text-white">
+<div id="modalDefinicoes" class="hidden fixed inset-0 z-[65] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div class="sm-panel max-w-lg w-full p-5 sm:p-7 relative text-white max-h-[90vh] overflow-y-auto my-auto">
         <button type="button" onclick="fecharModalDefinicoes()" title="Fechar"
                 class="absolute top-4 right-4 sm-lifeline !w-9 !h-9 cursor-pointer z-10 flex items-center justify-center">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -311,7 +312,7 @@
             </div>
 
             <!-- Toggle Auto Tela Cheia -->
-            <div class="flex items-center justify-between p-3.5 rounded-2xl bg-blue-950/80 border border-blue-400/40 gap-2">
+            <div class="flex flex-wrap items-center justify-between p-3.5 rounded-2xl bg-blue-950/80 border border-blue-400/40 gap-3">
                 <div>
                     <p class="font-bold text-sm text-white">Auto Tela Cheia (Ao Jogar)</p>
                     <p class="text-xs text-blue-200">Entra em ecrã inteiro automaticamente ao iniciar</p>
