@@ -121,13 +121,13 @@
 
         <!-- FAIXA CENTRAL COM CÁPSULAS CONECTADAS AO MEDALHÃO -->
         <div class="sm-stage-band w-full py-10 sm:py-12 px-4 sm:px-6 backdrop-blur-md">
-            <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-center gap-10 md:gap-4">
+            <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-center gap-10 md:gap-12">
 
                 <!-- LADO ESQUERDO: CÁPSULAS EM ARCO AO REDOR DO MEDALHÃO -->
-                <div class="w-full max-w-sm md:w-72 flex flex-col gap-4 z-20 md:-mr-4">
+                <div class="w-full max-w-sm md:w-72 flex flex-col gap-4 z-20">
                     @if($jogoAtivoInfo)
                         <a href="{{ route('game.play') }}" onmouseenter="tocarHoverClassico()"
-                           class="sm-capsule-btn is-primary md:translate-x-8 rounded-full px-6 py-4 flex items-center justify-between gap-3 text-left cursor-pointer">
+                           class="sm-capsule-btn is-primary md:translate-x-6 rounded-full px-6 py-4 flex items-center justify-between gap-3 text-left cursor-pointer">
                             <span class="flex items-center gap-3 font-black text-slate-950 text-sm sm:text-base tracking-wider uppercase">
                                 <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
                                 <span>Continuar ({{ $jogoAtivoInfo['numero'] }}/{{ $jogoAtivoInfo['total'] }})</span>
@@ -136,7 +136,7 @@
                         </a>
                     @else
                         <button type="button" onclick="abrirModalJogarAgora()" onmouseenter="tocarHoverClassico()"
-                                class="sm-capsule-btn is-primary md:translate-x-8 rounded-full px-6 py-4 flex items-center justify-between gap-3 text-left cursor-pointer">
+                                class="sm-capsule-btn is-primary md:translate-x-6 rounded-full px-6 py-4 flex items-center justify-between gap-3 text-left cursor-pointer">
                             <span class="flex items-center gap-3 font-black text-slate-950 text-base sm:text-lg tracking-wider uppercase">
                                 <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
                                 <span>Jogar</span>
@@ -164,7 +164,7 @@
                     </a>
 
                     <a href="{{ route('apresentador.painel') }}" onmouseenter="tocarHoverClassico()"
-                       class="sm-capsule-btn md:translate-x-8 rounded-full px-6 py-3.5 flex items-center justify-between gap-3 text-left cursor-pointer">
+                       class="sm-capsule-btn md:translate-x-6 rounded-full px-6 py-3.5 flex items-center justify-between gap-3 text-left cursor-pointer">
                         <span class="flex items-center gap-3 font-black text-emerald-300 text-sm sm:text-base tracking-wider uppercase">
                             <svg class="w-5 h-5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125z"/></svg>
                             <span>Apresentador</span>
@@ -188,10 +188,10 @@
                             </div>
                         </div>
 
-                        <!-- Aba Centralizada na Base do Medalhão -->
+                        <!-- Aba Centralizada na Base do Medalhão (Mesma identidade visual das cápsulas) -->
                         <a href="{{ route('entrar.view') }}" onmouseenter="tocarHoverClassico()"
-                           class="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap px-6 py-2 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 hover:from-emerald-300 hover:to-emerald-500 text-slate-950 font-black text-xs sm:text-sm tracking-wide shadow-xl border-2 border-emerald-200 inline-flex items-center gap-2 transition">
-                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
+                           class="sm-capsule-btn absolute -bottom-4 left-1/2 -translate-x-1/2 hover:!translate-x-[-50%] whitespace-nowrap px-6 py-2.5 rounded-full text-white font-black text-xs sm:text-sm uppercase tracking-wider inline-flex items-center gap-2.5 cursor-pointer">
+                            <svg class="w-4 h-4 text-amber-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
                             <span>Entrar na Sala</span>
                         </a>
                     </div>
