@@ -87,7 +87,7 @@
 
             <div class="flex items-center gap-3 sm:gap-4">
                 <!-- Botão Tela Cheia do Telão -->
-                <button type="button" onclick="alternarFullscreenTelao()" id="btnFullscreenProj" title="Alternar Tela Cheia"
+                <button type="button" onclick="alternarFullscreenTelao(event)" id="btnFullscreenProj" title="Alternar Tela Cheia"
                         class="sm-lifeline !w-11 !h-11 flex items-center justify-center cursor-pointer border-amber-400/60 text-amber-300">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
@@ -241,6 +241,7 @@
                     </div>
                 </div>
 
+                @if($estado !== 'terminado')
                 <!-- 2. Card de Resultado / Respostas Bloqueadas na Rodada -->
                 <div class="sm-panel p-5 sm:p-6 shadow-2xl relative overflow-hidden border-2 sm:border-3 border-amber-400 shadow-amber-500/20 bg-gradient-to-b from-[#0e2270] via-[#0a1854] to-[#060e33]">
                     <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-amber-300 to-transparent"></div>
@@ -380,6 +381,7 @@
                         <p class="text-xs text-blue-200 mt-1 font-bold truncate">{{ parse_url(url('/'), PHP_URL_PATH) }}/entrar/{{ $sala->codigo_acesso }}</p>
                     </div>
                 </div>
+                @endif
             </div>
         </div>
     </div>
@@ -405,7 +407,9 @@
         trilhaSuspense.volume = 0.25;
 
         // Desbloqueia áudio e ativa Auto Tela Cheia caso o navegador bloqueie autoplay inicial
-        function alternarFullscreenTelao() {
+        function alternarFullscreenTelao(e) {
+            if (e) e.stopPropagation();
+            window._telaoAutoFsTentado = true;
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen?.().catch(() => {});
             } else {
@@ -413,15 +417,20 @@
             }
         }
 
-        function desbloquearAudioTelao() {
+        function desbloquearAudioTelao(e) {
             if (somAtivo && estadoAtual === 'em_curso' && trilhaSuspense.paused && !gabaritoEstavaRevelado) {
                 trilhaSuspense.play().catch(() => {});
             }
+            if (e && e.target && e.target.closest && e.target.closest('#btnFullscreenProj, #btnSomProj')) {
+                return;
+            }
+            if (window._telaoAutoFsTentado) return;
+            window._telaoAutoFsTentado = true;
             if (localStorage.getItem('biblia_show_auto_fullscreen') !== 'off' && !document.fullscreenElement) {
                 document.documentElement.requestFullscreen?.().catch(() => {});
             }
         }
-        ['click', 'touchstart', 'keydown'].forEach(evt => {
+        ['click', 'keydown'].forEach(evt => {
             document.addEventListener(evt, desbloquearAudioTelao, { once: true, passive: true });
         });
 

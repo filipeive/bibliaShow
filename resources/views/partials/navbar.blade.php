@@ -417,27 +417,37 @@
         const novoEstado = autoFullscreenAtivo() ? 'off' : 'on';
         localStorage.setItem('biblia_show_auto_fullscreen', novoEstado);
         atualizarUIFullscreenGlobal();
-        if (novoEstado === 'on' && !document.fullscreenElement && document.documentElement.requestFullscreen) {
-            document.documentElement.requestFullscreen().catch(() => {});
+        if (novoEstado === 'on') {
+            sessionStorage.removeItem('biblia_show_fs_manual_exit');
+            if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            }
         } else if (novoEstado === 'off' && document.fullscreenElement && document.exitFullscreen) {
+            sessionStorage.setItem('biblia_show_fs_manual_exit', '1');
             document.exitFullscreen().catch(() => {});
         }
     }
 
     function alternarFullscreenManual() {
+        window._autoFullscreenTentado = true;
         if (!document.fullscreenElement) {
+            sessionStorage.removeItem('biblia_show_fs_manual_exit');
             if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen().catch(() => {});
             }
         } else if (document.exitFullscreen) {
+            sessionStorage.setItem('biblia_show_fs_manual_exit', '1');
             document.exitFullscreen().catch(() => {});
         }
     }
 
-    function tentarAutoFullscreenAoJogar() {
+    function tentarAutoFullscreenAoJogar(e) {
+        if (e && e.target && e.target.closest && e.target.closest('#btnFullscreenManual, #btnToggleAutoFullscreen, #btnFullscreenProj')) {
+            return;
+        }
         if (window._autoFullscreenTentado) return;
         window._autoFullscreenTentado = true;
-        if (!autoFullscreenAtivo()) return;
+        if (!autoFullscreenAtivo() || sessionStorage.getItem('biblia_show_fs_manual_exit') === '1') return;
         const path = window.location.pathname.toLowerCase();
         const ehTelaDeJogo = path.includes('/jogar') || path.includes('/entrar') || path.includes('/apresentador') || path.includes('/projecao');
         if (ehTelaDeJogo && !document.fullscreenElement && document.documentElement.requestFullscreen) {
@@ -446,9 +456,7 @@
     }
 
     document.addEventListener('fullscreenchange', atualizarUIFullscreenGlobal);
-    ['click', 'touchstart', 'keydown'].forEach(evt => {
-        document.addEventListener(evt, tentarAutoFullscreenAoJogar, { once: true, passive: true });
-    });
+    document.addEventListener('click', tentarAutoFullscreenAoJogar, { once: true, passive: true });
 
     let audioAberturaGlobal = null;
     let tocandoAberturaGlobal = false;
