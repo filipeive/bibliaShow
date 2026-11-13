@@ -86,6 +86,13 @@
             </div>
 
             <div class="flex items-center gap-3 sm:gap-4">
+                <!-- Botão Tela Cheia do Telão -->
+                <button type="button" onclick="alternarFullscreenTelao()" id="btnFullscreenProj" title="Alternar Tela Cheia"
+                        class="sm-lifeline !w-11 !h-11 flex items-center justify-center cursor-pointer border-amber-400/60 text-amber-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                    </svg>
+                </button>
                 <!-- Áudio do Telão (Silenciado por Padrão para não conflitar com a igreja ou celulares) -->
                 <button type="button" onclick="alternarAudioProjecao()" id="btnAudioProj" title="Áudio do Telão: Silenciado por padrão (Clique para ativar efeitos de palco)"
                         class="sm-lifeline !w-11 !h-11 flex items-center justify-center cursor-pointer border-rose-400/60 text-rose-300 opacity-60">
@@ -397,10 +404,21 @@
         trilhaSuspense.loop = true;
         trilhaSuspense.volume = 0.25;
 
-        // Desbloqueia áudio caso o navegador bloqueie autoplay inicial
+        // Desbloqueia áudio e ativa Auto Tela Cheia caso o navegador bloqueie autoplay inicial
+        function alternarFullscreenTelao() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen?.().catch(() => {});
+            } else {
+                document.exitFullscreen?.().catch(() => {});
+            }
+        }
+
         function desbloquearAudioTelao() {
             if (somAtivo && estadoAtual === 'em_curso' && trilhaSuspense.paused && !gabaritoEstavaRevelado) {
                 trilhaSuspense.play().catch(() => {});
+            }
+            if (localStorage.getItem('biblia_show_auto_fullscreen') !== 'off' && !document.fullscreenElement) {
+                document.documentElement.requestFullscreen?.().catch(() => {});
             }
         }
         ['click', 'touchstart', 'keydown'].forEach(evt => {

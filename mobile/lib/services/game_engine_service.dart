@@ -34,11 +34,15 @@ class GameEngineService extends ChangeNotifier {
 
   int? opcaoSelecionada;
   bool? acertouUltima;
+  String? motivoFim;
+  bool perdeuPartida = false;
 
   // Getters
   int get perguntaNumero => _indicePerguntaAtual + 1;
-  int get totalPerguntas => 24;
+  int get totalPerguntas => _perguntas.isNotEmpty ? _perguntas.length : 24;
   int get pontuacao => _pontuacaoAcumulada;
+  int get errosCometidos => _errosCometidos;
+  int get temposEsgotados => _temposEsgotados;
   QuestaoModel? get perguntaAtual =>
       (_perguntas.isNotEmpty && _indicePerguntaAtual < _perguntas.length)
           ? _perguntas[_indicePerguntaAtual]
@@ -68,7 +72,7 @@ class GameEngineService extends ChangeNotifier {
   }
 
   int get valorAoParar => _pontuacaoAcumulada;
-  int get valorAoErrar => (_pontuacaoAcumulada / 2).floor();
+  int get valorAoErrar => faseAtual >= 4 ? 0 : (_pontuacaoAcumulada / 2).floor();
   int get valorAoAcertar => _pontuacaoAcumulada + valorPerguntaAtual;
 
   Future<void> iniciarNovaPartida({String nome = 'Filipe'}) async {
@@ -80,6 +84,8 @@ class GameEngineService extends ChangeNotifier {
     _errosCometidos = 0;
     _temposEsgotados = 0;
     _indicePerguntaAtual = 0;
+    motivoFim = null;
+    perdeuPartida = false;
     dicasRestantes = 3;
     cartasRestantes = 1;
     pulosRestantes = 3;
@@ -98,6 +104,25 @@ class GameEngineService extends ChangeNotifier {
     _audio.playFase(1);
     _audio.playBackground('suspense');
     _iniciarCronometro();
+    notifyListeners();
+  }
+
+  @visibleForTesting
+  void carregarPartidaTeste(List<QuestaoModel> questoes, {String nome = 'Teste'}) {
+    jogadorNome = nome;
+    _pontuacaoAcumulada = 0;
+    _errosCometidos = 0;
+    _temposEsgotados = 0;
+    _indicePerguntaAtual = 0;
+    motivoFim = null;
+    perdeuPartida = false;
+    dicasRestantes = 3;
+    cartasRestantes = 1;
+    pulosRestantes = 3;
+    convidadosRestantes = 3;
+    _perguntas = List<QuestaoModel>.from(questoes);
+    _resetarAjudasRodada();
+    status = GameStatus.playing;
     notifyListeners();
   }
 
@@ -134,7 +159,10 @@ class GameEngineService extends ChangeNotifier {
     _audio.vibrateError();
 
     if (_temposEsgotados >= 3) {
-      encerrarPartida(motivo: 'Você esgotou as 3 chances de tempo!');
+      encerrarPartida(
+        motivo: 'Você esgotou as 3 chances de tempo!',
+        aplicarPenalidadeErro: true,
+      );
     } else {
       proximaPergunta();
     }
@@ -178,7 +206,10 @@ class GameEngineService extends ChangeNotifier {
     await Future.delayed(const Duration(milliseconds: 2200));
 
     if (!ehCorreta && _errosCometidos >= 3) {
-      encerrarPartida(motivo: 'Você cometeu 3 erros.');
+      encerrarPartida(
+        motivo: 'Você cometeu 3 erros.',
+        aplicarPenalidadeErro: true,
+      );
     } else if (perguntaNumero >= totalPerguntas) {
       encerrarPartida(motivo: 'Parabéns! Você completou o Bíblia Show!');
     } else {
@@ -230,7 +261,7 @@ class GameEngineService extends ChangeNotifier {
   }
 
   void usarDica() {
-    if (dicasRestantes <= 0 || status != GameStatus.playing) return;
+    if (dicasRestantes <= 0 || status != GameStatus.playing || dicaAtiva != null) return;
     final q = perguntaAtual;
     if (q == null) return;
 
@@ -242,16 +273,31 @@ class GameEngineService extends ChangeNotifier {
     notifyListeners();
   }
 
-  void usarConvidado() {
-    if (convidadosRestantes <= 0 || status != GameStatus.playing) return;
+  void usarConvidado({int indiceConvidado = 0}) {
+    if (convidadosRestantes <= 0 || status != GameStatus.playing || convidadoAtivo != null) return;
     final q = perguntaAtual;
     if (q == null) return;
 
     convidadosRestantes--;
-    _audio.playFx('sabe1');
+    final nomes = ['Apóstolo Paulo', 'Apóstolo Pedro', 'Moisés'];
+    final nome = nomes[indiceConvidado.clamp(0, nomes.length - 1)];
+    final somIndex = (indiceConvidado + 1).clamp(1, 3);
+    _audio.playFx('sabe$somIndex');
     _audio.vibrate(40);
 
-    convidadoAtivo = 'Apóstolo Paulo: "Pelo contexto bíblico, creio com certeza que a resposta é a letra certa!"';
+    final letras = ['A', 'B', 'C', 'D'];
+    int? idxCorreta;
+    for (int i = 0; i < q.opcoes.length; i++) {
+      if (q.opcoes[i].trim().toLowerCase() == q.respostaCorreta.trim().toLowerCase()) {
+        idxCorreta = i;
+        break;
+      }
+    }
+    final letraTexto = idxCorreta != null && idxCorreta < letras.length
+        ? 'a alternativa ${letras[idxCorreta]} — ${q.respostaCorreta}'
+        : q.respostaCorreta;
+
+    convidadoAtivo = '$nome: "Pelo contexto bíblico, creio que a resposta certa é $letraTexto!"';
     notifyListeners();
   }
 
@@ -268,9 +314,14 @@ class GameEngineService extends ChangeNotifier {
     encerrarPartida(motivo: 'Você decidiu parar e garantir seus pontos!');
   }
 
-  void encerrarPartida({String? motivo}) {
+  void encerrarPartida({String? motivo, bool aplicarPenalidadeErro = false}) {
     _timer?.cancel();
     status = GameStatus.finished;
+    motivoFim = motivo;
+    perdeuPartida = aplicarPenalidadeErro;
+    if (aplicarPenalidadeErro) {
+      _pontuacaoAcumulada = valorAoErrar;
+    }
     _audio.stopBackground();
     _audio.playFx('fim1');
 
@@ -279,7 +330,7 @@ class GameEngineService extends ChangeNotifier {
       pontuacao: _pontuacaoAcumulada,
       acertos: _indicePerguntaAtual,
       fase: faseAtual,
-    );
+    ).catchError((_) {});
 
     notifyListeners();
   }

@@ -20,6 +20,7 @@ class PerguntaIniciada implements ShouldBroadcast
     public function __construct(int $salaId, array $questao, int $tempoLimite)
     {
         $this->salaId = $salaId;
+        unset($questao['resposta_correta'], $questao['referencia_biblica'], $questao['dica'], $questao['ajudas'], $questao['explicacao']);
         $this->questao = $questao;
         $this->tempoLimite = $tempoLimite;
     }

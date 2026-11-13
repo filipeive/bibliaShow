@@ -42,7 +42,13 @@ class ParticipantController extends Controller
         }
 
         $equipeId = $validated['equipe_id'] ?? null;
-        if (! $equipeId && ! empty($validated['equipe_nome'])) {
+        if ($equipeId) {
+            $equipeValida = Equipe::where('sala_id', $sala->id)->where('id', (int) $equipeId)->first();
+            if (! $equipeValida) {
+                return response()->json(['error' => 'A equipe selecionada não pertence a esta sala.'], 422);
+            }
+            $equipeId = $equipeValida->id;
+        } elseif (! empty($validated['equipe_nome'])) {
             $equipe = Equipe::firstOrCreate(
                 [
                     'sala_id' => $sala->id,
@@ -104,9 +110,28 @@ class ParticipantController extends Controller
                 'codigo_acesso' => $participante->codigo_acesso,
                 'equipe_id' => $participante->equipe_id,
                 'equipe_nome' => $participante->equipe?->nome,
-                'pontuacao_total' => 0,
+                'pontuacao_total' => (int) $participante->pontuacao_total,
             ],
         ]);
+    }
+
+    private function autorizarParticipante(Request $request, Sala $sala, ?Participante $participante): ?\Illuminate\Http\JsonResponse
+    {
+        if (! $participante || (int) $participante->sala_id !== (int) $sala->id) {
+            return response()->json(['error' => 'Participante não encontrado nesta sala.'], 404);
+        }
+
+        $codigoFornecido = $request->header('X-Participante-Codigo')
+            ?? $request->input('participante_codigo')
+            ?? $request->query('participante_codigo');
+
+        if ($codigoFornecido !== null && trim((string) $codigoFornecido) !== '') {
+            if (! hash_equals(strtoupper((string) $participante->codigo_acesso), strtoupper(trim((string) $codigoFornecido)))) {
+                return response()->json(['error' => 'Token de participante inválido para esta sala.'], 403);
+            }
+        }
+
+        return null;
     }
 
     public function entrarView(?string $codigo = null)
@@ -326,8 +351,8 @@ class ParticipantController extends Controller
         $validated = $validator->validated();
 
         $participante = Participante::find($validated['participante_id']);
-        if (! $participante || (int) $participante->sala_id !== (int) $sala->id) {
-            return response()->json(['error' => 'Participante não encontrado nesta sala.'], 404);
+        if ($erroAuth = $this->autorizarParticipante($request, $sala, $participante)) {
+            return $erroAuth;
         }
 
         $jogo = $sala->jogoAtivo()->first();
@@ -499,8 +524,8 @@ class ParticipantController extends Controller
 
     public function sair(Request $request, Sala $sala, Participante $participante)
     {
-        if ((int) $participante->sala_id !== (int) $sala->id) {
-            return response()->json(['error' => 'Participante não encontrado nesta sala.'], 404);
+        if ($erroAuth = $this->autorizarParticipante($request, $sala, $participante)) {
+            return $erroAuth;
         }
 
         $participante->update(['conectado' => false]);
@@ -530,8 +555,8 @@ class ParticipantController extends Controller
             $validated = $validator->validated();
             $participante = Participante::find($validated['participante_id']);
 
-            if (! $participante || (int) $participante->sala_id !== (int) $sala->id) {
-                return response()->json(['error' => 'Participante não pertence a esta sala.'], 404);
+            if ($erroAuth = $this->autorizarParticipante($request, $sala, $participante)) {
+                return $erroAuth;
             }
 
             $jogo = $sala->jogoAtivo()->first();
@@ -704,8 +729,8 @@ class ParticipantController extends Controller
 
     public function juntarEquipe(Request $request, Sala $sala, Participante $participante)
     {
-        if ((int) $participante->sala_id !== (int) $sala->id) {
-            return response()->json(['error' => 'Participante não pertence a esta sala.'], 404);
+        if ($erroAuth = $this->autorizarParticipante($request, $sala, $participante)) {
+            return $erroAuth;
         }
 
         $validator = Validator::make($request->all(), [

@@ -104,6 +104,10 @@ class PerguntaController extends Controller
         }
 
         $validated = $validator->validated();
+        $user = $request->user();
+        if ($user && $user->papel !== 'admin_geral' && $user->igreja_id) {
+            $validated['igreja_id'] = $user->igreja_id;
+        }
 
         $validated['aprovada'] = true;
         $validated['submetida_por'] = auth()->id() ?? 1;
@@ -115,10 +119,18 @@ class PerguntaController extends Controller
             ->with('success', 'Pergunta criada com sucesso e adicionada ao banco do Bíblia Show.');
     }
 
-    private function verificarAcessoQuestao(Request $request, Questao $questao): void
+    private function verificarAcessoQuestao(Request $request, Questao $questao, bool $escrita = false): void
     {
         $user = $request->user();
-        if ($user && $user->papel !== 'admin_geral' && $questao->igreja_id && (int) $user->igreja_id !== (int) $questao->igreja_id) {
+        if (! $user || $user->papel === 'admin_geral') {
+            return;
+        }
+
+        if ($escrita && ! $questao->igreja_id) {
+            abort(403, 'Acesso negado: apenas o administrador geral pode modificar questões globais.');
+        }
+
+        if ($questao->igreja_id && (int) $user->igreja_id !== (int) $questao->igreja_id) {
             abort(403, 'Acesso negado: questão pertence a outra igreja.');
         }
     }
@@ -133,7 +145,7 @@ class PerguntaController extends Controller
 
     public function edit(Request $request, Questao $questao)
     {
-        $this->verificarAcessoQuestao($request, $questao);
+        $this->verificarAcessoQuestao($request, $questao, true);
         $livros = LivroBiblico::orderBy('id')->get();
         $categorias = Categoria::orderBy('nome')->get();
         $dificuldades = NivelDificuldade::orderBy('nivel')->get();
@@ -144,7 +156,7 @@ class PerguntaController extends Controller
 
     public function update(Request $request, Questao $questao)
     {
-        $this->verificarAcessoQuestao($request, $questao);
+        $this->verificarAcessoQuestao($request, $questao, true);
         $opcoesInput = $request->input('opcoes', []);
         if (is_string($opcoesInput)) {
             $decoded = json_decode($opcoesInput, true);
@@ -179,6 +191,10 @@ class PerguntaController extends Controller
         }
 
         $validated = $validator->validated();
+        $user = $request->user();
+        if ($user && $user->papel !== 'admin_geral' && $user->igreja_id) {
+            $validated['igreja_id'] = $user->igreja_id;
+        }
         $validated['opcoes'] = $opcoesInput;
         $validated['referencia_verificada'] = $request->boolean('referencia_verificada');
         $validated['aprovada'] = $request->boolean('aprovada');
@@ -191,7 +207,7 @@ class PerguntaController extends Controller
 
     public function destroy(Request $request, Questao $questao)
     {
-        $this->verificarAcessoQuestao($request, $questao);
+        $this->verificarAcessoQuestao($request, $questao, true);
         $questao->delete();
 
         return redirect()->route('perguntas.index')

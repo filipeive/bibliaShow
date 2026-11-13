@@ -7,8 +7,9 @@ class ApiService {
   ApiService._internal();
 
   // URL padrão de produção com subcaminho /bibliashow
-  static const String defaultServerUrl = 'http://146.235.224.99/bibliashow';
+  static const String defaultServerUrl = 'https://146.235.224.99/bibliashow';
   String baseUrl = defaultServerUrl;
+  String? participanteCodigo;
 
   Future<void> init() async {
     try {
@@ -21,9 +22,9 @@ class ApiService {
   }
 
   String normalizarUrl(String url) {
-    String u = url.trim();
+    String u = url.trim().replaceAll(RegExp(r'/+$'), '');
     if (!u.startsWith('http://') && !u.startsWith('https://')) {
-      u = 'http://$u';
+      u = 'https://$u';
     }
     // Assegurar subcaminho se for IP de produção e usuário não digitou /bibliashow
     if ((u.contains('146.235.224.99') || u.contains('bibliashow')) && !u.contains('/bibliashow')) {
@@ -65,6 +66,10 @@ class ApiService {
     } catch (_) {}
 
     if (resp.statusCode >= 200 && resp.statusCode < 300 && data != null) {
+      final p = data['participante'];
+      if (p is Map && p['codigo_acesso'] is String && (p['codigo_acesso'] as String).isNotEmpty) {
+        participanteCodigo = p['codigo_acesso'] as String;
+      }
       return data;
     } else {
       final msg = data?['error'] ??
@@ -92,16 +97,19 @@ class ApiService {
   Future<Map<String, dynamic>> responderRodada({
     required int salaId,
     required int participanteId,
+    String? codigoParticipante,
     int? questaoId,
     required String resposta,
     int? tempoResposta,
   }) async {
     final uri = Uri.parse('$baseUrl/api/salas/$salaId/responder');
+    final codigo = codigoParticipante ?? participanteCodigo;
     final resp = await http.post(
       uri,
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        if (codigo != null && codigo.isNotEmpty) 'X-Participante-Codigo': codigo,
       },
       body: jsonEncode({
         'participante_id': participanteId,
@@ -117,6 +125,10 @@ class ApiService {
     } catch (_) {}
 
     if (resp.statusCode >= 200 && resp.statusCode < 300 && data != null) {
+      final p = data['participante'];
+      if (p is Map && p['codigo_acesso'] is String && (p['codigo_acesso'] as String).isNotEmpty) {
+        participanteCodigo = p['codigo_acesso'] as String;
+      }
       return data;
     } else {
       throw Exception(data?['error'] ?? 'Erro ao enviar resposta à arena.');
@@ -126,15 +138,18 @@ class ApiService {
   Future<Map<String, dynamic>> usarAjuda({
     required int salaId,
     required int participanteId,
+    String? codigoParticipante,
     required String tipo,
     int? indiceConvidado,
   }) async {
     final uri = Uri.parse('$baseUrl/api/salas/$salaId/ajuda');
+    final codigo = codigoParticipante ?? participanteCodigo;
     final resp = await http.post(
       uri,
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        if (codigo != null && codigo.isNotEmpty) 'X-Participante-Codigo': codigo,
       },
       body: jsonEncode({
         'participante_id': participanteId,
@@ -149,6 +164,10 @@ class ApiService {
     } catch (_) {}
 
     if (resp.statusCode >= 200 && resp.statusCode < 300 && data != null) {
+      final p = data['participante'];
+      if (p is Map && p['codigo_acesso'] is String && (p['codigo_acesso'] as String).isNotEmpty) {
+        participanteCodigo = p['codigo_acesso'] as String;
+      }
       return data;
     } else {
       throw Exception(data?['error'] ?? 'Erro ao solicitar ajuda.');

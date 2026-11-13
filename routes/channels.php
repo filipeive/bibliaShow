@@ -10,19 +10,29 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 
 Broadcast::channel('game.{salaId}', function ($user, $salaId) {
     $sala = \App\Models\Sala::find($salaId);
-    if (!$sala || $sala->status === 'terminada') {
+    if (! $sala || $sala->status === 'terminada') {
         return false;
     }
 
-    // Se o usuário está autenticado no painel/estúdio (Apresentador ou Admin da Igreja)
+    // Se o usuário está autenticado no painel/estúdio (Apresentador dono da sala ou Admin)
     if ($user) {
-        if ($user->papel === 'admin_geral' || (int) $user->igreja_id === (int) $sala->igreja_id) {
+        if ($user->papel === 'admin_geral') {
             return ['id' => $user->id, 'nome' => $user->nome, 'tipo' => 'apresentador'];
         }
+        if ((int) $user->igreja_id !== (int) $sala->igreja_id) {
+            return false;
+        }
+        if ($user->papel === 'apresentador' && (int) $user->id !== (int) $sala->apresentador_id) {
+            return false;
+        }
+        if (in_array($user->papel, ['apresentador', 'admin_igreja'], true)) {
+            return ['id' => $user->id, 'nome' => $user->nome, 'tipo' => 'apresentador'];
+        }
+
         return false;
     }
 
-    // Para participantes e telão: autoriza conexão se o código do participante na sessão pertencer a esta sala
+    // Para participantes: exige sessão ou código válido da sala
     $participanteId = session('participante_id_' . $salaId) ?? request()->cookie('part_' . $salaId);
     if ($participanteId) {
         $p = \App\Models\Participante::where('sala_id', $sala->id)->find($participanteId);
@@ -31,6 +41,5 @@ Broadcast::channel('game.{salaId}', function ($user, $salaId) {
         }
     }
 
-    // Se for acesso direto autenticado para telão/projeção da sala existente
-    return ['id' => null, 'nome' => 'espectador', 'salaId' => (int) $salaId, 'tipo' => 'projecao'];
+    return false;
 });

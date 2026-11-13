@@ -22,6 +22,9 @@ class JogoEstadoAlterado implements ShouldBroadcast
     {
         $this->salaId = $salaId;
         $this->estado = $estado;
+        if (is_array($questaoAtual)) {
+            unset($questaoAtual['resposta_correta'], $questaoAtual['referencia_biblica'], $questaoAtual['dica'], $questaoAtual['ajudas'], $questaoAtual['explicacao']);
+        }
         $this->questaoAtual = $questaoAtual;
         $this->tempoRestante = $tempoRestante;
     }

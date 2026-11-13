@@ -48,4 +48,16 @@ class RespostaEnviada implements ShouldBroadcast
     {
         return 'resposta-enviada';
     }
+
+    public function broadcastWith(): array
+    {
+        return [
+            'salaId' => $this->salaId,
+            'participanteId' => $this->participanteId,
+            'nomeParticipante' => $this->nomeParticipante,
+            'questaoId' => $this->questaoId,
+            'tempoResposta' => $this->tempoResposta,
+            'respondido' => true,
+        ];
+    }
 }

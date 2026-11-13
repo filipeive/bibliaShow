@@ -26,10 +26,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _carregarRecordes() async {
-    final list = await DatabaseHelper.instance.obterMelhoresRecordes(limite: 5);
-    if (mounted) {
-      setState(() => _recordes = list);
-    }
+    try {
+      final list = await DatabaseHelper.instance.obterMelhoresRecordes(limite: 5);
+      if (mounted) {
+        setState(() => _recordes = list);
+      }
+    } catch (_) {}
   }
 
   @override

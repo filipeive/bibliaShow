@@ -252,4 +252,73 @@ class MultiplayerFlowTest extends TestCase
         $this->assertTrue($estadoDepois->json('ajudas.gabarito_revelado'));
         $this->assertEquals('Deus', $estadoDepois->json('pergunta_atual.resposta_correta'));
     }
+
+    public function test_fluxo_completo_arena_com_equipa_ranking_e_reconnexao(): void
+    {
+        $cenario = $this->criarCenarioBase();
+        $sala = $cenario['sala'];
+        $apresentador = $cenario['apresentador'];
+        $questao = $cenario['questao'];
+
+        $equipa = \App\Models\Equipe::create([
+            'sala_id' => $sala->id,
+            'nome' => 'Judá',
+            'cor' => '#F59E0B',
+            'pontuacao' => 0,
+        ]);
+
+        // 1. Apresentador inicia o controlo da sala
+        $this->actingAs($apresentador)->get("/apresentador/control/{$sala->id}")->assertStatus(200);
+
+        // 2. Participante entra por código e escolhe equipa
+        $entrar = $this->postJson('/api/salas/entrar', [
+            'codigo_acesso' => $sala->codigo_acesso,
+            'nome' => 'Rute',
+            'equipe_id' => $equipa->id,
+        ]);
+        $entrar->assertStatus(200);
+        $participanteId = $entrar->json('participante.id');
+        $codigo = $entrar->json('participante.codigo_acesso');
+        $this->assertNotEmpty($codigo);
+
+        // 3. Estado da sala oculta gabarito antes da revelação
+        $estadoInicial = $this->getJson("/api/salas/{$sala->id}?participante_id={$participanteId}");
+        $estadoInicial->assertStatus(200);
+        $this->assertNull($estadoInicial->json('pergunta_atual.resposta_correta'));
+
+        // 4. Participante submete resposta autenticada com X-Participante-Codigo
+        $responder = $this->withHeaders([
+            'X-Participante-Codigo' => $codigo,
+        ])->postJson("/api/salas/{$sala->id}/responder", [
+            'participante_id' => $participanteId,
+            'questao_id' => $questao->id,
+            'resposta' => 'Deus',
+            'tempo_resposta' => 8,
+        ]);
+        $responder->assertStatus(200);
+        $responder->assertJsonPath('bloqueada', true);
+        $this->assertNull($responder->json('correta'));
+
+        // 5. Apresentador revela o gabarito e o ranking é atualizado
+        $this->actingAs($apresentador)->postJson("/apresentador/control/{$sala->id}/ajuda", [
+            'tipo' => 'revelar',
+        ])->assertStatus(200);
+
+        $estadoPosRevelacao = $this->getJson("/api/salas/{$sala->id}?participante_id={$participanteId}");
+        $estadoPosRevelacao->assertStatus(200);
+        $this->assertEquals('Deus', $estadoPosRevelacao->json('pergunta_atual.resposta_correta'));
+        $ranking = $estadoPosRevelacao->json('ranking');
+        $this->assertNotEmpty($ranking);
+        $pontuacaoObtida = $ranking[0]['pontuacao'];
+        $this->assertGreaterThan(0, $pontuacaoObtida);
+
+        // 6. Reconexão do mesmo participante preserva pontuação acumulada
+        $reconectar = $this->postJson('/api/salas/entrar', [
+            'codigo_acesso' => $sala->codigo_acesso,
+            'nome' => 'Rute',
+        ]);
+        $reconectar->assertStatus(200);
+        $reconectar->assertJsonPath('participante.id', $participanteId);
+        $reconectar->assertJsonPath('participante.pontuacao_total', $pontuacaoObtida);
+    }
 }

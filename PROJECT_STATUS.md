@@ -1,8 +1,8 @@
 # Bíblia Show 2.0 — Status do Projeto
 
-**Última Atualização:** 11 de Novembro de 2026  
-**Versão Atual:** 2.1.0-estabilizada  
-**Status da Auditoria:** Concluída com Sucesso  
+**Última Atualização:** 13 de Novembro de 2026  
+**Versão Atual:** 2.2.0-consolidacao  
+**Status da Auditoria:** Consolidação Multiplataforma Concluída (ver detalhes e pendências reais em [docs/AUDITORIA_MULTIPLATAFORMA.md](docs/AUDITORIA_MULTIPLATAFORMA.md))  
 
 ---
 
@@ -42,15 +42,17 @@ O **Bíblia Show 2.0** é a recriação fiel e moderna do clássico jogo multim�
 
 ---
 
-## 3. Cobertura de Testes Automatizados e Navegador Real
+## 3. Cobertura de Testes Automatizados e Estado de Validação Real
 
-- **Total de Testes PHPUnit:** 26
-- **Total de Asserções:** 106
-- **Taxa de Sucesso:** 100% (0 falhas)
-- **Tempo de Execução:** ~500ms
-- **Comando de Verificação:** `php artisan test`
-- **Validação E2E no Navegador:** Realizada via Chrome DevTools MCP (Home, Jogo Clássico Solo com ajudas e modal, Login/Admin, Estúdio do Apresentador, Telão de Projeção, Smartphone do Participante, submissão de respostas e Pódio Final).
-- **Ambiente de Produção Operacional:** `http://146.235.224.99/bibliashow/` e `http://146.235.224.99/bibliaShow/` (HTTP 200 OK com 1.000 questões e áudios originais).
+- **Testes PHPUnit (`php artisan test`):** `34` testes (`157` asserções), `0` falhas — inclui regressões de segurança (`routes/channels.php`, `ParticipantController`, `PerguntaController`, sanitização de broadcasts) e fluxo completo da Arena com equipas, sigilo, revelação, ranking e reconexão.
+- **Testes Flutter VM (`cd mobile && flutter test`):** `9` testes passando — cobre regras do `GameEngineService` (4 fases, pontuação 10/20/30/50, Fase 4 `valorAoErrar = 0`, cartas, dicas, convidados, pulos, encerramento), parsing de `assets/data/questoes.json`, presença dos áudios `.wav` e normalização de URL `/bibliashow`.
+- **Pendente de Validação em Dispositivo Real / Produção:**
+  - Execução do APK Flutter em dispositivo Android físico (SQLite nativo `sqflite` e `audioplayers`).
+  - Recompilação e execução do aplicativo Desktop Electron após ajuste dos menus (`/jogar`, `/apresentador`, `/projecao/1`).
+  - Instalação PWA e modo offline em Chrome Android sob `/bibliashow/`.
+  - **Laravel Reverb:** Em produção (`146.235.224.99`), `BROADCAST_CONNECTION=log` (sem daemon `reverb:start` ativo); a Arena opera via polling HTTP.
+- **Especificação de Regras:** Documentada em [docs/GAME_RULES_SPEC.md](docs/GAME_RULES_SPEC.md).
+- **Relatório Completo:** [docs/AUDITORIA_MULTIPLATAFORMA.md](docs/AUDITORIA_MULTIPLATAFORMA.md).
 
 ---
 

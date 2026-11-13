@@ -21,25 +21,26 @@ function createWindow() {
   });
 
   const defaultDevUrl = 'http://127.0.0.1:8000';
-  const prodUrl = 'http://146.235.224.99/bibliashow';
-  const appUrl = process.env.APP_URL || defaultDevUrl;
+  const prodUrl = 'https://146.235.224.99/bibliashow';
+  let activeUrl = process.env.APP_URL || defaultDevUrl;
 
   mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
     if (validatedURL.includes('127.0.0.1') || validatedURL.includes('localhost')) {
       console.log(`[Electron] Servidor local indisponível em ${validatedURL}. Alternando para produção: ${prodUrl}`);
+      activeUrl = prodUrl;
       mainWindow.loadURL(prodUrl);
     }
   });
 
-  mainWindow.loadURL(appUrl);
+  mainWindow.loadURL(activeUrl);
 
   const menuTemplate = [
     {
       label: 'Navegação',
       submenu: [
-        { label: 'Início / Painel', click: () => mainWindow.loadURL(`${appUrl}/`) },
-        { label: 'Modo Individual', click: () => mainWindow.loadURL(`${appUrl}/game/play`) },
-        { label: 'Salas Multiplayer', click: () => mainWindow.loadURL(`${appUrl}/salas`) },
+        { label: 'Início / Painel', click: () => mainWindow.loadURL(`${activeUrl}/`) },
+        { label: 'Modo Individual', click: () => mainWindow.loadURL(`${activeUrl}/jogar`) },
+        { label: 'Painel do Apresentador', click: () => mainWindow.loadURL(`${activeUrl}/apresentador`) },
         { type: 'separator' },
         { label: 'Recarregar', accelerator: 'CmdOrCtrl+R', click: () => mainWindow.reload() },
         { label: 'Sair', accelerator: 'CmdOrCtrl+Q', click: () => app.quit() }
@@ -56,9 +57,9 @@ function createWindow() {
           }
         },
         {
-          label: 'Abrir Telão da Sala Mais Recente',
+          label: 'Abrir Telão da Sala 1',
           accelerator: 'CmdOrCtrl+T',
-          click: () => mainWindow.loadURL(`${appUrl}/telao/1`)
+          click: () => mainWindow.loadURL(`${activeUrl}/projecao/1`)
         }
       ]
     },
