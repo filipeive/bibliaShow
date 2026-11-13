@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../services/game_engine_service.dart';
@@ -35,41 +36,68 @@ class SoloGameScreen extends StatelessWidget {
               },
             );
           },
-          child: Scaffold(
-            body: Container(
-              decoration: const BoxDecoration(gradient: AppColors.stageGradient),
-              child: SafeArea(
-                child: game.status == GameStatus.loading
-                    ? const Center(
-                        child: CircularProgressIndicator(color: AppColors.gold),
-                      )
-                    : Column(
-                        children: [
-                          _buildTopBar(context, game),
-                          Expanded(
-                            child: SingleChildScrollView(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  _buildPerguntaCard(game),
-                                  if (game.dicaAtiva != null) _buildDicaBox(game.dicaAtiva!),
-                                  if (game.convidadoAtivo != null) _buildConvidadoBox(game.convidadoAtivo!),
-                                  const SizedBox(height: 12),
-                                  _buildAlternativas(game),
-                                ],
+          child: CallbackShortcuts(
+            bindings: <ShortcutActivator, VoidCallback>{
+              const SingleActivator(LogicalKeyboardKey.keyA): () => _responderAtalho(game, 0),
+              const SingleActivator(LogicalKeyboardKey.digit1): () => _responderAtalho(game, 0),
+              const SingleActivator(LogicalKeyboardKey.keyB): () => _responderAtalho(game, 1),
+              const SingleActivator(LogicalKeyboardKey.digit2): () => _responderAtalho(game, 1),
+              const SingleActivator(LogicalKeyboardKey.keyC): () => _responderAtalho(game, 2),
+              const SingleActivator(LogicalKeyboardKey.digit3): () => _responderAtalho(game, 2),
+              const SingleActivator(LogicalKeyboardKey.keyD): () => _responderAtalho(game, 3),
+              const SingleActivator(LogicalKeyboardKey.digit4): () => _responderAtalho(game, 3),
+            },
+            child: Focus(
+              autofocus: true,
+              child: Scaffold(
+                body: Container(
+                  decoration: const BoxDecoration(gradient: AppColors.stageGradient),
+                  child: SafeArea(
+                    child: game.status == GameStatus.loading
+                        ? const Center(
+                            child: CircularProgressIndicator(color: AppColors.gold),
+                          )
+                        : Column(
+                            children: [
+                              _buildTopBar(context, game),
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  child: Center(
+                                    child: ConstrainedBox(
+                                      constraints: const BoxConstraints(maxWidth: 860),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                                        children: [
+                                          _buildPerguntaCard(game),
+                                          if (game.dicaAtiva != null) _buildDicaBox(game.dicaAtiva!),
+                                          if (game.convidadoAtivo != null) _buildConvidadoBox(game.convidadoAtivo!),
+                                          const SizedBox(height: 12),
+                                          _buildAlternativas(game),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
+                              _buildBottomBar(game),
+                            ],
                           ),
-                          _buildBottomBar(game),
-                        ],
-                      ),
+                  ),
+                ),
               ),
             ),
           ),
         );
       },
     );
+  }
+
+  void _responderAtalho(GameEngineService game, int idx) {
+    final q = game.perguntaAtual;
+    if (q == null || game.status != GameStatus.playing) return;
+    if (idx >= q.opcoes.length || game.opcoesEliminadas.contains(idx)) return;
+    game.responder(idx);
   }
 
   Widget _buildTopBar(BuildContext context, GameEngineService game) {

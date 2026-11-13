@@ -1,0 +1,57 @@
+name: Build Windows Offline (.exe)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - "mobile/**"
+      - ".github/workflows/build-windows.yml"
+  release:
+    types: [published]
+
+jobs:
+  build_windows:
+    name: Build Biblia Show Windows x64
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Enable Windows Desktop & Install Dependencies
+        working-directory: mobile
+        run: |
+          flutter config --enable-windows-desktop
+          flutter pub get
+
+      - name: Run Flutter Tests
+        working-directory: mobile
+        run: flutter test
+
+      - name: Build Windows Release (.exe)
+        working-directory: mobile
+        run: flutter build windows --release
+
+      - name: Package Portable Windows ZIP
+        shell: pwsh
+        run: |
+          $releaseDir = "mobile/build/windows/x64/runner/Release"
+          if (-Not (Test-Path $releaseDir)) {
+            $releaseDir = "mobile/build/windows/runner/Release"
+          }
+          Compress-Archive -Path "$releaseDir/*" -DestinationPath "biblia-show-windows-offline.zip" -Force
+
+      - name: Upload Windows Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: biblia-show-windows-offline
+          path: biblia-show-windows-offline.zip
+          retention-days: 90
