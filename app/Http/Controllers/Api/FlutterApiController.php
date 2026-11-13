@@ -28,33 +28,37 @@ class FlutterApiController extends Controller
      */
     public function meta(): JsonResponse
     {
-        $categorias = Categoria::select('id', 'nome', 'descricao')->orderBy('nome')->get();
-        $niveis = NivelDificuldade::select('id', 'nivel', 'nome')->orderBy('nivel')->get();
-        $livros = LivroBiblico::select('id', 'nome', 'testamento', 'abreviacao')->orderBy('id')->get();
+        $dados = Cache::remember('api_v1_meta', 1800, function () {
+            $categorias = Categoria::select('id', 'nome', 'descricao')->orderBy('nome')->get();
+            $niveis = NivelDificuldade::select('id', 'nivel', 'nome')->orderBy('nivel')->get();
+            $livros = LivroBiblico::select('id', 'nome', 'testamento', 'abreviacao')->orderBy('id')->get();
 
-        return response()->json([
-            'sucesso' => true,
-            'app_nome' => 'Bíblia Show 2.0',
-            'versao_api' => '1.0.0',
-            'estrutura_jogo' => [
-                'total_fases' => 4,
-                'perguntas_por_fase' => 6,
-                'total_perguntas' => 24,
-                'pontuacao_maxima' => 660,
-                'max_erros' => 3,
-                'max_tempos_esgotados' => 3,
-                'tempo_padrao_segundos' => 60,
-                'ajudas' => [
-                    'cartas' => ['max' => 1, 'descricao' => 'Elimina 2 alternativas incorretas'],
-                    'convidados' => ['max' => 3, 'descricao' => 'Opinião de até 3 personagens bíblicos'],
-                    'dica' => ['max' => 3, 'descricao' => 'Livro e capítulo onde está a resposta'],
-                    'pulo' => ['max' => 3, 'descricao' => 'Sorteia nova pergunta da mesma fase sem perder pontos'],
+            return [
+                'sucesso' => true,
+                'app_nome' => 'Bíblia Show 2.0',
+                'versao_api' => '1.0.0',
+                'estrutura_jogo' => [
+                    'total_fases' => 4,
+                    'perguntas_por_fase' => 6,
+                    'total_perguntas' => 24,
+                    'pontuacao_maxima' => 660,
+                    'max_erros' => 3,
+                    'max_tempos_esgotados' => 3,
+                    'tempo_padrao_segundos' => 60,
+                    'ajudas' => [
+                        'cartas' => ['max' => 1, 'descricao' => 'Elimina 2 alternativas incorretas'],
+                        'convidados' => ['max' => 3, 'descricao' => 'Opinião de até 3 personagens bíblicos'],
+                        'dica' => ['max' => 3, 'descricao' => 'Livro e capítulo onde está a resposta'],
+                        'pulo' => ['max' => 3, 'descricao' => 'Sorteia nova pergunta da mesma fase sem perder pontos'],
+                    ],
                 ],
-            ],
-            'categorias' => $categorias,
-            'niveis' => $niveis,
-            'livros' => $livros,
-        ]);
+                'categorias' => $categorias,
+                'niveis' => $niveis,
+                'livros' => $livros,
+            ];
+        });
+
+        return response()->json($dados);
     }
 
     /**
@@ -338,42 +342,46 @@ class FlutterApiController extends Controller
      */
     public function ranking(): JsonResponse
     {
-        $path = storage_path('app/ranking_individual.json');
-        $ranking = [];
-        if (file_exists($path)) {
-            $conteudo = file_get_contents($path);
-            $ranking = json_decode($conteudo, true) ?: [];
-        }
-
-        if (empty($ranking)) {
-            $ranking = [
-                ['nome' => 'Daniel', 'pontuacao' => 2400, 'acertos' => 24, 'data' => 'Clássico'],
-                ['nome' => 'Salomão', 'pontuacao' => 2100, 'acertos' => 22, 'data' => 'Clássico'],
-                ['nome' => 'Ester', 'pontuacao' => 1800, 'acertos' => 20, 'data' => 'Clássico'],
-            ];
-        }
-
-        usort($ranking, function ($a, $b) {
-            $ptsA = (int) ($a['pontuacao'] ?? 0);
-            $ptsB = (int) ($b['pontuacao'] ?? 0);
-            if ($ptsA === $ptsB) {
-                return ((int) ($b['acertos'] ?? 0)) <=> ((int) ($a['acertos'] ?? 0));
+        $topFormatado = Cache::remember('api_v1_ranking', 60, function () {
+            $path = storage_path('app/ranking_individual.json');
+            $ranking = [];
+            if (file_exists($path)) {
+                $conteudo = file_get_contents($path);
+                $ranking = json_decode($conteudo, true) ?: [];
             }
 
-            return $ptsB <=> $ptsA;
-        });
+            if (empty($ranking)) {
+                $ranking = [
+                    ['nome' => 'Daniel', 'pontuacao' => 2400, 'acertos' => 24, 'data' => 'Clássico'],
+                    ['nome' => 'Salomão', 'pontuacao' => 2100, 'acertos' => 22, 'data' => 'Clássico'],
+                    ['nome' => 'Ester', 'pontuacao' => 1800, 'acertos' => 20, 'data' => 'Clássico'],
+                ];
+            }
 
-        $top = array_slice($ranking, 0, 25);
-        $topFormatado = [];
-        foreach ($top as $idx => $r) {
-            $topFormatado[] = [
-                'posicao' => $idx + 1,
-                'nome' => $r['nome'] ?? 'Participante',
-                'pontuacao' => (int) ($r['pontuacao'] ?? 0),
-                'acertos' => (int) ($r['acertos'] ?? 0),
-                'data' => $r['data'] ?? '',
-            ];
-        }
+            usort($ranking, function ($a, $b) {
+                $ptsA = (int) ($a['pontuacao'] ?? 0);
+                $ptsB = (int) ($b['pontuacao'] ?? 0);
+                if ($ptsA === $ptsB) {
+                    return ((int) ($b['acertos'] ?? 0)) <=> ((int) ($a['acertos'] ?? 0));
+                }
+
+                return $ptsB <=> $ptsA;
+            });
+
+            $top = array_slice($ranking, 0, 25);
+            $resultado = [];
+            foreach ($top as $idx => $r) {
+                $resultado[] = [
+                    'posicao' => $idx + 1,
+                    'nome' => $r['nome'] ?? 'Participante',
+                    'pontuacao' => (int) ($r['pontuacao'] ?? 0),
+                    'acertos' => (int) ($r['acertos'] ?? 0),
+                    'data' => $r['data'] ?? '',
+                ];
+            }
+
+            return $resultado;
+        });
 
         return response()->json([
             'sucesso' => true,
@@ -387,24 +395,33 @@ class FlutterApiController extends Controller
      */
     public function consultarSalaAoVivo(string $codigo): JsonResponse
     {
-        $sala = Sala::where('codigo', mb_strtoupper(trim($codigo)))->first();
-        if (! $sala) {
-            return response()->json(['sucesso' => false, 'erro' => 'Sala não encontrada. Verifique o código.'], 404);
-        }
+        $codigoNorm = mb_strtoupper(trim($codigo));
+        $payload = Cache::remember("api_v1_sala_{$codigoNorm}", 5, function () use ($codigoNorm) {
+            $sala = Sala::where('codigo', $codigoNorm)->first();
+            if (! $sala) {
+                return null;
+            }
 
-        $jogo = $sala->jogoAtivo()->first();
-        $partAtiva = ($jogo && $jogo->status === 'em_andamento');
+            $jogo = $sala->jogoAtivo()->first();
+            $partAtiva = ($jogo && $jogo->status === 'em_andamento');
 
-        return response()->json([
-            'sucesso' => true,
-            'sala' => [
+            return [
                 'id' => $sala->id,
                 'codigo' => $sala->codigo,
                 'nome' => $sala->nome,
                 'status' => $sala->status,
                 'partida_em_andamento' => $partAtiva,
                 'total_participantes' => $sala->participantes()->count(),
-            ],
+            ];
+        });
+
+        if (! $payload) {
+            return response()->json(['sucesso' => false, 'erro' => 'Sala não encontrada. Verifique o código.'], 404);
+        }
+
+        return response()->json([
+            'sucesso' => true,
+            'sala' => $payload,
         ]);
     }
 

@@ -17,6 +17,7 @@ use App\Models\NivelDificuldade;
 use App\Models\Questao;
 use App\Models\Sala;
 use App\Models\Usuario;
+use App\Services\ArenaCacheService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -273,6 +274,7 @@ class ApresentadorController extends Controller
             'premio_primeiro_lugar' => $request->input('premio_primeiro_lugar'),
             'premio_segundo_lugar' => $request->input('premio_segundo_lugar'),
         ]);
+        ArenaCacheService::invalidateSala((int) $salaId);
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
@@ -302,6 +304,7 @@ class ApresentadorController extends Controller
             'nome' => $request->nome,
             'cor' => $request->cor ?? '#'.str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT),
         ]);
+        ArenaCacheService::invalidateSala((int) $salaId);
 
         $this->tentarBroadcast(new RankingAtualizado((int) $salaId, []));
 
@@ -455,6 +458,7 @@ class ApresentadorController extends Controller
         }
 
         $sala->update(['status' => 'terminada']);
+        ArenaCacheService::invalidateSala((int) $salaId);
 
         $this->tentarBroadcast(new JogoEstadoAlterado((int) $salaId, 'terminado'));
 
@@ -632,6 +636,8 @@ class ApresentadorController extends Controller
                 'dados_motor' => $jsonState,
             ]);
         }
+
+        ArenaCacheService::invalidateSala((int) $salaId);
     }
 
     private function tentarBroadcast(object $evento): void

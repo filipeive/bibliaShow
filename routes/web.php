@@ -48,6 +48,9 @@ Route::get('/curiosidades', [GameController::class, 'curiosidades'])->name('curi
 Route::get('/sobre', function () {
     return view('sobre');
 })->name('sobre');
+Route::get('/privacidade', function () {
+    return view('privacidade');
+})->name('privacidade');
 
 // Modo Individual Clássico (Show do Milhão Bíblico)
 Route::prefix('jogar')->name('game.')->group(function () {

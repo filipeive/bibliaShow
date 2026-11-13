@@ -660,5 +660,48 @@
     document.addEventListener('DOMContentLoaded', () => {
         atualizarUISomGlobal();
         atualizarUIFullscreenGlobal();
+        inicializarBannerCookiesGlobal();
     });
+
+    function inicializarBannerCookiesGlobal() {
+        try {
+            const aceito = localStorage.getItem('biblia_show_cookies_aceitos') === '1'
+                || document.cookie.includes('biblia_show_cookie_consent=accepted');
+            const banner = document.getElementById('bannerCookiesBibliaShow');
+            if (banner && !aceito) {
+                banner.classList.remove('hidden');
+            }
+        } catch (e) {}
+    }
+
+    function aceitarCookiesBibliaShow() {
+        try {
+            localStorage.setItem('biblia_show_cookies_aceitos', '1');
+            document.cookie = 'biblia_show_cookie_consent=accepted; max-age=31536000; path=/; SameSite=Lax';
+        } catch (e) {}
+        const banner = document.getElementById('bannerCookiesBibliaShow');
+        if (banner) banner.classList.add('hidden');
+    }
 </script>
+
+<!-- Banner Discreto de Política de Cookies -->
+<div id="bannerCookiesBibliaShow"
+     class="hidden fixed bottom-3 left-3 right-3 sm:left-auto sm:right-4 sm:max-w-md z-[130] rounded-2xl bg-slate-950/95 backdrop-blur-md border border-amber-400/50 shadow-2xl p-4 text-xs text-blue-100">
+    <div class="flex flex-col gap-3">
+        <div class="flex items-start gap-2.5">
+            <svg class="w-5 h-5 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+            <p class="leading-relaxed">
+                Usamos cookies essenciais de sessão e cache local para manter seu jogo rápido e seguro.
+                <a href="{{ route('privacidade') }}" class="text-amber-300 underline hover:text-amber-200 font-bold">Política de Cookies</a>
+            </p>
+        </div>
+        <div class="flex items-center justify-end gap-2">
+            <button type="button" onclick="aceitarCookiesBibliaShow()"
+                    class="px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black uppercase tracking-wider text-[11px] cursor-pointer transition">
+                Aceitar e Continuar
+            </button>
+        </div>
+    </div>
+</div>
