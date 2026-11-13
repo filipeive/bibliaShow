@@ -121,84 +121,77 @@
 
         @if($estado === 'terminado')
             <!-- ===================================================== -->
-            <!-- TELA FINAL DE FESTA E VENCEDOR ANIMADO                -->
+            <!-- TELA FINAL: SHOW CONCLUÍDO + FESTA + CLASSIFICAÇÃO    -->
             <!-- ===================================================== -->
             <canvas id="canvasFestaTelao" class="fixed inset-0 pointer-events-none z-40"></canvas>
 
-            @php
-                $vencedor = ($ranking ?? [])[0] ?? null;
-                $restanteRanking = array_slice($ranking ?? [], 1, 11);
-            @endphp
-
-            <div class="max-w-5xl mx-auto space-y-6 relative z-10 pb-8">
-                <div class="sm-panel p-8 sm:p-10 text-center shadow-2xl relative overflow-hidden border-2 border-amber-400/70 bg-gradient-to-b from-[#132b85]/95 via-[#0a1854]/95 to-[#060e33]/98">
-                    <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-amber-300 to-transparent"></div>
-
-                    <div class="inline-flex items-center justify-center mb-4">
-                        <span class="sm-pill !px-6 !py-1.5 text-xs sm:text-sm uppercase font-black tracking-widest animate-pulse">
-                            ★ GRANDE FINAL • SHOW CONCLUÍDO ★
-                        </span>
-                    </div>
-
-                    @if($vencedor)
-                        <div class="my-4">
-                            <div class="relative inline-flex items-center justify-center mb-3">
-                                <div class="absolute inset-0 rounded-full bg-amber-400/35 blur-2xl animate-pulse scale-150"></div>
-                                <div class="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-b from-amber-200 via-amber-400 to-amber-600 flex items-center justify-center border-4 border-amber-100 shadow-2xl shadow-amber-500/60 animate-bounce">
-                                    <span class="text-5xl sm:text-6xl">🏆</span>
-                                </div>
-                            </div>
-                            <p class="text-xs sm:text-sm font-black uppercase tracking-[0.25em] text-amber-300 mb-1">👑 Grande Campeão 👑</p>
-                            <h2 class="text-4xl sm:text-6xl font-black text-white sm-logo-title drop-shadow-lg tracking-tight">
-                                {{ $vencedor['nome'] ?? 'Participante' }}
-                            </h2>
-                            @if(!empty($vencedor['equipe']))
-                                <p class="text-base sm:text-lg font-bold text-amber-200 mt-1">{{ $vencedor['equipe'] }}</p>
-                            @endif
-                            <div class="inline-flex items-center gap-3 mt-4 px-7 py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-slate-950 font-black text-2xl sm:text-3xl shadow-xl shadow-amber-500/40 border-2 border-white/80">
-                                <span>{{ $vencedor['pontuacao'] ?? 0 }}</span>
-                                <span class="text-sm uppercase tracking-wider font-extrabold">pontos</span>
+            <div class="sm-proj-grid relative z-10 pb-8">
+                <!-- Coluna Esquerda: Informação Clássica de Jogo Finalizado -->
+                <div class="space-y-6 min-w-0">
+                    <div class="sm-panel p-8 sm:p-12 text-center shadow-2xl relative overflow-hidden border-2 border-amber-400/60">
+                        <div class="relative inline-flex items-center justify-center mb-4">
+                            <div class="absolute inset-0 rounded-full bg-amber-400/30 blur-2xl animate-pulse scale-150"></div>
+                            <div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-4 border-amber-200 shadow-2xl shadow-amber-500/50 animate-bounce">
+                                <span class="text-4xl sm:text-5xl">🏆</span>
                             </div>
                         </div>
-                    @else
+                        <div class="inline-flex items-center justify-center mb-3">
+                            <span class="sm-pill !px-6 !py-1.5 text-sm uppercase font-black">
+                                ★ PARTIDA FINALIZADA ★
+                            </span>
+                        </div>
                         <h2 class="text-3xl sm:text-5xl font-black text-white sm-logo-title mb-2">Show Concluído!</h2>
-                        <p class="text-blue-200 text-lg font-bold">Partida encerrada pelo apresentador.</p>
-                    @endif
+                        <p class="text-blue-200 text-lg font-bold">Confira a classificação oficial dos participantes no ranking ao lado</p>
+                    </div>
                 </div>
 
-                @if(count($ranking ?? []) > 0)
-                    <div class="sm-panel p-6 sm:p-7 shadow-2xl border border-blue-400/30">
+                <!-- Coluna Direita: Classificação Oficial Ordenada (1º, 2º, 3º...) -->
+                <div class="space-y-5 min-w-0">
+                    <div class="sm-panel p-5 sm:p-6 shadow-2xl border-2 border-amber-400/50">
                         <div class="flex items-center justify-between mb-4 pb-3 border-b border-blue-400/20">
-                            <h3 class="text-lg sm:text-xl font-black text-white sm-logo-title uppercase tracking-wider flex items-center gap-2">
-                                <span>🎖️</span> Classificação Oficial
+                            <h3 class="text-base sm:text-lg font-black text-white sm-logo-title uppercase tracking-wider flex items-center gap-2">
+                                <span>🏆</span> Classificação Oficial
                             </h3>
-                            <span class="text-xs font-bold text-amber-300 uppercase tracking-wider">{{ count($ranking ?? []) }} participante(s)</span>
+                            <span class="text-xs font-bold text-amber-300 uppercase tracking-wider">{{ count($ranking ?? []) }} part.</span>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            @foreach(array_slice($ranking ?? [], 0, 12) as $index => $participante)
+                        <div class="space-y-2.5 max-h-[65vh] overflow-y-auto pr-1">
+                            @forelse(array_slice($ranking ?? [], 0, 15) as $index => $participante)
                                 @php
-                                    $medalha = $index === 0 ? '🥇' : ($index === 1 ? '🥈' : ($index === 2 ? '🥉' : ($index + 1) . 'º'));
-                                    $destaque = $index === 0
-                                        ? 'bg-gradient-to-r from-amber-500/30 to-amber-600/20 border-2 border-amber-400 shadow-lg shadow-amber-500/20'
+                                    $pos = $index + 1;
+                                    $medalha = $index === 0 ? '👑' : ($index === 1 ? '🥈' : ($index === 2 ? '🥉' : "{$pos}º"));
+                                    $cardRank = $index === 0
+                                        ? 'bg-gradient-to-r from-amber-500/35 via-amber-500/20 to-amber-600/15 border-2 border-amber-300 shadow-xl shadow-amber-500/30 animate-pulse'
                                         : ($index <= 2
-                                            ? 'bg-gradient-to-r from-blue-900/90 to-blue-950/90 border border-amber-300/50'
+                                            ? 'bg-gradient-to-r from-blue-900/90 to-blue-950/90 border border-amber-300/60 shadow-md'
                                             : 'bg-blue-950/80 border border-blue-400/30');
                                 @endphp
-                                <div class="flex items-center gap-3 p-3.5 rounded-2xl {{ $destaque }}">
-                                    <span class="text-xl sm:text-2xl font-black w-9 text-center shrink-0">{{ $medalha }}</span>
+                                <div class="flex items-center gap-3 p-3 rounded-2xl {{ $cardRank }}">
+                                    <div class="flex flex-col items-center justify-center w-10 shrink-0">
+                                        <span class="text-lg sm:text-xl leading-none">{{ $medalha }}</span>
+                                        <span class="text-[10px] font-black uppercase {{ $index === 0 ? 'text-amber-200' : 'text-blue-200/80' }} mt-0.5">{{ $pos }}º</span>
+                                    </div>
                                     <div class="flex-1 min-w-0">
-                                        <p class="font-black text-white truncate text-sm sm:text-base">{{ $participante['nome'] ?? 'Participante' }}</p>
+                                        @if($index === 0)
+                                            <span class="inline-block text-[10px] font-black uppercase tracking-wider text-amber-300 mb-0.5">Vencedor</span>
+                                        @endif
+                                        <p class="font-black text-white truncate {{ $index === 0 ? 'text-base sm:text-lg' : 'text-sm sm:text-base' }}">
+                                            {{ $participante['nome'] ?? 'Participante' }}
+                                        </p>
                                         @if(!empty($participante['equipe']))
                                             <p class="text-xs text-blue-200/80 truncate">{{ $participante['equipe'] }}</p>
                                         @endif
                                     </div>
-                                    <span class="font-mono font-black text-amber-300 text-sm sm:text-base shrink-0">{{ $participante['pontuacao'] ?? 0 }} pts</span>
+                                    <span class="font-mono font-black text-amber-300 {{ $index === 0 ? 'text-base sm:text-lg' : 'text-sm' }} shrink-0">
+                                        {{ $participante['pontuacao'] ?? 0 }} pts
+                                    </span>
                                 </div>
-                            @endforeach
+                            @empty
+                                <p class="text-sm text-blue-200 text-center py-4">Nenhum participante pontuou.</p>
+                            @endforelse
                         </div>
                     </div>
-                @endif
+                </div>
             </div>
         @else
         <!-- ======================================================== -->
