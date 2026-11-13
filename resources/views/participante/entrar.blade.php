@@ -7,6 +7,9 @@
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <meta name="theme-color" content="#090d16">
     <title>Bíblia Show — Arena Ao Vivo</title>
+    <meta property="og:site_name" content="Bíblia Show 2.0">
+    <meta property="og:title" content="Bíblia Show — Entrar na Arena Ao Vivo">
+    <meta property="og:description" content="Entre na sala ao vivo do Bíblia Show pelo seu celular e participe em tempo real!">
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

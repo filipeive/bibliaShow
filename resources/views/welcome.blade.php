@@ -6,7 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <meta name="theme-color" content="#f59e0b">
-    <title>{{ config('app.name', 'Bíblia Show') }} — O Jogo Bíblico Estilo Show do Milhão</title>
+    <title>Bíblia Show — O Jogo Bíblico Estilo Show do Milhão</title>
+    <meta property="og:site_name" content="Bíblia Show 2.0">
+    <meta property="og:title" content="Bíblia Show — O Jogo Bíblico Estilo Show do Milhão">
+    <meta property="og:description" content="Participe no Bíblia Show 2.0: modo individual offline/online e arena ao vivo para igrejas e grupos!">
     <meta name="description"
         content="Bíblia Show 2.0 — O clássico jogo de perguntas e respostas bíblicas recriado com 1.000 questões originais, locuções clássicas, 4 fases, salas multiplayer por QR Code e projeção para igrejas.">
     <script src="https://cdn.tailwindcss.com"></script>

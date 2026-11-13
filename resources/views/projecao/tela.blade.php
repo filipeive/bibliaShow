@@ -65,7 +65,11 @@
                         AO VIVO • ARENA BÍBLIA SHOW
                     </span>
                     <span id="faseBadgeProj" class="sm-pill !px-3 !py-0.5 !text-[11px] font-black uppercase">
-                        {{ $faseAtual }}ª FASE • VALE {{ $placar['valor_pergunta'] ?? 10 }} PTS
+                        @if($estado === 'terminado')
+                            ★ PARTIDA FINALIZADA ★
+                        @else
+                            {{ $faseAtual }}ª FASE • VALE {{ $placar['valor_pergunta'] ?? 10 }} PTS
+                        @endif
                     </span>
                 </div>
                 <h1 class="text-2xl sm:text-4xl font-black text-white sm-logo-title">{{ $sala->nome }}</h1>
@@ -104,15 +108,99 @@
                     <div class="sm-ingot-label">CÓDIGO DA SALA</div>
                     <div class="sm-ingot-value !text-2xl sm:!text-3xl" id="salaCodigo">{{ $sala->codigo_acesso }}</div>
                 </div>
+                @if($estado !== 'terminado')
                 <div class="text-right">
                     <p class="text-xs font-bold text-blue-200 uppercase tracking-wider">Pergunta</p>
                     <p class="text-3xl sm:text-4xl font-black text-white">
                         <span id="numPergunta" class="text-amber-300">{{ $numero_pergunta ?? 1 }}</span><span class="text-blue-300/60 text-xl font-bold">/{{ $total_perguntas ?? 24 }}</span>
                     </p>
                 </div>
+                @endif
             </div>
         </header>
 
+        @if($estado === 'terminado')
+            <!-- ===================================================== -->
+            <!-- TELA FINAL DE FESTA E VENCEDOR ANIMADO                -->
+            <!-- ===================================================== -->
+            <canvas id="canvasFestaTelao" class="fixed inset-0 pointer-events-none z-40"></canvas>
+
+            @php
+                $vencedor = ($ranking ?? [])[0] ?? null;
+                $restanteRanking = array_slice($ranking ?? [], 1, 11);
+            @endphp
+
+            <div class="max-w-5xl mx-auto space-y-6 relative z-10 pb-8">
+                <div class="sm-panel p-8 sm:p-10 text-center shadow-2xl relative overflow-hidden border-2 border-amber-400/70 bg-gradient-to-b from-[#132b85]/95 via-[#0a1854]/95 to-[#060e33]/98">
+                    <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-amber-300 to-transparent"></div>
+
+                    <div class="inline-flex items-center justify-center mb-4">
+                        <span class="sm-pill !px-6 !py-1.5 text-xs sm:text-sm uppercase font-black tracking-widest animate-pulse">
+                            ★ GRANDE FINAL • SHOW CONCLUÍDO ★
+                        </span>
+                    </div>
+
+                    @if($vencedor)
+                        <div class="my-4">
+                            <div class="relative inline-flex items-center justify-center mb-3">
+                                <div class="absolute inset-0 rounded-full bg-amber-400/35 blur-2xl animate-pulse scale-150"></div>
+                                <div class="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-b from-amber-200 via-amber-400 to-amber-600 flex items-center justify-center border-4 border-amber-100 shadow-2xl shadow-amber-500/60 animate-bounce">
+                                    <span class="text-5xl sm:text-6xl">🏆</span>
+                                </div>
+                            </div>
+                            <p class="text-xs sm:text-sm font-black uppercase tracking-[0.25em] text-amber-300 mb-1">👑 Grande Campeão 👑</p>
+                            <h2 class="text-4xl sm:text-6xl font-black text-white sm-logo-title drop-shadow-lg tracking-tight">
+                                {{ $vencedor['nome'] ?? 'Participante' }}
+                            </h2>
+                            @if(!empty($vencedor['equipe']))
+                                <p class="text-base sm:text-lg font-bold text-amber-200 mt-1">{{ $vencedor['equipe'] }}</p>
+                            @endif
+                            <div class="inline-flex items-center gap-3 mt-4 px-7 py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-slate-950 font-black text-2xl sm:text-3xl shadow-xl shadow-amber-500/40 border-2 border-white/80">
+                                <span>{{ $vencedor['pontuacao'] ?? 0 }}</span>
+                                <span class="text-sm uppercase tracking-wider font-extrabold">pontos</span>
+                            </div>
+                        </div>
+                    @else
+                        <h2 class="text-3xl sm:text-5xl font-black text-white sm-logo-title mb-2">Show Concluído!</h2>
+                        <p class="text-blue-200 text-lg font-bold">Partida encerrada pelo apresentador.</p>
+                    @endif
+                </div>
+
+                @if(count($ranking ?? []) > 0)
+                    <div class="sm-panel p-6 sm:p-7 shadow-2xl border border-blue-400/30">
+                        <div class="flex items-center justify-between mb-4 pb-3 border-b border-blue-400/20">
+                            <h3 class="text-lg sm:text-xl font-black text-white sm-logo-title uppercase tracking-wider flex items-center gap-2">
+                                <span>🎖️</span> Classificação Oficial
+                            </h3>
+                            <span class="text-xs font-bold text-amber-300 uppercase tracking-wider">{{ count($ranking ?? []) }} participante(s)</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            @foreach(array_slice($ranking ?? [], 0, 12) as $index => $participante)
+                                @php
+                                    $medalha = $index === 0 ? '🥇' : ($index === 1 ? '🥈' : ($index === 2 ? '🥉' : ($index + 1) . 'º'));
+                                    $destaque = $index === 0
+                                        ? 'bg-gradient-to-r from-amber-500/30 to-amber-600/20 border-2 border-amber-400 shadow-lg shadow-amber-500/20'
+                                        : ($index <= 2
+                                            ? 'bg-gradient-to-r from-blue-900/90 to-blue-950/90 border border-amber-300/50'
+                                            : 'bg-blue-950/80 border border-blue-400/30');
+                                @endphp
+                                <div class="flex items-center gap-3 p-3.5 rounded-2xl {{ $destaque }}">
+                                    <span class="text-xl sm:text-2xl font-black w-9 text-center shrink-0">{{ $medalha }}</span>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-black text-white truncate text-sm sm:text-base">{{ $participante['nome'] ?? 'Participante' }}</p>
+                                        @if(!empty($participante['equipe']))
+                                            <p class="text-xs text-blue-200/80 truncate">{{ $participante['equipe'] }}</p>
+                                        @endif
+                                    </div>
+                                    <span class="font-mono font-black text-amber-300 text-sm sm:text-base shrink-0">{{ $participante['pontuacao'] ?? 0 }} pts</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </div>
+        @else
         <!-- ======================================================== -->
         <!-- GRADE PRINCIPAL DO TELÃO (2 COLUNAS):                    -->
         <!-- 1. ESQUERDA (1fr): Card Principal da Pergunta & Opções   -->
@@ -124,20 +212,7 @@
             <!-- 1. COLUNA PRINCIPAL: CARD DA PERGUNTA & ALTERNATIVAS  -->
             <!-- ===================================================== -->
             <div class="space-y-6 min-w-0" id="painelPergunta">
-                @if($estado === 'terminado')
-                    <div class="sm-panel p-8 sm:p-12 text-center shadow-2xl relative overflow-hidden">
-                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-4 border-amber-200 shadow-2xl shadow-amber-500/50 mx-auto mb-4">
-                            <span class="text-4xl sm:text-5xl">🏆</span>
-                        </div>
-                        <div class="inline-flex items-center justify-center mb-3">
-                            <span class="sm-pill !px-6 !py-1.5 text-sm uppercase font-black">
-                                ★ PARTIDA FINALIZADA ★
-                            </span>
-                        </div>
-                        <h2 class="text-3xl sm:text-5xl font-black text-white sm-logo-title mb-2">Show Concluído!</h2>
-                        <p class="text-blue-200 text-lg font-bold">Confira a classificação oficial dos participantes no ranking ao lado</p>
-                    </div>
-                @elseif($pergunta)
+                @if($pergunta)
                     <div class="sm-panel p-6 sm:p-8 shadow-2xl">
                         <div class="flex justify-between items-center mb-6">
                             <span class="sm-pill !px-4 !py-1 text-xs font-black uppercase tracking-wider" id="nivelBadge">
@@ -384,6 +459,7 @@
                 @endif
             </div>
         </div>
+        @endif
     </div>
 
     <script>
@@ -885,8 +961,54 @@
         }
 
         // Execução imediata e sincronização contínua de alta fidelidade em tempo real (1.2 segundos)
-        sincronizarProjecao();
-        setInterval(sincronizarProjecao, 1200);
+        if (estadoAtual === 'terminado') {
+            (function iniciarFestaConfetes() {
+                const canvas = document.getElementById('canvasFestaTelao');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                let w = canvas.width = window.innerWidth;
+                let h = canvas.height = window.innerHeight;
+                window.addEventListener('resize', () => {
+                    w = canvas.width = window.innerWidth;
+                    h = canvas.height = window.innerHeight;
+                });
+
+                const cores = ['#fbbf24', '#fde047', '#34d399', '#60a5fa', '#f472b6', '#ffffff'];
+                const particulas = Array.from({ length: 110 }, () => ({
+                    x: Math.random() * w,
+                    y: Math.random() * h - h,
+                    r: 4 + Math.random() * 6,
+                    d: 1.5 + Math.random() * 3,
+                    cor: cores[Math.floor(Math.random() * cores.length)],
+                    tilt: Math.random() * 10 - 5,
+                    ang: Math.random() * Math.PI * 2,
+                }));
+
+                function animar() {
+                    ctx.clearRect(0, 0, w, h);
+                    for (const p of particulas) {
+                        p.y += p.d;
+                        p.x += Math.sin(p.ang) * 1.2;
+                        p.ang += 0.04;
+                        if (p.y > h + 20) {
+                            p.y = -20;
+                            p.x = Math.random() * w;
+                        }
+                        ctx.save();
+                        ctx.translate(p.x, p.y);
+                        ctx.rotate(p.ang);
+                        ctx.fillStyle = p.cor;
+                        ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 1.5);
+                        ctx.restore();
+                    }
+                    requestAnimationFrame(animar);
+                }
+                animar();
+            })();
+        } else {
+            sincronizarProjecao();
+            setInterval(sincronizarProjecao, 1200);
+        }
     </script>
 </body>
 </html>
