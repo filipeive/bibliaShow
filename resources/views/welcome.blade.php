@@ -27,10 +27,10 @@
 
         /* Faixa Central de Palco (Tema Azul Auditório + Borda Ouro) */
         .sm-stage-band {
-            background: linear-gradient(180deg, rgba(14, 33, 105, 0.78) 0%, rgba(10, 22, 74, 0.90) 50%, rgba(6, 14, 51, 0.85) 100%);
+            background: linear-gradient(180deg, rgba(14, 33, 105, 0.80) 0%, rgba(10, 22, 74, 0.92) 50%, rgba(6, 14, 51, 0.88) 100%);
             border-top: 2px solid rgba(251, 191, 36, 0.45);
             border-bottom: 2px solid rgba(251, 191, 36, 0.45);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 0 60px rgba(37, 99, 235, 0.18);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 0 80px rgba(37, 99, 235, 0.18);
         }
 
         /* Botões em Cápsula Conectados ao Medalhão */
@@ -39,16 +39,16 @@
             border: 2px solid rgba(147, 197, 253, 0.65);
             box-shadow:
                 inset 0 2px 4px rgba(255, 255, 255, 0.25),
-                0 8px 18px rgba(2, 6, 23, 0.65);
+                0 8px 20px rgba(2, 6, 23, 0.65);
             transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
         }
         .sm-capsule-btn:hover {
-            transform: translateX(6px) scale(1.03);
+            transform: translateX(6px) scale(1.02);
             border-color: #fbbf24;
             filter: brightness(1.12);
             box-shadow:
                 inset 0 2px 6px rgba(255, 255, 255, 0.35),
-                0 10px 24px rgba(2, 6, 23, 0.75),
+                0 12px 26px rgba(2, 6, 23, 0.75),
                 0 0 18px rgba(251, 191, 36, 0.35);
         }
         .sm-capsule-btn.is-primary {
@@ -56,15 +56,15 @@
             border-color: #fef3c7;
             box-shadow:
                 inset 0 2px 6px rgba(255, 255, 255, 0.6),
-                0 10px 24px rgba(245, 158, 11, 0.45);
+                0 10px 26px rgba(245, 158, 11, 0.45);
         }
 
         /* Anel Metálico Azul + Ouro ao Redor do Medalhão */
         .sm-medallion-ring {
             background: conic-gradient(from 135deg, #fbbf24, #2563eb, #1e3a8a, #d97706, #fbbf24);
             box-shadow:
-                0 0 40px rgba(251, 191, 36, 0.28),
-                0 20px 45px rgba(2, 6, 23, 0.85);
+                0 0 45px rgba(251, 191, 36, 0.26),
+                0 22px 50px rgba(2, 6, 23, 0.85);
         }
     </style>
 </head>
@@ -103,90 +103,96 @@
     @include('partials.navbar', ['dark' => true])
 
     <!-- PALCO PRINCIPAL ESTILO MENU CLÁSSICO NO TEMA BÍBLIA SHOW 2.0 -->
-    <main class="relative z-10 flex-1 flex flex-col justify-center py-5 sm:py-8">
+    <main class="relative z-10 flex-1 flex flex-col justify-center py-8 sm:py-12">
 
         <!-- LOGO DE PALCO NO TOPO -->
-        <div class="text-center px-4 mb-5 sm:mb-7">
-            <div class="inline-flex items-center gap-2 sm-pill !px-4 !py-1 !text-[10px] sm:!text-[11px] uppercase tracking-widest mb-2.5 shadow-lg">
+        <div class="text-center px-4 mb-8 sm:mb-10">
+            <div class="inline-flex items-center gap-2 sm-pill !px-4 !py-1.5 !text-[11px] uppercase tracking-widest mb-3 shadow-lg">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block"></span>
                 <span>1.000 Questões • Sons Originais • Arena Ao Vivo</span>
             </div>
             <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white sm-logo-title leading-none">
                 BÍBLIA <span class="text-amber-400">SHOW</span>
             </h1>
-            <p class="text-[11px] sm:text-xs font-extrabold uppercase tracking-[0.26em] text-blue-200 mt-1.5">
+            <p class="text-xs sm:text-sm font-extrabold uppercase tracking-[0.26em] text-blue-200 mt-2">
                 A Nova Maneira de Aprender a Bíblia
             </p>
         </div>
 
         <!-- FAIXA CENTRAL COM CÁPSULAS CONECTADAS AO MEDALHÃO -->
-        <div class="sm-stage-band w-full py-7 sm:py-9 px-4 backdrop-blur-md">
-            <div class="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-center gap-6 md:gap-0">
+        <div class="sm-stage-band w-full py-10 sm:py-12 px-4 sm:px-6 backdrop-blur-md">
+            <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-center gap-10 md:gap-8">
 
                 <!-- LADO ESQUERDO: CÁPSULAS DO MENU PRINCIPAL -->
-                <div class="w-full max-w-xs md:w-72 flex flex-col gap-3 md:-mr-8 z-20">
+                <div class="w-full max-w-sm md:w-80 flex flex-col gap-4 z-20">
                     @if($jogoAtivoInfo)
                         <a href="{{ route('game.play') }}" onmouseenter="tocarHoverClassico()"
-                           class="sm-capsule-btn is-primary rounded-full px-6 py-3.5 flex items-center justify-between text-left cursor-pointer">
-                            <span class="font-black text-slate-950 text-sm sm:text-base tracking-wider uppercase">
-                                ▶ CONTINUAR ({{ $jogoAtivoInfo['numero'] }}/{{ $jogoAtivoInfo['total'] }})
+                           class="sm-capsule-btn is-primary rounded-full px-6 py-4 flex items-center justify-between gap-3 text-left cursor-pointer">
+                            <span class="flex items-center gap-3 font-black text-slate-950 text-sm sm:text-base tracking-wider uppercase">
+                                <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+                                <span>Continuar ({{ $jogoAtivoInfo['numero'] }}/{{ $jogoAtivoInfo['total'] }})</span>
                             </span>
-                            <span class="text-slate-950 font-black text-xs">{{ $jogoAtivoInfo['pontos'] }} pts</span>
+                            <span class="text-slate-950 font-black text-xs shrink-0">{{ $jogoAtivoInfo['pontos'] }} pts</span>
                         </a>
                     @else
                         <button type="button" onclick="abrirModalJogarAgora()" onmouseenter="tocarHoverClassico()"
-                                class="sm-capsule-btn is-primary rounded-full px-6 py-3.5 flex items-center justify-between text-left cursor-pointer">
-                            <span class="font-black text-slate-950 text-base sm:text-lg tracking-wider uppercase">
-                                ▶ INICIAR JOGO
+                                class="sm-capsule-btn is-primary rounded-full px-6 py-4 flex items-center justify-between gap-3 text-left cursor-pointer">
+                            <span class="flex items-center gap-3 font-black text-slate-950 text-base sm:text-lg tracking-wider uppercase">
+                                <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
+                                <span>Iniciar Jogo</span>
                             </span>
-                            <span class="px-2 py-0.5 rounded-full bg-slate-950/20 text-slate-950 font-black text-[10px] uppercase">Solo / Arena</span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-slate-950/15 text-slate-950 font-black text-[10px] uppercase shrink-0">Solo / Arena</span>
                         </button>
                     @endif
 
                     <a href="{{ route('curiosidades') }}" onmouseenter="tocarHoverClassico()"
-                       class="sm-capsule-btn rounded-full px-6 py-2.5 flex items-center justify-between text-left cursor-pointer">
-                        <span class="font-black text-white text-sm sm:text-base tracking-wider uppercase">
-                            INSTRUÇÕES
+                       class="sm-capsule-btn rounded-full px-6 py-3.5 flex items-center justify-between gap-3 text-left cursor-pointer">
+                        <span class="flex items-center gap-3 font-black text-white text-sm sm:text-base tracking-wider uppercase">
+                            <svg class="w-5 h-5 text-amber-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+                            <span>Instruções</span>
                         </span>
-                        <span class="text-amber-300 text-xs font-bold">4 Fases</span>
+                        <span class="text-amber-300 text-xs font-bold shrink-0">4 Fases</span>
                     </a>
 
                     <a href="{{ route('game.result') }}" onmouseenter="tocarHoverClassico()"
-                       class="sm-capsule-btn rounded-full px-6 py-2.5 flex items-center justify-between text-left cursor-pointer">
-                        <span class="font-black text-white text-sm sm:text-base tracking-wider uppercase">
-                            RANKING
+                       class="sm-capsule-btn rounded-full px-6 py-3.5 flex items-center justify-between gap-3 text-left cursor-pointer">
+                        <span class="flex items-center gap-3 font-black text-white text-sm sm:text-base tracking-wider uppercase">
+                            <svg class="w-5 h-5 text-amber-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0"/></svg>
+                            <span>Ranking</span>
                         </span>
-                        <span class="text-amber-300 text-xs font-bold">🏆 Geral</span>
+                        <span class="text-amber-300 text-xs font-bold shrink-0">Geral</span>
                     </a>
 
                     <a href="{{ route('apresentador.painel') }}" onmouseenter="tocarHoverClassico()"
-                       class="sm-capsule-btn rounded-full px-6 py-2.5 flex items-center justify-between text-left cursor-pointer">
-                        <span class="font-black text-emerald-300 text-sm sm:text-base tracking-wider uppercase">
-                            APRESENTADOR
+                       class="sm-capsule-btn rounded-full px-6 py-3.5 flex items-center justify-between gap-3 text-left cursor-pointer">
+                        <span class="flex items-center gap-3 font-black text-emerald-300 text-sm sm:text-base tracking-wider uppercase">
+                            <svg class="w-5 h-5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125z"/></svg>
+                            <span>Apresentador</span>
                         </span>
-                        <span class="text-emerald-200 text-xs font-bold">Telão & Salas</span>
+                        <span class="text-emerald-200 text-xs font-bold shrink-0">Telão</span>
                     </a>
                 </div>
 
                 <!-- CENTRO/DIREITA: MEDALHÃO DE PALCO + ABA ENTRAR NA SALA -->
                 <div class="relative z-10 flex flex-col items-center">
-                    <div class="sm-medallion-ring w-64 h-64 sm:w-80 sm:h-80 rounded-full p-2 sm:p-2.5 flex items-center justify-center relative">
+                    <div class="sm-medallion-ring w-72 h-72 sm:w-80 sm:h-80 rounded-full p-2.5 flex items-center justify-center relative">
                         <div class="w-full h-full rounded-full overflow-hidden border-2 border-amber-200/80 shadow-inner relative bg-slate-950">
                             <img id="medallionImg" src="{{ asset('images/classico/Sabia.jpg') }}" alt="Bíblia Show"
                                  class="w-full h-full object-cover transition-opacity duration-700 opacity-90">
-                            <div class="absolute inset-0 bg-gradient-to-t from-[#060e33]/95 via-[#060e33]/25 to-transparent flex items-end justify-center p-5 text-center">
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#060e33]/95 via-[#060e33]/30 to-transparent flex items-end justify-center p-6 text-center">
                                 <div>
-                                    <span id="medallionBadge" class="sm-pill !px-2.5 !py-0.5 !text-[9px] uppercase mb-1 inline-block">Modo Clássico</span>
-                                    <p id="medallionCaption" class="text-xs sm:text-sm font-black text-amber-300 drop-shadow">1.000 Perguntas Bíblicas</p>
-                                    <p class="text-[10px] text-blue-100/90 font-semibold">4 Fases • Cartas 50/50 • Convidados</p>
+                                    <span id="medallionBadge" class="sm-pill !px-3 !py-0.5 !text-[9px] uppercase mb-1.5 inline-block">Modo Clássico</span>
+                                    <p id="medallionCaption" class="text-sm sm:text-base font-black text-amber-300 drop-shadow">1.000 Perguntas Bíblicas</p>
+                                    <p class="text-[11px] text-blue-100/90 font-semibold mt-0.5">4 Fases • Cartas 50/50 • Convidados</p>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Aba Inferior Direita: Entrar na Arena -->
                         <a href="{{ route('entrar.view') }}" onmouseenter="tocarHoverClassico()"
-                           class="absolute -bottom-3 right-2 sm:right-4 px-5 py-1.5 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 hover:from-emerald-300 hover:to-emerald-500 text-slate-950 font-black text-xs sm:text-sm tracking-wide shadow-xl border-2 border-emerald-200 transition">
-                            🏟️ Entrar na Sala →
+                           class="absolute -bottom-3 right-2 sm:right-4 px-5 py-2 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 hover:from-emerald-300 hover:to-emerald-500 text-slate-950 font-black text-xs sm:text-sm tracking-wide shadow-xl border-2 border-emerald-200 inline-flex items-center gap-2 transition">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
+                            <span>Entrar na Sala</span>
                         </a>
                     </div>
                 </div>
@@ -194,29 +200,33 @@
         </div>
 
         <!-- ENTRADA RÁPIDA POR CÓDIGO PIN + BARRA DE AÇÕES -->
-        <div class="max-w-xl w-full mx-auto px-4 mt-7 space-y-3">
+        <div class="max-w-2xl w-full mx-auto px-4 mt-10 space-y-4">
             <form action="{{ route('entrar.view') }}" method="GET"
                   onsubmit="event.preventDefault(); const c = this.codigo.value.trim().toUpperCase(); window.location.href = '{{ url('/entrar') }}' + (c ? '/' + c : '');"
-                  class="sm-panel !p-2 flex items-center gap-2 shadow-2xl border border-amber-400/50">
-                <span class="pl-2.5 text-[11px] font-black uppercase tracking-wider text-amber-300 shrink-0 hidden sm:inline">
-                    🏟️ PIN da Sala:
-                </span>
+                  class="sm-panel !p-2.5 flex items-center gap-3 shadow-2xl border border-amber-400/50">
+                <div class="pl-2.5 flex items-center gap-2 text-amber-300 font-black text-xs uppercase tracking-wider shrink-0">
+                    <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>
+                    <span class="hidden sm:inline">PIN da Sala</span>
+                </div>
                 <input type="text" name="codigo" maxlength="6" placeholder="DIGITE O CÓDIGO DA SALA (EX: AB12CD)"
-                       class="flex-1 bg-transparent px-2.5 py-2 text-amber-300 font-mono font-black uppercase tracking-widest text-xs sm:text-sm outline-none placeholder:text-blue-300/40">
+                       class="flex-1 bg-transparent px-2 py-2 text-amber-300 font-mono font-black uppercase tracking-widest text-xs sm:text-sm outline-none placeholder:text-blue-300/40">
                 <button type="submit"
-                        class="sm-cta !w-auto !py-2 !px-4 !text-xs cursor-pointer shrink-0">
-                    Entrar →
+                        class="sm-cta !w-auto !py-2.5 !px-5 !text-xs cursor-pointer shrink-0 inline-flex items-center gap-1.5">
+                    <span>Entrar</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
                 </button>
             </form>
 
-            <div class="flex flex-wrap items-center justify-center gap-2.5 text-xs font-bold">
+            <div class="flex flex-wrap items-center justify-center gap-3 text-xs font-bold">
                 <a href="{{ route('sobre') }}"
-                   class="px-3.5 py-1.5 rounded-full bg-blue-950/80 border border-blue-400/40 text-blue-200 hover:text-white hover:border-amber-400 transition inline-flex items-center gap-1.5 shadow">
-                    <span>📱</span> Baixar App Android (APK)
+                   class="px-4 py-2 rounded-full bg-blue-950/80 border border-blue-400/40 text-blue-200 hover:text-white hover:border-amber-400 transition inline-flex items-center gap-2 shadow">
+                    <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/></svg>
+                    <span>Baixar App Android (APK)</span>
                 </a>
                 <button type="button" onclick="abrirModalDefinicoes()"
-                        class="px-3.5 py-1.5 rounded-full bg-blue-950/80 border border-blue-400/40 text-amber-300 hover:text-white hover:border-amber-400 transition inline-flex items-center gap-1.5 shadow cursor-pointer">
-                    <span>⚙️</span> Definições & Tela Cheia
+                        class="px-4 py-2 rounded-full bg-blue-950/80 border border-blue-400/40 text-amber-300 hover:text-white hover:border-amber-400 transition inline-flex items-center gap-2 shadow cursor-pointer">
+                    <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <span>Definições & Tela Cheia</span>
                 </button>
             </div>
         </div>
