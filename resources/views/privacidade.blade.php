@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('images/icon-192.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/icon-192.png') }}">
     <title>Política de Privacidade e Cookies — Bíblia Show</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ asset('css/show-milhao.css') }}">

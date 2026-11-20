@@ -39,3 +39,6 @@ Thumbs.db
 
 #deploy
 .deploy.sh
+/.deploy-cache.json
+/.deploy-log.txt
+__pycache__/

@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('images/icon-192.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/icon-192.png') }}">
     <title>Bíblia Show — Telão ({{ $sala->codigo_acesso }})</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@gh-pages/qrcode.min.js"></script>
@@ -475,10 +478,9 @@
         trilhaSuspense.loop = true;
         trilhaSuspense.volume = 0.25;
 
-        // Desbloqueia áudio e ativa Auto Tela Cheia caso o navegador bloqueie autoplay inicial
+        // Controle manual de Tela Cheia no Telão
         function alternarFullscreenTelao(e) {
             if (e) e.stopPropagation();
-            window._telaoAutoFsTentado = true;
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen?.().catch(() => {});
             } else {
@@ -486,17 +488,10 @@
             }
         }
 
-        function desbloquearAudioTelao(e) {
+        // Desbloqueia áudio caso o navegador bloqueie autoplay inicial
+        function desbloquearAudioTelao() {
             if (somAtivo && estadoAtual === 'em_curso' && trilhaSuspense.paused && !gabaritoEstavaRevelado) {
                 trilhaSuspense.play().catch(() => {});
-            }
-            if (e && e.target && e.target.closest && e.target.closest('#btnFullscreenProj, #btnSomProj')) {
-                return;
-            }
-            if (window._telaoAutoFsTentado) return;
-            window._telaoAutoFsTentado = true;
-            if (localStorage.getItem('biblia_show_auto_fullscreen') !== 'off' && !document.fullscreenElement) {
-                document.documentElement.requestFullscreen?.().catch(() => {});
             }
         }
         ['click', 'keydown'].forEach(evt => {

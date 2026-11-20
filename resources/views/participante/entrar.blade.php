@@ -10,7 +10,9 @@
     <meta property="og:site_name" content="Bíblia Show 2.0">
     <meta property="og:title" content="Bíblia Show — Entrar na Arena Ao Vivo">
     <meta property="og:description" content="Entre na sala ao vivo do Bíblia Show pelo seu celular e participe em tempo real!">
-    <link rel="icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('images/icon-192.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/icon-192.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">

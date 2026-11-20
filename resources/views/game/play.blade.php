@@ -7,7 +7,9 @@
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <meta name="theme-color" content="#f59e0b">
     <title>Bíblia Show — Palco do Jogo</title>
-    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('images/icon-192.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/icon-192.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/show-milhao.css') }}">

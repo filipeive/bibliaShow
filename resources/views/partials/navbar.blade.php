@@ -312,22 +312,16 @@
                 </button>
             </div>
 
-            <!-- Toggle Auto Tela Cheia -->
+            <!-- Tela Cheia Manual -->
             <div class="flex flex-wrap items-center justify-between p-3.5 rounded-2xl bg-blue-950/80 border border-blue-400/40 gap-3">
                 <div>
-                    <p class="font-bold text-sm text-white">Auto Tela Cheia (Ao Jogar)</p>
-                    <p class="text-xs text-blue-200">Entra em ecrã inteiro automaticamente ao iniciar</p>
+                    <p class="font-bold text-sm text-white">Tela Cheia</p>
+                    <p class="text-xs text-blue-200">Ative ou saia do ecrã inteiro manualmente quando desejar</p>
                 </div>
-                <div class="flex items-center gap-2 shrink-0">
-                    <button type="button" id="btnFullscreenManual" onclick="alternarFullscreenManual()"
-                            class="px-3 py-2 rounded-full font-black text-xs uppercase transition bg-blue-900 hover:bg-blue-800 text-amber-300 border border-amber-400/40 shadow cursor-pointer">
-                        Ativar
-                    </button>
-                    <button type="button" id="btnToggleAutoFullscreen" onclick="alternarAutoFullscreenGlobal()"
-                            class="px-4 py-2 rounded-full font-black text-xs uppercase transition bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow cursor-pointer">
-                        ATIVO
-                    </button>
-                </div>
+                <button type="button" id="btnFullscreenManual" onclick="alternarFullscreenManual()"
+                        class="px-4 py-2 rounded-full font-black text-xs uppercase transition bg-blue-900 hover:bg-blue-800 text-amber-300 border border-amber-400/40 shadow cursor-pointer shrink-0">
+                    Ativar
+                </button>
             </div>
 
             <!-- Controle de Volume -->
@@ -384,80 +378,32 @@
 </div>
 
 <script>
-    // Inicializa som e auto-fullscreen como ATIVO ("on") por padrão caso nunca tenha sido configurado
+    // Inicializa som como ATIVO ("on") por padrão caso nunca tenha sido configurado
     if (localStorage.getItem('biblia_show_som') === null) {
         localStorage.setItem('biblia_show_som', 'on');
     }
     if (localStorage.getItem('biblia_show_volume') === null) {
         localStorage.setItem('biblia_show_volume', '85');
     }
-    if (localStorage.getItem('biblia_show_auto_fullscreen') === null) {
-        localStorage.setItem('biblia_show_auto_fullscreen', 'on');
-    }
-
-    function autoFullscreenAtivo() {
-        return localStorage.getItem('biblia_show_auto_fullscreen') !== 'off';
-    }
 
     function atualizarUIFullscreenGlobal() {
-        const ativo = autoFullscreenAtivo();
-        const btnAuto = document.getElementById('btnToggleAutoFullscreen');
         const btnManual = document.getElementById('btnFullscreenManual');
-        if (btnAuto) {
-            btnAuto.textContent = ativo ? 'ATIVO' : 'DESATIVADO';
-            btnAuto.className = ativo
-                ? 'px-4 py-2 rounded-full font-black text-xs uppercase transition bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow cursor-pointer'
-                : 'px-4 py-2 rounded-full font-black text-xs uppercase transition bg-slate-700 hover:bg-slate-600 text-slate-300 shadow cursor-pointer';
-        }
         if (btnManual) {
             btnManual.textContent = document.fullscreenElement ? 'Sair' : 'Ativar';
         }
     }
 
-    function alternarAutoFullscreenGlobal() {
-        const novoEstado = autoFullscreenAtivo() ? 'off' : 'on';
-        localStorage.setItem('biblia_show_auto_fullscreen', novoEstado);
-        atualizarUIFullscreenGlobal();
-        if (novoEstado === 'on') {
-            sessionStorage.removeItem('biblia_show_fs_manual_exit');
-            if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch(() => {});
-            }
-        } else if (novoEstado === 'off' && document.fullscreenElement && document.exitFullscreen) {
-            sessionStorage.setItem('biblia_show_fs_manual_exit', '1');
-            document.exitFullscreen().catch(() => {});
-        }
-    }
-
     function alternarFullscreenManual() {
-        window._autoFullscreenTentado = true;
         if (!document.fullscreenElement) {
-            sessionStorage.removeItem('biblia_show_fs_manual_exit');
             if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen().catch(() => {});
             }
         } else if (document.exitFullscreen) {
-            sessionStorage.setItem('biblia_show_fs_manual_exit', '1');
             document.exitFullscreen().catch(() => {});
         }
     }
 
-    function tentarAutoFullscreenAoJogar(e) {
-        if (e && e.target && e.target.closest && e.target.closest('#btnFullscreenManual, #btnToggleAutoFullscreen, #btnFullscreenProj')) {
-            return;
-        }
-        if (window._autoFullscreenTentado) return;
-        window._autoFullscreenTentado = true;
-        if (!autoFullscreenAtivo() || sessionStorage.getItem('biblia_show_fs_manual_exit') === '1') return;
-        const path = window.location.pathname.toLowerCase();
-        const ehTelaDeJogo = path.includes('/jogar') || path.includes('/entrar') || path.includes('/apresentador') || path.includes('/projecao');
-        if (ehTelaDeJogo && !document.fullscreenElement && document.documentElement.requestFullscreen) {
-            document.documentElement.requestFullscreen().catch(() => {});
-        }
-    }
-
     document.addEventListener('fullscreenchange', atualizarUIFullscreenGlobal);
-    document.addEventListener('click', tentarAutoFullscreenAoJogar, { once: true, passive: true });
 
     let audioAberturaGlobal = null;
     let tocandoAberturaGlobal = false;

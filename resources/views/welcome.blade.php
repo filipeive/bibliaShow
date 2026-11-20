@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('images/icon-192.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/icon-192.png') }}">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <meta name="theme-color" content="#f59e0b">
     <title>Bíblia Show — O Jogo Bíblico Estilo Show do Milhão</title>
@@ -121,7 +124,7 @@
 
         <!-- FAIXA CENTRAL COM CÁPSULAS CONECTADAS AO MEDALHÃO -->
         <div class="sm-stage-band w-full py-10 sm:py-12 px-4 sm:px-6 backdrop-blur-md">
-            <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-center gap-10 md:gap-12">
+            <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-center gap-10 md:gap-6">
 
                 <!-- LADO ESQUERDO: CÁPSULAS EM ARCO AO REDOR DO MEDALHÃO -->
                 <div class="w-full max-w-sm md:w-72 flex flex-col gap-4 z-20">
