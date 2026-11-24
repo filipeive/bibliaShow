@@ -58,6 +58,9 @@ class GameEngine
 
     private int $maxTemposEsgotados = 3;
 
+    /** Segundos que faltavam quando a partida foi pausada (retomados no resume). */
+    private int $tempoPausado = 0;
+
     public function __construct(
         QuestionSelectorInterface $selector,
         ScoringInterface $scoring,
@@ -185,6 +188,7 @@ class GameEngine
             'errosCount' => $this->errosCount,
             'maxErros' => $this->maxErros,
             'temposEsgotadosCount' => $this->temposEsgotadosCount,
+            'tempoPausado' => $this->tempoPausado,
             'maxTemposEsgotados' => $this->maxTemposEsgotados,
             'state_data' => [
                 'estado' => $this->state->getEstado(),
@@ -241,6 +245,7 @@ class GameEngine
         $engine->errosCount = (int) ($data['errosCount'] ?? 0);
         $engine->maxErros = (int) ($data['maxErros'] ?? 3);
         $engine->temposEsgotadosCount = (int) ($data['temposEsgotadosCount'] ?? 0);
+        $engine->tempoPausado = (int) ($data['tempoPausado'] ?? 0);
         $engine->maxTemposEsgotados = (int) ($data['maxTemposEsgotados'] ?? 3);
 
         if (! empty($data['state_data']) && is_array($data['state_data'])) {
@@ -685,12 +690,21 @@ class GameEngine
 
     public function pause(): void
     {
+        if ($this->state->getEstado() !== 'pausado') {
+            $this->tempoPausado = $this->timer->tempoRestante();
+        }
+
         $this->timer->parar();
         $this->state->setEstado('pausado');
     }
 
     public function resume(): void
     {
+        if ($this->tempoPausado > 0) {
+            $this->timer->iniciar($this->tempoPausado);
+        }
+
+        $this->tempoPausado = 0;
         $this->state->setEstado('em_curso');
     }
 

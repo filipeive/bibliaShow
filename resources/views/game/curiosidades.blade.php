@@ -200,7 +200,7 @@
         function tocarAudioRegras() {
             const txt = document.getElementById('txtOuvirRegras');
             if (!audioRegras) {
-                audioRegras = new Audio('/audio/classico/regras.wav');
+                audioRegras = new Audio("{{ asset('audio/classico/regras.wav') }}");
                 audioRegras.onended = () => {
                     tocando = false;
                     txt.textContent = 'Ouvir Locução das Regras';

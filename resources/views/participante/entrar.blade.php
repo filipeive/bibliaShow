@@ -57,31 +57,40 @@
         .timer-critico {
             animation: pulse-critico 0.85s infinite;
         }
+
+        /* ===== Arena em ecrã inteiro: tudo cabe na janela, sem scroll da página ===== */
+        .entrar-question-text { font-size: clamp(1rem, 1.9vh + .45rem, 1.45rem); line-height: 1.25; }
+        .entrar-question-text-desk { font-size: clamp(1.3rem, 3.4vh, 2.4rem); line-height: 1.25; }
+        #opcoesBotoes .sm-option { min-height: clamp(40px, 6.2vh, 60px); padding-top: .4rem; padding-bottom: .4rem; }
+        #opcoesBotoesDesktop > button { padding-top: clamp(.6rem, 1.6vh, 1.25rem) !important; padding-bottom: clamp(.6rem, 1.6vh, 1.25rem) !important; }
+        @media (max-height: 540px) and (orientation: landscape) {
+            #opcoesBotoes .sm-option { min-height: 38px; }
+        }
         @keyframes pulse-critico {
             0%, 100% { border-color: #ef4444; background-color: rgba(136, 19, 55, 0.7); transform: scale(1); }
             50% { border-color: #fca5a5; background-color: rgba(159, 18, 57, 0.9); transform: scale(1.02); }
         }
     </style>
 </head>
-<body class="milhao-bg sm-stage-mobile text-slate-100 min-h-screen flex flex-col justify-between">
+<body class="milhao-bg sm-stage-mobile text-slate-100 sm-viewport sm-immersive flex flex-col">
 
-    @include('partials.navbar', ['dark' => true, 'hideOnMobile' => true])
+    @include('partials.navbar', ['dark' => true, 'hideOnMobile' => true, 'compact' => true])
 
-    <main id="mainArenaContainer" class="w-full max-w-xl mx-auto px-3 sm:px-4 py-2 sm:py-5 flex-1 flex flex-col justify-between transition-all duration-300">
+    <main id="mainArenaContainer" class="sm-shell w-full max-w-xl mx-auto px-3 sm:px-4 py-2 sm:py-5 flex flex-col transition-all duration-300">
 
         <!-- ============================================================== -->
         <!-- ETAPA 1: Formulário de Entrada na Sala (Antes do Jogo)        -->
         <!-- ============================================================== -->
         <div id="etapaEntrada" class="my-auto sm-panel p-5 sm:p-7 relative z-10 w-full max-w-lg mx-auto">
-            <div class="text-center mb-5">
-                <div class="inline-flex items-center justify-center mb-2">
+            <div class="text-center mb-4">
+                <div class="sm-hide-landscape inline-flex items-center justify-center mb-2">
                     <span class="sm-pill text-xs uppercase tracking-wider flex items-center gap-1.5">
                         <svg class="w-3.5 h-3.5 text-amber-300 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                         <span>Arena Ao Vivo</span>
                     </span>
                 </div>
                 <h1 class="text-xl sm:text-3xl font-black text-white sm-logo-title">Entrar na Arena</h1>
-                <p class="text-blue-200 text-xs sm:text-sm mt-1">
+                <p class="sm-hide-landscape text-blue-200 text-xs sm:text-sm mt-1">
                     {{ $sala ? $sala->nome : 'Digite o código da sala exibido no telão' }}
                 </p>
             </div>
@@ -98,7 +107,7 @@
                 </div>
             @endif
 
-            <form id="entrarForm" class="space-y-4">
+            <form id="entrarForm" class="space-y-3">
                 <div>
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-amber-300 mb-1">Código da Sala (PIN)</label>
                     <input type="text" id="inputCodigo" name="codigo_acesso" required maxlength="6"
@@ -150,14 +159,14 @@
         <!-- ============================================================== -->
         <!-- ETAPA 2: ARENA AO VIVO (RESPONSIVO: MOBILE + DESKTOP SHOW)     -->
         <!-- ============================================================== -->
-        <div id="etapaJogo" class="hidden flex-1 flex flex-col justify-between gap-4 w-full">
+        <div id="etapaJogo" class="hidden flex-1 lg:min-h-0 flex flex-col gap-2 w-full">
 
             <!-- ---------------------------------------------------------- -->
             <!-- 2A. MODO MOBILE (< lg)                                     -->
             <!-- ---------------------------------------------------------- -->
-            <div id="arenaMobileLayout" class="lg:hidden flex-1 flex flex-col justify-between gap-2 w-full">
+            <div id="arenaMobileLayout" class="lg:hidden flex-1 flex flex-col gap-2 w-full">
                 <!-- 1. HEADER DO APP: Sair, Pílula Central Dourada, Pontos & Som -->
-                <header class="flex items-center justify-between gap-2 px-1">
+                <header class="flex items-center justify-between gap-2 px-1 shrink-0">
                     <!-- Botão Sair / Portinha -->
                     <button type="button" onclick="sairDaSala()" title="Sair da sala"
                             class="sm-lifeline !w-10 !h-10 flex items-center justify-center cursor-pointer">
@@ -192,7 +201,7 @@
                 </header>
 
                 <!-- Participante + Equipe Subtítulo Discreto -->
-                <div class="flex items-center justify-between px-2 text-[10px] text-slate-400">
+                <div class="flex items-center justify-between px-2 text-[10px] text-slate-400 shrink-0">
                     <span class="truncate max-w-[180px] inline-flex items-center gap-1">
                         <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
                         <strong class="text-white" id="jogadorNomeDisplay">-</strong> (<span id="codigoSalaBadge">-</span>)
@@ -201,11 +210,11 @@
                 </div>
 
                 <!-- 2. CARD PRINCIPAL DA PERGUNTA BÍBLICA -->
-                <div class="sm-question pt-4 pb-3.5 px-4 relative">
+                <div class="sm-question pt-3 pb-3 px-4 relative flex-1 min-h-[88px] flex flex-col justify-center">
                     <div class="text-[10px] font-black uppercase tracking-wider text-blue-200/80 mb-1" id="badgeBiblicoCard">
                         <span id="textoBiblicoCard">Sagradas Escrituras</span>
                     </div>
-                    <p id="textoPerguntaViva" class="sm-question-text text-[16px] sm:text-lg leading-snug">
+                    <p id="textoPerguntaViva" class="sm-question-text entrar-question-text">
                         Aguardando o apresentador iniciar a pergunta...
                     </p>
                 </div>
@@ -235,7 +244,7 @@
                 <div id="feedbackResposta" class="hidden rounded-2xl p-2.5 border text-xs text-center transition-all"></div>
 
                 <!-- 4. BOTÕES REDONDOS DE AJUDA & CRONÔMETRO -->
-                <div id="barraAjudasJogador" class="flex items-center justify-center gap-3">
+                <div id="barraAjudasJogador" class="flex items-center justify-center gap-3 shrink-0">
                     <!-- Cartas 50/50 -->
                     <button type="button" id="btnAjudaMobileCartas" onclick="abrirModalCartasParticipante()" class="sm-lifeline cursor-pointer" title="Cartas (Eliminar 2)">
                         −2
@@ -266,12 +275,12 @@
                 </div>
 
                 <!-- 5. AS 4 ALTERNATIVAS EM CÁPSULA (ESTILO SHOW DO MILHÃO MOBILE) -->
-                <div id="opcoesBotoes" class="space-y-2">
+                <div id="opcoesBotoes" class="grid grid-cols-1 sm:grid-cols-2 gap-2 shrink-0">
                     <!-- Inserido dinamicamente via JS -->
                 </div>
 
                 <!-- 6. OS 3 LINGOTES SHOW DO MILHÃO (ERRAR | PARAR | ACERTAR) -->
-                <div class="grid grid-cols-3 gap-2 pt-1">
+                <div class="sm-hide-landscape grid grid-cols-3 gap-2 shrink-0">
                     <div class="sm-ingot is-errar">
                         <div class="sm-ingot-value" id="placarErrarDisplay">0 pts</div>
                         <div class="sm-ingot-label">Errar</div>
@@ -287,7 +296,7 @@
                 </div>
 
                 <!-- FAIXA VERMELHA DE INCENTIVO -->
-                <div class="sm-banner-red py-1.5 px-3 rounded-xl text-[11px] uppercase tracking-wider text-center">
+                <div class="sm-hide-short shrink-0 sm-banner-red py-1.5 px-3 rounded-xl text-[11px] uppercase tracking-wider text-center">
                     Não sabe a resposta? Use ajuda!
                 </div>
             </div>
@@ -295,11 +304,11 @@
             <!-- ---------------------------------------------------------- -->
             <!-- 2B. MODO DESKTOP (>= lg): DESIGN IMPONENTE COMO /jogar     -->
             <!-- ---------------------------------------------------------- -->
-            <div id="arenaDesktopLayout" class="hidden lg:grid lg:grid-cols-12 gap-6 items-start w-full">
+            <div id="arenaDesktopLayout" class="hidden lg:grid lg:grid-cols-12 lg:grid-rows-[minmax(0,1fr)] gap-4 xl:gap-6 w-full flex-1 min-h-0">
                 <!-- COLUNA ESQUERDA (4 COLUNAS): JOGADOR, PRÊMIOS, AJUDAS & RANKING -->
-                <aside class="lg:col-span-4 space-y-4">
+                <aside class="lg:col-span-4 flex flex-col gap-3 xl:gap-4 min-h-0">
                     <!-- 1. Card do Participante -->
-                    <div class="sm-panel p-5 shadow-2xl space-y-4">
+                    <div class="sm-panel p-4 shadow-2xl space-y-3 shrink-0">
                         <div class="flex items-center gap-3.5">
                             <div id="sidebarJogadorAvatarDesktop" class="w-14 h-14 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-200 text-slate-950 font-black text-2xl shrink-0 shadow-xl shadow-amber-500/30">
                                 P
@@ -331,8 +340,8 @@
                     </div>
 
                     <!-- 2. Lingotes de Premiação: ERRAR | PARAR | ACERTAR -->
-                    <div class="sm-panel p-5 shadow-2xl space-y-2.5">
-                        <div class="text-center mb-1">
+                    <div class="sm-panel p-4 shadow-2xl space-y-2 shrink-0">
+                        <div class="text-center">
                             <span class="sm-pill !text-[11px] !py-0.5 !px-3 font-black">PREMIAÇÃO DA RODADA</span>
                         </div>
                         <div class="grid grid-cols-3 gap-2">
@@ -358,7 +367,7 @@
                     </div>
 
                     <!-- 3. Recursos de Ajuda ao Jogador -->
-                    <div class="sm-panel p-5 shadow-2xl space-y-3">
+                    <div class="sm-panel p-4 shadow-2xl space-y-3 shrink-0">
                         <div class="flex items-center justify-between pb-2 border-b border-blue-400/20">
                             <span class="text-[10px] font-black uppercase tracking-widest text-blue-200">RECURSOS DE AJUDA</span>
                             <span class="text-[10px] text-amber-300 font-bold">Arena Bíblica</span>
@@ -386,8 +395,8 @@
                     </div>
 
                     <!-- 4. Placar / Ranking ao Vivo da Arena -->
-                    <div class="sm-panel p-5 shadow-2xl space-y-3">
-                        <div class="flex items-center justify-between pb-2 border-b border-blue-400/20">
+                    <div class="sm-panel p-4 shadow-2xl flex-1 min-h-[8rem] flex flex-col gap-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-blue-400/20 shrink-0">
                             <span class="text-[10px] font-black uppercase tracking-widest text-blue-200 flex items-center gap-1.5">
                                 <svg class="w-4 h-4 text-amber-300 fill-current" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0011 15.9V19H7v2h10v-2h-4v-3.1c1.94-.37 3.5-1.99 3.61-3.96C19.08 11.63 21 9.55 21 7V5c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
                                 <span>RANKING DA ARENA</span>
@@ -396,16 +405,16 @@
                                 + Equipe
                             </button>
                         </div>
-                        <div id="rankingContainerDesktop" class="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                        <div id="rankingContainerDesktop" class="space-y-1.5 flex-1 min-h-0 overflow-y-auto pr-1">
                             <p class="text-xs text-blue-300/60 text-center py-4">Sincronizando ranking da arena...</p>
                         </div>
                     </div>
                 </aside>
 
                 <!-- COLUNA CENTRAL / DIREITA (8 COLUNAS): TEMPORIZADOR, PERGUNTA E GRID 2x2 -->
-                <section class="lg:col-span-8 space-y-4 sm:space-y-5">
+                <section class="lg:col-span-8 flex flex-col gap-3 xl:gap-4 min-h-0">
                     <!-- Barra de Destaque Superior: Pergunta & Cronômetro -->
-                    <div class="sm-panel p-4 sm:p-5 shadow-2xl flex items-center justify-between gap-4">
+                    <div class="sm-panel px-4 py-3 shadow-2xl flex items-center justify-between gap-4 shrink-0">
                         <div class="flex items-center gap-3.5">
                             <div class="w-12 h-12 rounded-2xl bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 flex items-center justify-center border-2 border-amber-200 text-slate-950 font-black text-xl shrink-0 shadow-lg shadow-amber-500/30" id="perguntaNumeroBoxDesktop">
                                 1
@@ -440,9 +449,9 @@
                     </div>
 
                     <!-- Card Principal da Pergunta -->
-                    <div class="sm-panel p-5 sm:p-7 shadow-2xl relative">
+                    <div class="sm-panel p-4 xl:p-5 shadow-2xl relative flex-1 min-h-0 overflow-y-auto flex flex-col gap-3 xl:gap-4">
                         <!-- Badges Bíblicos -->
-                        <div class="flex flex-wrap items-center justify-start gap-2 mb-4" id="badgesBiblicosContainerDesktop">
+                        <div class="hidden" id="badgesBiblicosContainerDesktop">
                             <span class="inline-flex items-center gap-1.5 text-xs font-black px-3.5 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-300/40 shadow-sm">
                                 <svg class="w-3.5 h-3.5 text-amber-300" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
@@ -452,14 +461,14 @@
                         </div>
 
                         <!-- Texto da Pergunta -->
-                        <div class="sm-question p-6 sm:p-8 mb-5 sm:mb-6 min-h-[130px] sm:min-h-[150px] flex items-center justify-center text-center">
-                            <p id="textoPerguntaVivaDesktop" class="sm-question-text text-lg sm:text-3xl font-black text-white leading-relaxed tracking-tight select-none">
+                        <div class="sm-question p-6 xl:p-8 flex-1 min-h-[110px] flex items-center justify-center text-center">
+                            <p id="textoPerguntaVivaDesktop" class="sm-question-text entrar-question-text-desk font-black text-white tracking-tight select-none">
                                 Aguardando o apresentador iniciar a pergunta...
                             </p>
                         </div>
 
                         <!-- Balões de Ajuda Desktop -->
-                        <div id="dicaConvidadoVivaDesktop" class="hidden mb-4 rounded-2xl p-4 bg-blue-950/80 border-2 border-blue-400 text-blue-200 flex items-start gap-3.5 shadow-lg">
+                        <div id="dicaConvidadoVivaDesktop" class="hidden shrink-0 rounded-2xl px-4 py-3 bg-blue-950/80 border-2 border-blue-400 text-blue-200 flex items-start gap-3.5 shadow-lg">
                             <div class="w-10 h-10 rounded-xl bg-gradient-to-b from-amber-300 via-amber-500 to-amber-700 text-slate-950 font-black flex items-center justify-center shrink-0 shadow-md">
                                 <svg class="w-5 h-5 text-slate-950" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
                             </div>
@@ -469,7 +478,7 @@
                             </div>
                         </div>
 
-                        <div id="dicaBiblicaVivaDesktop" class="hidden mb-4 rounded-2xl p-4 bg-blue-950/80 border-2 border-blue-400 text-blue-100 flex items-center gap-3.5 shadow-lg">
+                        <div id="dicaBiblicaVivaDesktop" class="hidden shrink-0 rounded-2xl px-4 py-3 bg-blue-950/80 border-2 border-blue-400 text-blue-100 flex items-center gap-3.5 shadow-lg">
                             <div class="w-10 h-10 rounded-xl bg-blue-500 text-slate-950 flex items-center justify-center shrink-0">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                             </div>
@@ -480,15 +489,15 @@
                         </div>
 
                         <!-- Feedback de Resposta Pós-Bloqueio Desktop -->
-                        <div id="feedbackRespostaDesktop" class="hidden rounded-2xl p-4 border text-center transition-all mb-4"></div>
+                        <div id="feedbackRespostaDesktop" class="hidden shrink-0 rounded-2xl p-3 border text-center transition-all"></div>
 
                         <!-- Aviso Silencioso de Tempo Esgotado Desktop -->
-                        <div id="avisoTempoEsgotadoDesktop" class="hidden p-3 rounded-2xl bg-rose-950/80 border border-rose-500/40 text-rose-200 text-sm font-bold text-center mb-4">
+                        <div id="avisoTempoEsgotadoDesktop" class="hidden shrink-0 p-3 rounded-2xl bg-rose-950/80 border border-rose-500/40 text-rose-200 text-sm font-bold text-center">
                             ⏱️ Tempo esgotado para esta pergunta! Aguarde o apresentador.
                         </div>
 
                         <!-- As 4 Alternativas em Grid 2x2 Desktop -->
-                        <div id="opcoesBotoesDesktop" class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <div id="opcoesBotoesDesktop" class="grid grid-cols-1 sm:grid-cols-2 gap-3 xl:gap-4 shrink-0">
                             <!-- Inserido dinamicamente via JS -->
                         </div>
                     </div>
@@ -498,6 +507,53 @@
         </div>
 
     </main>
+
+    <!-- ============================================================== -->
+    <!-- AVISO DE PAUSA (apresentador pausou a partida)                 -->
+    <!-- ============================================================== -->
+    <div id="bannerPausado" role="status" class="hidden fixed top-3 left-1/2 -translate-x-1/2 z-[70] px-4 py-2 rounded-full bg-amber-500 text-slate-950 text-xs font-black uppercase tracking-wider shadow-2xl border-2 border-amber-200 items-center gap-2">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6.75 5.25h3v13.5h-3zM14.25 5.25h3v13.5h-3z"/></svg>
+        Jogo pausado pelo apresentador
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TELA DE FIM DE JOGO: CLASSIFICAÇÃO FINAL NA ORDEM EXATA        -->
+    <!-- ============================================================== -->
+    <div id="telaFimJogo" class="hidden fixed inset-0 z-[90] sm-stage overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="fimTitulo">
+        <div class="min-h-full w-full max-w-lg mx-auto px-4 py-6 flex flex-col justify-center gap-4 text-center">
+            <div>
+                <span class="sm-pill !px-4 !py-1 !text-[11px] uppercase tracking-widest">Fim de jogo</span>
+                <h2 id="fimTitulo" class="text-2xl sm:text-3xl font-black sm-logo-title mt-3 leading-tight">Partida encerrada!</h2>
+                <p id="fimSubtitulo" class="text-sm text-blue-200 mt-1">Esta é a classificação final da sala.</p>
+            </div>
+
+            <!-- Posição do próprio jogador -->
+            <div id="fimMinhaPosicao" class="hidden sm-panel px-4 py-3 border-2 !border-amber-300">
+                <p class="text-[10px] font-black uppercase tracking-widest text-amber-300">A sua colocação</p>
+                <p class="text-3xl font-black text-white leading-none mt-1"><span id="fimMinhaPosicaoNumero">-</span><span class="text-base text-blue-200 font-bold"> de <span id="fimTotalJogadores">-</span></span></p>
+                <p class="text-sm font-black text-amber-300 font-mono mt-1"><span id="fimMeusPontos">0</span> pts</p>
+            </div>
+
+            <!-- Pódio (2º, 1º, 3º) -->
+            <div id="fimPodio" class="flex items-end justify-center gap-2 pt-2"></div>
+
+            <!-- Restantes posições -->
+            <div id="fimListaRestante" class="hidden sm-panel p-2.5 space-y-1.5 max-h-[32vh] overflow-y-auto text-left"></div>
+
+            <p id="fimSemJogadores" class="hidden text-sm text-blue-200">Nenhum participante pontuou nesta partida.</p>
+
+            <div class="grid gap-2 pt-1">
+                <a href="{{ config('app.igreja_url') }}" class="sm-cta">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+                    Voltar à Life Church
+                </a>
+                <div class="grid grid-cols-2 gap-2">
+                    <a href="{{ route('game.play', ['novo' => 1]) }}" class="sm-arcade-btn !text-xs">Jogar sozinho</a>
+                    <a href="{{ url('/') }}" class="sm-arcade-btn !text-xs">Início</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- ============================================================== -->
     <!-- GAVETA / MODAL DESLIZANTE DE RANKING & EQUIPES DA SALA        -->
@@ -875,7 +931,7 @@
             const main = document.getElementById('mainArenaContainer');
             if (main) {
                 main.classList.remove('max-w-xl');
-                main.classList.add('max-w-7xl', 'px-4', 'py-4', 'sm:py-6');
+                main.classList.add('max-w-7xl', 'lg:py-4');
             }
 
             // Mobile HUD
@@ -903,7 +959,7 @@
             if (deskPontos) deskPontos.innerText = (estadoSessao.pontuacao || 0) + ' pts';
 
             sincronizarEstadoSala();
-            setInterval(sincronizarEstadoSala, 1200);
+            intervaloSincronizacao = setInterval(sincronizarEstadoSala, 1200);
 
             if (!timerTickInterval) {
                 timerTickInterval = setInterval(tickCronometroLocal, 1000);
@@ -981,6 +1037,118 @@
             atualizarBotoesAjudasMobile();
         }
 
+        // ===== Tela de Fim de Jogo =====
+        let intervaloSincronizacao = null;
+        let ultimoRankingConhecido = [];
+        let ultimaSalaConhecida = null;
+        let telaFimVisivel = false;
+
+        function escaparHtml(texto) {
+            const div = document.createElement('div');
+            div.textContent = texto ?? '';
+            return div.innerHTML;
+        }
+
+        /**
+         * Ordena por pontos (desc) e ordem de entrada (id asc); empates partilham a mesma posição (1º, 1º, 3º).
+         */
+        function classificacaoFinal(ranking) {
+            const ordenado = [...(ranking || [])].sort((a, b) =>
+                (Number(b.pontuacao) || 0) - (Number(a.pontuacao) || 0) || (Number(a.id) || 0) - (Number(b.id) || 0)
+            );
+            let posicaoAnterior = 0;
+            let pontosAnteriores = null;
+            return ordenado.map((p, idx) => {
+                const pontos = Number(p.pontuacao) || 0;
+                const posicao = pontos === pontosAnteriores ? posicaoAnterior : idx + 1;
+                posicaoAnterior = posicao;
+                pontosAnteriores = pontos;
+                return { ...p, pontos, posicao };
+            });
+        }
+
+        function mostrarTelaFimJogo(motivo) {
+            const classificacao = classificacaoFinal(ultimoRankingConhecido);
+            const meuId = Number(estadoSessao.participanteId);
+            const eu = classificacao.find(p => Number(p.id) === meuId);
+
+            document.getElementById('fimTitulo').textContent = motivo === 'excluida' ? 'Sala encerrada!' : 'Partida encerrada!';
+            const vencedor = classificacao[0];
+            let subtitulo = motivo === 'excluida'
+                ? 'O apresentador fechou a sala. Esta é a última classificação registada.'
+                : 'Esta é a classificação final da sala.';
+            if (vencedor && vencedor.pontos > 0) {
+                subtitulo = eu && eu.posicao === 1
+                    ? 'Parabéns, você venceu a partida! 🏆'
+                    : `Vencedor: ${vencedor.nome} com ${vencedor.pontos} pts.`;
+            }
+            document.getElementById('fimSubtitulo').textContent = subtitulo;
+
+            const boxEu = document.getElementById('fimMinhaPosicao');
+            if (eu) {
+                document.getElementById('fimMinhaPosicaoNumero').textContent = `${eu.posicao}º`;
+                document.getElementById('fimTotalJogadores').textContent = classificacao.length;
+                document.getElementById('fimMeusPontos').textContent = eu.pontos;
+                boxEu.classList.remove('hidden');
+            } else {
+                boxEu.classList.add('hidden');
+            }
+
+            const premios = { 1: ultimaSalaConhecida?.premio_primeiro_lugar, 2: ultimaSalaConhecida?.premio_segundo_lugar };
+            const degraus = {
+                1: { ordem: 'order-2', altura: 'h-28', cor: 'from-amber-300 via-amber-500 to-amber-700 border-amber-200', medalha: '👑' },
+                2: { ordem: 'order-1', altura: 'h-20', cor: 'from-slate-200 via-slate-400 to-slate-600 border-slate-100', medalha: '🥈' },
+                3: { ordem: 'order-3', altura: 'h-14', cor: 'from-orange-300 via-amber-700 to-amber-900 border-orange-200', medalha: '🥉' },
+            };
+            const podio = classificacao.slice(0, 3);
+            document.getElementById('fimPodio').innerHTML = podio.map((p, idx) => {
+                const d = degraus[idx + 1];
+                const souEu = Number(p.id) === meuId;
+                const premio = premios[p.posicao];
+                return `
+                    <div class="${d.ordem} flex-1 max-w-[8.5rem] flex flex-col items-center min-w-0">
+                        <span class="text-2xl">${d.medalha}</span>
+                        <p class="font-black text-sm truncate max-w-full ${souEu ? 'text-amber-300' : 'text-white'}">${escaparHtml(p.nome)}${souEu ? ' (você)' : ''}</p>
+                        <p class="font-mono font-black text-amber-300 text-xs">${p.pontos} pts</p>
+                        <div class="w-full ${d.altura} mt-1 rounded-t-2xl bg-gradient-to-b ${d.cor} border-2 border-b-0 flex flex-col items-center pt-1.5 shadow-2xl">
+                            <span class="text-xl font-black text-slate-950/80">${p.posicao}º</span>
+                            ${premio ? `<span class="text-[9px] font-black text-slate-950/80 px-1 leading-tight">${escaparHtml(premio)}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const restantes = classificacao.slice(3);
+            const lista = document.getElementById('fimListaRestante');
+            lista.innerHTML = restantes.map(p => {
+                const souEu = Number(p.id) === meuId;
+                return `
+                    <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-xl ${souEu ? 'bg-amber-500/25 border-2 border-amber-300' : 'bg-blue-950/60 border border-blue-400/20'}">
+                        <span class="flex items-center gap-2 min-w-0">
+                            <span class="w-7 h-7 rounded-lg bg-blue-900 text-blue-200 font-black text-xs flex items-center justify-center shrink-0">${p.posicao}º</span>
+                            <span class="text-sm font-bold text-white truncate">${escaparHtml(p.nome)}${souEu ? ' <span class="text-[10px] text-amber-300 uppercase">(você)</span>' : ''}</span>
+                        </span>
+                        <span class="font-mono font-black text-amber-300 text-xs shrink-0">${p.pontos} pts</span>
+                    </div>
+                `;
+            }).join('');
+            lista.classList.toggle('hidden', restantes.length === 0);
+            document.getElementById('fimSemJogadores').classList.toggle('hidden', classificacao.length > 0);
+
+            if (!telaFimVisivel) {
+                telaFimVisivel = true;
+                document.getElementById('telaFimJogo').classList.remove('hidden');
+                document.getElementById('bannerPausado')?.classList.add('hidden');
+                vibrar(eu && eu.posicao === 1 ? [120, 60, 120, 60, 240] : [80, 40, 80]);
+                tocarAudio('ranking.wav', 0.7);
+            }
+        }
+
+        function esconderTelaFimJogo() {
+            telaFimVisivel = false;
+            document.getElementById('telaFimJogo').classList.add('hidden');
+        }
+
         // Sincronização Periódica com o Servidor
         async function sincronizarEstadoSala() {
             if (!estadoSessao.salaId) return;
@@ -988,8 +1156,23 @@
             try {
                 const url = `${BASE_APP_URL}/api/salas/${estadoSessao.salaId}?participante_id=${estadoSessao.participanteId || ''}`;
                 const resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                if (resp.status === 404) {
+                    // Sala excluída pelo apresentador: mostra a última classificação conhecida
+                    clearInterval(intervaloSincronizacao);
+                    mostrarTelaFimJogo('excluida');
+                    return;
+                }
                 if (!resp.ok) return;
                 const data = await resp.json();
+
+                ultimoRankingConhecido = Array.isArray(data.ranking) ? data.ranking : ultimoRankingConhecido;
+                ultimaSalaConhecida = data.sala || ultimaSalaConhecida;
+
+                const bannerPausa = document.getElementById('bannerPausado');
+                if (bannerPausa) {
+                    bannerPausa.classList.toggle('hidden', data.estado !== 'pausado');
+                    bannerPausa.classList.toggle('flex', data.estado === 'pausado');
+                }
 
                 if (data.tempo_restante !== undefined) {
                     estadoSessao.tempoRestante = Number(data.tempo_restante);
@@ -1016,18 +1199,21 @@
                 atualizarRanking(data.ranking || [], data.equipes || []);
 
                 if (data.estado === 'terminado') {
-                    const msgFim = 'Partida encerrada pelo apresentador! Veja sua colocação no ranking.';
-                    const pMobile = document.getElementById('textoPerguntaViva');
-                    const pDesk = document.getElementById('textoPerguntaVivaDesktop');
-                    if (pMobile) pMobile.innerText = msgFim;
-                    if (pDesk) pDesk.innerText = msgFim;
-
                     const bMobile = document.getElementById('opcoesBotoes');
                     const bDesk = document.getElementById('opcoesBotoesDesktop');
                     if (bMobile) bMobile.innerHTML = '';
                     if (bDesk) bDesk.innerHTML = '';
-                    desabilitarOpcoesPorTempoEsgotado();
+                    mostrarTelaFimJogo('terminado');
                     return;
+                }
+
+                // Depois do fim, mantém a classificação no ecrã até o apresentador lançar uma nova pergunta
+                if (telaFimVisivel) {
+                    if (data.estado === 'em_curso' && data.pergunta_atual) {
+                        esconderTelaFimJogo();
+                    } else {
+                        return;
+                    }
                 }
 
                 const q = data.pergunta_atual;
@@ -1196,7 +1382,7 @@
                             fb.classList.remove('hidden');
                         }
                         if (fbDesk && estadoSessao.jaRespondeuAtual) {
-                            fbDesk.className = fbClasses + ' mb-4';
+                            fbDesk.className = fbClasses + ' shrink-0';
                             fbDesk.innerHTML = fbHtml;
                             fbDesk.classList.remove('hidden');
                         }

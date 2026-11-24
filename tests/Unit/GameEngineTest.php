@@ -3,10 +3,10 @@
 namespace Tests\Unit\GameEngine;
 
 use App\Game\Engine\GameEngine;
-use App\Game\Engine\Selectors\RandomSelector;
 use App\Game\Engine\Scoring\StandardScoring;
-use App\Game\Engine\Timers\CountdownTimer;
+use App\Game\Engine\Selectors\RandomSelector;
 use App\Game\Engine\State\GameState;
+use App\Game\Engine\Timers\CountdownTimer;
 use PHPUnit\Framework\TestCase;
 
 class GameEngineTest extends TestCase
@@ -14,10 +14,10 @@ class GameEngineTest extends TestCase
     public function test_instancia_engine_com_sucesso(): void
     {
         $engine = new GameEngine(
-            new RandomSelector(),
-            new StandardScoring(),
-            new CountdownTimer(),
-            new GameState()
+            new RandomSelector,
+            new StandardScoring,
+            new CountdownTimer,
+            new GameState
         );
 
         $this->assertInstanceOf(GameEngine::class, $engine);
@@ -26,10 +26,10 @@ class GameEngineTest extends TestCase
     public function test_inicia_partida_e_retorna_estado_em_curso(): void
     {
         $engine = new GameEngine(
-            new RandomSelector(),
-            new StandardScoring(),
-            new CountdownTimer(),
-            new GameState()
+            new RandomSelector,
+            new StandardScoring,
+            new CountdownTimer,
+            new GameState
         );
 
         $perguntas = [
@@ -48,10 +48,10 @@ class GameEngineTest extends TestCase
     public function test_resposta_correta_retorna_acertou_e_pontos(): void
     {
         $engine = new GameEngine(
-            new RandomSelector(),
-            new StandardScoring(),
-            new CountdownTimer(),
-            new GameState()
+            new RandomSelector,
+            new StandardScoring,
+            new CountdownTimer,
+            new GameState
         );
 
         $perguntas = [
@@ -69,10 +69,10 @@ class GameEngineTest extends TestCase
     public function test_resposta_incorreta_retorna_sem_pontos(): void
     {
         $engine = new GameEngine(
-            new RandomSelector(),
-            new StandardScoring(),
-            new CountdownTimer(),
-            new GameState()
+            new RandomSelector,
+            new StandardScoring,
+            new CountdownTimer,
+            new GameState
         );
 
         $perguntas = [
@@ -90,10 +90,10 @@ class GameEngineTest extends TestCase
     public function test_selecao_nao_repete_perguntas(): void
     {
         $engine = new GameEngine(
-            new RandomSelector(),
-            new StandardScoring(),
-            new CountdownTimer(),
-            new GameState()
+            new RandomSelector,
+            new StandardScoring,
+            new CountdownTimer,
+            new GameState
         );
 
         $perguntas = [
@@ -119,10 +119,10 @@ class GameEngineTest extends TestCase
     public function test_ajuda_cartas_elimina_duas_opcoes_incorretas(): void
     {
         $engine = new GameEngine(
-            new RandomSelector(),
-            new StandardScoring(),
-            new CountdownTimer(),
-            new GameState()
+            new RandomSelector,
+            new StandardScoring,
+            new CountdownTimer,
+            new GameState
         );
 
         $perguntas = [[
@@ -143,10 +143,10 @@ class GameEngineTest extends TestCase
     public function test_ajuda_convidados_biblicos_respeita_convidado_errado(): void
     {
         $engine = new GameEngine(
-            new RandomSelector(),
-            new StandardScoring(),
-            new CountdownTimer(),
-            new GameState()
+            new RandomSelector,
+            new StandardScoring,
+            new CountdownTimer,
+            new GameState
         );
 
         $perguntas = [[
@@ -172,10 +172,10 @@ class GameEngineTest extends TestCase
     public function test_usar_pulo_substitui_pergunta_e_decrementa_pulos(): void
     {
         $engine = new GameEngine(
-            new RandomSelector(),
-            new StandardScoring(),
-            new CountdownTimer(),
-            new GameState()
+            new RandomSelector,
+            new StandardScoring,
+            new CountdownTimer,
+            new GameState
         );
 
         $perguntas = [
@@ -194,10 +194,10 @@ class GameEngineTest extends TestCase
     public function test_usar_dica_biblica_retorna_referencia_e_decrementa_dicas(): void
     {
         $engine = new GameEngine(
-            new RandomSelector(),
-            new StandardScoring(),
-            new CountdownTimer(),
-            new GameState()
+            new RandomSelector,
+            new StandardScoring,
+            new CountdownTimer,
+            new GameState
         );
 
         $perguntas = [[
@@ -218,10 +218,10 @@ class GameEngineTest extends TestCase
     public function test_tres_erros_sinalizam_reinicio_de_partida(): void
     {
         $engine = new GameEngine(
-            new RandomSelector(),
-            new StandardScoring(),
-            new CountdownTimer(),
-            new GameState()
+            new RandomSelector,
+            new StandardScoring,
+            new CountdownTimer,
+            new GameState
         );
 
         $perguntas = [
@@ -249,10 +249,10 @@ class GameEngineTest extends TestCase
     public function test_tempo_esgotado_passa_proxima_pergunta_e_tres_tempos_esgotados_reiniciam(): void
     {
         $engine = new GameEngine(
-            new RandomSelector(),
-            new StandardScoring(),
-            new CountdownTimer(),
-            new GameState()
+            new RandomSelector,
+            new StandardScoring,
+            new CountdownTimer,
+            new GameState
         );
 
         $perguntas = [
@@ -278,5 +278,50 @@ class GameEngineTest extends TestCase
         $t3 = $engine->registrarTempoEsgotado(1);
         $this->assertTrue($t3['reiniciar_por_tempo']);
         $this->assertEquals(3, $t3['tempos_esgotados_count']);
+    }
+
+    public function test_retomar_apos_pausa_preserva_tempo_restante(): void
+    {
+        $engine = new GameEngine(
+            new RandomSelector,
+            new StandardScoring,
+            new CountdownTimer,
+            new GameState
+        );
+
+        $engine->start([
+            ['id' => 1, 'texto' => 'Q1', 'resposta_correta' => 'A', 'explicacao' => 'Exp1'],
+        ], [['id' => 1, 'nome' => 'João']]);
+
+        $engine->pause();
+        $this->assertSame('pausado', $engine->getState()['estado']);
+        $this->assertSame(0, $engine->getState()['tempo_restante']);
+
+        $engine->resume();
+        $estado = $engine->getState();
+
+        $this->assertSame('em_curso', $estado['estado']);
+        $this->assertGreaterThanOrEqual(59, $estado['tempo_restante']);
+        $this->assertFalse($estado['tempo_esgotado']);
+    }
+
+    public function test_tempo_pausado_sobrevive_a_serializacao(): void
+    {
+        $engine = new GameEngine(
+            new RandomSelector,
+            new StandardScoring,
+            new CountdownTimer,
+            new GameState
+        );
+
+        $engine->start([
+            ['id' => 1, 'texto' => 'Q1', 'resposta_correta' => 'A', 'explicacao' => 'Exp1'],
+        ], [['id' => 1, 'nome' => 'João']]);
+
+        $engine->pause();
+        $restaurado = GameEngine::fromJsonState($engine->toJsonState());
+        $restaurado->resume();
+
+        $this->assertGreaterThanOrEqual(59, $restaurado->getState()['tempo_restante']);
     }
 }

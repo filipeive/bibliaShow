@@ -69,10 +69,29 @@
                 0 0 45px rgba(251, 191, 36, 0.26),
                 0 22px 50px rgba(2, 6, 23, 0.85);
         }
+
+        /* ===== Menu em ecrã inteiro: tudo cabe na janela, sem scroll ===== */
+        .home-shell {
+            display: flex; flex-direction: column;
+            padding-block: clamp(.75rem, 3vh, 2.5rem); gap: clamp(.75rem, 2.4vh, 2.25rem);
+        }
+        .home-shell > :first-child { margin-top: auto; }
+        .home-shell > :last-child { margin-bottom: auto; }
+        .home-title { font-size: clamp(2rem, 6.2vh, 3.75rem); }
+        .home-band { padding-block: clamp(1rem, 3.4vh, 3rem); }
+        .home-medallion { width: clamp(10rem, 21vh, 20rem); height: clamp(10rem, 21vh, 20rem); }
+        @media (min-width: 768px) {
+            .home-medallion { width: clamp(12rem, 38vh, 20rem); height: clamp(12rem, 38vh, 20rem); }
+        }
+        @media (max-height: 900px) { .home-crowd { display: none; } }
+        @media (max-width: 767px) and (max-height: 760px) { .home-medallion-wrap { display: none !important; } }
+        @media (max-height: 540px) and (orientation: landscape) {
+            .home-menu .sm-capsule-btn { padding-top: .5rem !important; padding-bottom: .5rem !important; }
+        }
     </style>
 </head>
 
-<body class="sm-stage text-slate-100 min-h-screen flex flex-col selection:bg-amber-500 selection:text-slate-950 overflow-x-hidden relative">
+<body class="sm-stage text-slate-100 sm-viewport flex flex-col selection:bg-amber-500 selection:text-slate-950 overflow-x-hidden relative">
 
     @php
         $jogoAtivoInfo = null;
@@ -103,34 +122,34 @@
     </div>
 
     <!-- Navbar Estilizada -->
-    @include('partials.navbar', ['dark' => true])
+    @include('partials.navbar', ['dark' => true, 'compact' => true])
 
     <!-- PALCO PRINCIPAL ESTILO MENU CLÁSSICO NO TEMA BÍBLIA SHOW 2.0 -->
-    <main class="relative z-10 flex-1 flex flex-col justify-center py-8 sm:py-12">
+    <main class="sm-shell home-shell relative z-10">
 
         <!-- LOGO DE PALCO NO TOPO -->
-        <div class="text-center px-4 mb-8 sm:mb-10">
-            <div class="inline-flex items-center gap-2 sm-pill !px-4 !py-1.5 !text-[11px] uppercase tracking-widest mb-3 shadow-lg">
+        <div class="text-center px-4 shrink-0">
+            <div class="sm-hide-short hidden sm:inline-flex items-center gap-2 sm-pill !px-4 !py-1.5 !text-[11px] uppercase tracking-widest mb-3 shadow-lg">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block"></span>
                 <span>1.000 Questões • Sons Originais • Arena Ao Vivo</span>
             </div>
-            <h1 class="text-4xl sm:text-6xl font-black tracking-tight text-white sm-logo-title leading-none">
+            <h1 class="home-title font-black tracking-tight text-white sm-logo-title leading-none">
                 BÍBLIA <span class="text-amber-400">SHOW</span>
             </h1>
-            <p class="text-xs sm:text-sm font-extrabold uppercase tracking-[0.26em] text-blue-200 mt-2">
+            <p class="sm-hide-landscape text-xs sm:text-sm font-extrabold uppercase tracking-[0.26em] text-blue-200 mt-2">
                 A Nova Maneira de Aprender a Bíblia
             </p>
         </div>
 
         <!-- FAIXA CENTRAL COM CÁPSULAS CONECTADAS AO MEDALHÃO -->
-        <div class="sm-stage-band w-full py-10 sm:py-12 px-4 sm:px-6 backdrop-blur-md">
-            <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-center gap-10 md:gap-6">
+        <div class="sm-stage-band home-band w-full px-4 sm:px-6 backdrop-blur-md shrink-0">
+            <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8">
 
                 <!-- LADO ESQUERDO: CÁPSULAS EM ARCO AO REDOR DO MEDALHÃO -->
-                <div class="w-full max-w-sm md:w-72 flex flex-col gap-4 z-20">
+                <div class="home-menu w-full max-w-sm md:w-72 flex flex-col gap-2.5 sm:gap-3 z-20">
                     @if($jogoAtivoInfo)
                         <a href="{{ route('game.play') }}" onmouseenter="tocarHoverClassico()"
-                           class="sm-capsule-btn is-primary md:translate-x-6 rounded-full px-6 py-4 flex items-center justify-between gap-3 text-left cursor-pointer">
+                           class="sm-capsule-btn is-primary md:translate-x-6 rounded-full px-6 py-3.5 flex items-center justify-between gap-3 text-left cursor-pointer">
                             <span class="flex items-center gap-3 font-black text-slate-950 text-sm sm:text-base tracking-wider uppercase">
                                 <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
                                 <span>Continuar ({{ $jogoAtivoInfo['numero'] }}/{{ $jogoAtivoInfo['total'] }})</span>
@@ -139,7 +158,7 @@
                         </a>
                     @else
                         <button type="button" onclick="abrirModalJogarAgora()" onmouseenter="tocarHoverClassico()"
-                                class="sm-capsule-btn is-primary md:translate-x-6 rounded-full px-6 py-4 flex items-center justify-between gap-3 text-left cursor-pointer">
+                                class="sm-capsule-btn is-primary md:translate-x-6 rounded-full px-6 py-3.5 flex items-center justify-between gap-3 text-left cursor-pointer">
                             <span class="flex items-center gap-3 font-black text-slate-950 text-base sm:text-lg tracking-wider uppercase">
                                 <svg class="w-5 h-5 fill-current shrink-0" viewBox="0 0 24 24"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>
                                 <span>Jogar</span>
@@ -149,7 +168,7 @@
                     @endif
 
                     <a href="{{ route('curiosidades') }}" onmouseenter="tocarHoverClassico()"
-                       class="sm-capsule-btn md:translate-x-0 rounded-full px-6 py-3.5 flex items-center justify-between gap-3 text-left cursor-pointer">
+                       class="sm-capsule-btn md:translate-x-0 rounded-full px-6 py-3 flex items-center justify-between gap-3 text-left cursor-pointer">
                         <span class="flex items-center gap-3 font-black text-white text-sm sm:text-base tracking-wider uppercase">
                             <svg class="w-5 h-5 text-amber-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
                             <span>Instruções</span>
@@ -158,7 +177,7 @@
                     </a>
 
                     <a href="{{ route('game.result') }}" onmouseenter="tocarHoverClassico()"
-                       class="sm-capsule-btn md:translate-x-0 rounded-full px-6 py-3.5 flex items-center justify-between gap-3 text-left cursor-pointer">
+                       class="sm-capsule-btn md:translate-x-0 rounded-full px-6 py-3 flex items-center justify-between gap-3 text-left cursor-pointer">
                         <span class="flex items-center gap-3 font-black text-white text-sm sm:text-base tracking-wider uppercase">
                             <svg class="w-5 h-5 text-amber-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0"/></svg>
                             <span>Ranking</span>
@@ -167,7 +186,7 @@
                     </a>
 
                     <a href="{{ route('apresentador.painel') }}" onmouseenter="tocarHoverClassico()"
-                       class="sm-capsule-btn md:translate-x-6 rounded-full px-6 py-3.5 flex items-center justify-between gap-3 text-left cursor-pointer">
+                       class="sm-capsule-btn md:translate-x-6 rounded-full px-6 py-3 flex items-center justify-between gap-3 text-left cursor-pointer">
                         <span class="flex items-center gap-3 font-black text-emerald-300 text-sm sm:text-base tracking-wider uppercase">
                             <svg class="w-5 h-5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125z"/></svg>
                             <span>Apresentador</span>
@@ -177,16 +196,16 @@
                 </div>
 
                 <!-- CENTRO/DIREITA: MEDALHÃO DE PALCO + BOTÃO ENTRAR NA SALA CENTRALIZADO -->
-                <div class="relative z-10 flex flex-col items-center pb-4 md:pb-0">
-                    <div class="sm-medallion-ring w-72 h-72 sm:w-80 sm:h-80 rounded-full p-2.5 flex items-center justify-center relative">
+                <div class="home-medallion-wrap relative z-10 flex flex-col items-center pb-4 md:pb-0">
+                    <div class="sm-medallion-ring home-medallion rounded-full p-2 sm:p-2.5 flex items-center justify-center relative">
                         <div class="w-full h-full rounded-full overflow-hidden border-2 border-amber-200/80 shadow-inner relative bg-slate-950">
                             <img id="medallionImg" src="{{ asset('images/classico/Sabia.jpg') }}" alt="Bíblia Show"
                                  class="w-full h-full object-cover transition-opacity duration-700 opacity-90">
-                            <div class="absolute inset-0 bg-gradient-to-t from-[#060e33]/95 via-[#060e33]/30 to-transparent flex items-end justify-center pb-10 px-6 text-center">
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#060e33]/95 via-[#060e33]/30 to-transparent flex items-end justify-center pb-[18%] px-6 text-center">
                                 <div>
                                     <span id="medallionBadge" class="sm-pill !px-3 !py-0.5 !text-[9px] uppercase mb-1.5 inline-block">Modo Clássico</span>
                                     <p id="medallionCaption" class="text-sm sm:text-base font-black text-amber-300 drop-shadow">1.000 Perguntas Bíblicas</p>
-                                    <p class="text-[11px] text-blue-100/90 font-semibold mt-0.5">4 Fases • Cartas 50/50 • Convidados</p>
+                                    <p class="sm-hide-short text-[11px] text-blue-100/90 font-semibold mt-0.5">4 Fases • Cartas 50/50 • Convidados</p>
                                 </div>
                             </div>
                         </div>
@@ -203,7 +222,7 @@
         </div>
 
         <!-- ENTRADA RÁPIDA POR CÓDIGO PIN + BARRA DE AÇÕES -->
-        <div class="max-w-2xl w-full mx-auto px-4 mt-10 space-y-4">
+        <div class="sm-hide-landscape max-w-2xl w-full mx-auto px-4 space-y-3 shrink-0">
             <form action="{{ route('entrar.view') }}" method="GET"
                   onsubmit="event.preventDefault(); const c = this.codigo.value.trim().toUpperCase(); window.location.href = '{{ url('/entrar') }}' + (c ? '/' + c : '');"
                   class="sm-panel !p-2.5 flex items-center gap-3 shadow-2xl border border-amber-400/50">
@@ -212,7 +231,7 @@
                     <span class="hidden sm:inline">PIN da Sala</span>
                 </div>
                 <input type="text" name="codigo" maxlength="6" placeholder="DIGITE O CÓDIGO DA SALA (EX: AB12CD)"
-                       class="flex-1 bg-transparent px-2 py-2 text-amber-300 font-mono font-black uppercase tracking-widest text-xs sm:text-sm outline-none placeholder:text-blue-300/40">
+                       class="flex-1 min-w-0 bg-transparent px-2 py-2 text-amber-300 font-mono font-black uppercase tracking-widest text-xs sm:text-sm outline-none placeholder:text-blue-300/40">
                 <button type="submit"
                         class="sm-cta !w-auto !py-2.5 !px-5 !text-xs cursor-pointer shrink-0 inline-flex items-center gap-1.5">
                     <span>Entrar</span>
@@ -220,26 +239,31 @@
                 </button>
             </form>
 
-            <div class="flex flex-wrap items-center justify-center gap-3 text-xs font-bold">
+            <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs font-bold">
                 <a href="{{ route('sobre') }}"
                    class="px-4 py-2 rounded-full bg-blue-950/80 border border-blue-400/40 text-blue-200 hover:text-white hover:border-amber-400 transition inline-flex items-center gap-2 shadow">
                     <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/></svg>
-                    <span>Baixar App Android (APK)</span>
+                    <span class="sm:hidden">App Android</span><span class="hidden sm:inline">Baixar App Android (APK)</span>
+                </a>
+                <a href="{{ config('app.igreja_url') }}"
+                   class="px-4 py-2 rounded-full bg-blue-950/80 border border-blue-400/40 text-blue-200 hover:text-white hover:border-amber-400 transition inline-flex items-center gap-2 shadow">
+                    <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+                    <span>Life Church</span>
                 </a>
                 <button type="button" onclick="abrirModalDefinicoes()"
                         class="px-4 py-2 rounded-full bg-blue-950/80 border border-blue-400/40 text-amber-300 hover:text-white hover:border-amber-400 transition inline-flex items-center gap-2 shadow cursor-pointer">
                     <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    <span>Definições & Tela Cheia</span>
+                    <span class="sm:hidden">Definições</span><span class="hidden sm:inline">Definições & Tela Cheia</span>
                 </button>
             </div>
         </div>
     </main>
 
     <!-- Silhueta da Plateia no Rodapé -->
-    <div class="sm-crowd w-full mt-auto"></div>
+    <div class="sm-crowd home-crowd w-full shrink-0"></div>
 
     <!-- Footer Clássico -->
-    <footer class="border-t-2 border-blue-400/20 bg-[#060e33] py-4 px-4 sm:px-6 lg:px-8 text-xs text-blue-200 relative z-10">
+    <footer class="hidden sm:block sm-hide-short shrink-0 border-t-2 border-blue-400/20 bg-[#060e33] py-3 px-4 sm:px-6 lg:px-8 text-xs text-blue-200 relative z-10">
         <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-2">
                 <span class="sm-pill !px-2 !py-0.5 !text-[9px]">2.0</span>
@@ -251,6 +275,7 @@
                 <a href="{{ route('apresentador.painel') }}" class="hover:text-amber-300">Apresentador</a>
                 <a href="{{ route('curiosidades') }}" class="hover:text-amber-300">Enciclopédia</a>
                 <a href="{{ route('sobre') }}" class="hover:text-amber-300 text-amber-300">Créditos & APK</a>
+                <a href="{{ config('app.igreja_url') }}" class="hover:text-amber-300">Life Church</a>
             </div>
         </div>
     </footer>

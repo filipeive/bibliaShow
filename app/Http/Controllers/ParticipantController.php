@@ -14,6 +14,7 @@ use App\Models\Questao;
 use App\Models\Resposta;
 use App\Models\Sala;
 use App\Services\ArenaCacheService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -119,7 +120,7 @@ class ParticipantController extends Controller
         ]);
     }
 
-    private function autorizarParticipante(Request $request, Sala $sala, ?Participante $participante): ?\Illuminate\Http\JsonResponse
+    private function autorizarParticipante(Request $request, Sala $sala, ?Participante $participante): ?JsonResponse
     {
         if (! $participante || (int) $participante->sala_id !== (int) $sala->id) {
             return response()->json(['error' => 'Participante não encontrado nesta sala.'], 404);
@@ -332,6 +333,7 @@ class ParticipantController extends Controller
             ->conectados()
             ->with('equipe')
             ->orderByDesc('pontuacao_total')
+            ->orderBy('id')
             ->get()
             ->map(function ($p) {
                 return [

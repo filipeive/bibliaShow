@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Game\Engine\GameEngine;
 use App\Models\Jogo;
+use App\Models\Resposta;
 use App\Models\Sala;
 
 class ProjecaoController extends Controller
@@ -22,14 +23,14 @@ class ProjecaoController extends Controller
             }
         }
 
-        if (!$engine && session('game_engine_' . $salaId)) {
-            $unserialized = GameEngine::desserializarSeguro(session('game_engine_' . $salaId));
+        if (! $engine && session('game_engine_'.$salaId)) {
+            $unserialized = GameEngine::desserializarSeguro(session('game_engine_'.$salaId));
             if ($unserialized instanceof GameEngine) {
                 $engine = $unserialized;
             }
         }
 
-        if (!$engine) {
+        if (! $engine) {
             return view('projecao.espera', ['salaId' => $salaId, 'sala' => $sala]);
         }
 
@@ -39,6 +40,7 @@ class ProjecaoController extends Controller
             ->conectados()
             ->with('equipe')
             ->orderByDesc('pontuacao_total')
+            ->orderBy('id')
             ->get();
 
         $ranking = $participantes->map(fn ($p) => [
@@ -52,8 +54,8 @@ class ProjecaoController extends Controller
 
         $respostasRodada = [];
         $curQ = $estado['pergunta_atual'] ?? null;
-        if ($curQ && !empty($curQ['id']) && $jogo) {
-            $todasRespostas = \App\Models\Resposta::where('jogo_id', $jogo->id)
+        if ($curQ && ! empty($curQ['id']) && $jogo) {
+            $todasRespostas = Resposta::where('jogo_id', $jogo->id)
                 ->where('questao_id', $curQ['id'])
                 ->get();
             $letras = ['A', 'B', 'C', 'D'];

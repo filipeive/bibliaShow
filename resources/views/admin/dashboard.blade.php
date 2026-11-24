@@ -345,7 +345,7 @@
             const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
             try {
-                const resp = await fetch(`/admin/salas/${salaId}`, {
+                const resp = await fetch(`{{ url('/admin/salas') }}/${salaId}`, {
                     method: 'DELETE',
                     headers: {
                         'Accept': 'application/json',

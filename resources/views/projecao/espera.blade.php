@@ -160,7 +160,7 @@
                 if (data.estado === 'em_curso' && data.pergunta_atual) {
                     jogoIniciou = true;
                     // Redireciona imediatamente para a tela de projeção sem reload em loop
-                    window.location.href = `/projecao/${salaId}`;
+                    window.location.href = `{{ url('/projecao') }}/${salaId}`;
                 }
             } catch (err) {}
         }

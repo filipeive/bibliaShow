@@ -3,6 +3,7 @@
     $rotaAtual = request()->route()?->getName() ?? '';
     $nomeJogadorSessao = session('jogador_nome', auth()->user()?->nome ?? '');
     $hideOnMobile = $hideOnMobile ?? false;
+    $compact = $compact ?? false;
 
     $jogoAtivoNavbar = null;
     try {
@@ -21,12 +22,12 @@
         }
     } catch (\Throwable $e) {}
 @endphp
-<nav class="bg-gradient-to-b from-[#0e2169]/95 via-[#0a164a]/95 to-[#060e33]/98 border-b-2 border-amber-400/40 text-slate-100 backdrop-blur-md sticky top-0 z-50 shadow-2xl shadow-blue-950/60 {{ $hideOnMobile ? 'hidden sm:block' : '' }}">
+<nav class="bg-gradient-to-b from-[#0e2169]/95 via-[#0a164a]/95 to-[#060e33]/98 border-b-2 border-amber-400/40 text-slate-100 backdrop-blur-md sticky top-0 z-50 shadow-2xl shadow-blue-950/60 shrink-0 {{ $hideOnMobile ? 'hidden sm:block' : '' }} {{ $compact ? 'sm-navbar-compact' : '' }}">
     <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16 gap-2">
+        <div class="flex items-center justify-between {{ $compact ? 'h-12 lg:h-14' : 'h-16' }} gap-2">
             <!-- Brand / Logo (Auditório Show do Milhão) -->
             <a href="{{ url('/') }}" onclick="if(typeof tentarSairJogoAoVivo === 'function') { return tentarSairJogoAoVivo(event, '{{ url('/') }}'); }" class="flex items-center gap-2.5 shrink-0 group">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-300 via-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/30 text-slate-950 group-hover:scale-105 transition border-2 border-amber-200">
+                <div class="{{ $compact ? 'w-8 h-8 lg:w-9 lg:h-9 rounded-xl' : 'w-10 h-10 rounded-2xl' }} bg-gradient-to-br from-amber-300 via-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/30 text-slate-950 group-hover:scale-105 transition border-2 border-amber-200">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                     </svg>
@@ -64,7 +65,7 @@
 
                 <!-- Botão Menu Elegante (Desktop & Mobile - Apenas Ícone) -->
                 <button type="button" id="btnToggleMenuGlobal" onclick="toggleNavbarMenuGlobal(event)" title="Abrir Menu" aria-label="Abrir Menu"
-                        class="w-10 h-10 inline-flex items-center justify-center rounded-2xl bg-blue-950/90 hover:bg-blue-900 border-2 border-amber-400/50 hover:border-amber-300 text-amber-300 shadow-lg active:scale-95 transition cursor-pointer">
+                        class="{{ $compact ? 'w-9 h-9 rounded-xl' : 'w-10 h-10 rounded-2xl' }} inline-flex items-center justify-center bg-blue-950/90 hover:bg-blue-900 border-2 border-amber-400/50 hover:border-amber-300 text-amber-300 shadow-lg active:scale-95 transition cursor-pointer">
                     <svg class="w-5 h-5 text-amber-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg>
@@ -75,7 +76,7 @@
     </div>
 
     <!-- Dropdown / Painel Flutuante do Menu (Desktop & Mobile) -->
-    <div id="navbarMenuGlobal" class="hidden absolute right-3 sm:right-6 lg:right-8 top-16 mt-2 w-72 sm:w-80 sm-panel p-4 shadow-2xl z-50 text-white rounded-2xl border-2 border-blue-400/50 backdrop-blur-md">
+    <div id="navbarMenuGlobal" class="hidden absolute right-3 sm:right-6 lg:right-8 {{ $compact ? 'top-12 lg:top-14' : 'top-16' }} mt-2 max-h-[calc(100dvh-5rem)] overflow-y-auto w-72 sm:w-80 sm-panel p-4 shadow-2xl z-50 text-white rounded-2xl border-2 border-blue-400/50 backdrop-blur-md">
         @auth
             <!-- Perfil do Usuário Logado -->
             <div class="flex items-center gap-3 p-3 rounded-xl bg-blue-950/90 border border-blue-400/30 mb-3">
@@ -151,6 +152,14 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                 </svg>
                 <span>Sobre o Jogo & Baixar APK</span>
+            </a>
+
+            <a href="{{ config('app.igreja_url') }}"
+               class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-blue-100 hover:bg-blue-900/60 hover:text-white transition">
+                <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                </svg>
+                <span>Voltar à Life Church</span>
             </a>
         </div>
 
@@ -477,7 +486,7 @@
         const txt = document.getElementById('txtAberturaDefinicoes');
         const btn = document.getElementById('btnAberturaDefinicoes');
         if (!audioAberturaGlobal) {
-            audioAberturaGlobal = new Audio('/audio/classico/abertura.wav');
+            audioAberturaGlobal = new Audio("{{ asset('audio/classico/abertura.wav') }}");
             audioAberturaGlobal.onended = () => {
                 tocandoAberturaGlobal = false;
                 if (txt) txt.textContent = 'Ouvir Trilha';
@@ -509,7 +518,7 @@
             localStorage.setItem('biblia_show_som', 'on');
             atualizarUISomGlobal();
         }
-        const a = new Audio(`/audio/classico/${nome}.wav`);
+        const a = new Audio(`{{ asset('audio/classico') }}/${nome}.wav`);
         a.volume = obterVolumeGlobal();
         a.play().catch(() => {});
     }
@@ -530,7 +539,7 @@
         if (!somLigado) return;
 
         if (!audioLocucaoNavbar) {
-            audioLocucaoNavbar = new Audio('/audio/classico/locucao.wav');
+            audioLocucaoNavbar = new Audio("{{ asset('audio/classico/locucao.wav') }}");
             audioLocucaoNavbar.loop = false;
         }
         audioLocucaoNavbar.volume = obterVolumeGlobal() * 0.95;

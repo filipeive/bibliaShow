@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Game\Engine\GameEngine;
 use App\Models\Equipe;
 use App\Models\Igreja;
 use App\Models\LivroBiblico;
@@ -182,10 +183,10 @@ class MultiplayerFlowTest extends TestCase
         $jogo = $sala->jogoAtivo()->first();
 
         // Simula motor com tempo esgotado (início há mais de 60 segundos)
-        $engine = \App\Game\Engine\GameEngine::desserializarSeguro($jogo->dados_motor);
+        $engine = GameEngine::desserializarSeguro($jogo->dados_motor);
         $stateArray = $engine->toStateArray();
         $stateArray['timer_data']['inicio'] = time() - 100;
-        $engine = \App\Game\Engine\GameEngine::fromStateArray($stateArray);
+        $engine = GameEngine::fromStateArray($stateArray);
         $jogo->update(['dados_motor' => $engine->toJsonState()]);
 
         $participante = Participante::create([
@@ -260,7 +261,7 @@ class MultiplayerFlowTest extends TestCase
         $apresentador = $cenario['apresentador'];
         $questao = $cenario['questao'];
 
-        $equipa = \App\Models\Equipe::create([
+        $equipa = Equipe::create([
             'sala_id' => $sala->id,
             'nome' => 'Judá',
             'cor' => '#F59E0B',
@@ -320,5 +321,62 @@ class MultiplayerFlowTest extends TestCase
         $reconectar->assertStatus(200);
         $reconectar->assertJsonPath('participante.id', $participanteId);
         $reconectar->assertJsonPath('participante.pontuacao_total', $pontuacaoObtida);
+    }
+
+    public function test_participantes_veem_partida_terminada_com_ranking_ordenado_apos_encerrar(): void
+    {
+        $cenario = $this->criarCenarioBase();
+        $sala = $cenario['sala'];
+        $apresentador = $cenario['apresentador'];
+
+        $this->actingAs($apresentador)->get("/apresentador/control/{$sala->id}")->assertStatus(200);
+
+        $primeiroEmpatado = Participante::create(['sala_id' => $sala->id, 'nome' => 'Ana', 'pontuacao_total' => 30, 'conectado' => true]);
+        $segundoEmpatado = Participante::create(['sala_id' => $sala->id, 'nome' => 'Bia', 'pontuacao_total' => 30, 'conectado' => true]);
+        $vencedor = Participante::create(['sala_id' => $sala->id, 'nome' => 'Caleb', 'pontuacao_total' => 90, 'conectado' => true]);
+
+        $this->actingAs($apresentador)
+            ->postJson("/apresentador/control/{$sala->id}/finalizar")
+            ->assertStatus(200);
+
+        $estado = $this->getJson("/api/salas/{$sala->id}");
+        $estado->assertStatus(200);
+        $estado->assertJsonPath('estado', 'terminado');
+        $this->assertSame(
+            [$vencedor->id, $primeiroEmpatado->id, $segundoEmpatado->id],
+            array_column($estado->json('ranking'), 'id')
+        );
+    }
+
+    public function test_abrir_estudio_apos_encerrar_nao_reinicia_partida_sozinho(): void
+    {
+        $cenario = $this->criarCenarioBase();
+        $sala = $cenario['sala'];
+        $apresentador = $cenario['apresentador'];
+
+        $this->actingAs($apresentador)->get("/apresentador/control/{$sala->id}")->assertStatus(200);
+        $this->actingAs($apresentador)->postJson("/apresentador/control/{$sala->id}/finalizar")->assertStatus(200);
+
+        $this->actingAs($apresentador)->get("/apresentador/control/{$sala->id}")
+            ->assertStatus(200)
+            ->assertSee('Partida Finalizada');
+
+        $this->getJson("/api/salas/{$sala->id}")->assertJsonPath('estado', 'terminado');
+    }
+
+    public function test_nova_partida_apos_encerrar_inicia_um_jogo_novo(): void
+    {
+        $cenario = $this->criarCenarioBase();
+        $sala = $cenario['sala'];
+        $apresentador = $cenario['apresentador'];
+
+        $this->actingAs($apresentador)->get("/apresentador/control/{$sala->id}")->assertStatus(200);
+        $this->actingAs($apresentador)->postJson("/apresentador/control/{$sala->id}/finalizar")->assertStatus(200);
+
+        $this->actingAs($apresentador)->get("/apresentador/control/{$sala->id}?nova_partida=1")->assertStatus(200);
+
+        $estado = $this->getJson("/api/salas/{$sala->id}");
+        $estado->assertJsonPath('estado', 'em_curso');
+        $this->assertNotNull($estado->json('pergunta_atual'));
     }
 }

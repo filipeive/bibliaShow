@@ -42,7 +42,7 @@ class ArenaCacheService
     private static function buildSalaSnapshot(Sala $sala): array
     {
         $salaFresh = Sala::find($sala->id) ?? $sala;
-        $participantes = $salaFresh->participantes()->conectados()->with('equipe')->orderByDesc('pontuacao_total')->get();
+        $participantes = $salaFresh->participantes()->conectados()->with('equipe')->orderByDesc('pontuacao_total')->orderBy('id')->get();
         $equipes = $salaFresh->equipes()->get();
 
         $jogo = Jogo::where('sala_id', $salaFresh->id)

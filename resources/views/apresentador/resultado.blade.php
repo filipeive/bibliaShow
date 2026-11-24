@@ -14,117 +14,120 @@
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="sm-stage text-slate-100 min-h-screen">
+<body class="sm-stage sm-viewport-lg min-h-screen lg:min-h-0 text-slate-100 flex flex-col">
 
-    @include('partials.navbar', ['dark' => true])
+    @include('partials.navbar', ['dark' => true, 'compact' => true, 'hideJogarAgora' => true])
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
-        <header class="flex flex-wrap items-center justify-between gap-4 mb-8">
-            <div>
-                <a href="{{ route('apresentador.control', $salaId) }}" class="text-xs font-bold text-amber-300 hover:underline">← Voltar ao Estúdio da Sala</a>
-                <div class="flex items-center gap-2 mt-2">
-                    <span class="sm-pill !px-3 !py-0.5 !text-[10px] uppercase">ENCERRAMENTO</span>
-                    <h1 class="text-2xl sm:text-3xl font-black text-white sm-logo-title">Pódio & Relatório Oficial — {{ $sala->nome ?? ('Sala #' . $salaId) }}</h1>
-                </div>
+    @php
+        $listaParticipantes = isset($participantes) ? $participantes->values() : collect();
+        $podio = $listaParticipantes->take(3);
+        $restantes = $listaParticipantes->slice(3);
+        $historico = $resultados['historico_perguntas'] ?? [];
+        $degraus = [
+            1 => ['ordem' => 'order-2', 'altura' => 'h-28 sm:h-36 lg:h-48', 'cor' => 'from-amber-300 via-amber-500 to-amber-700 border-amber-200', 'medalha' => '👑', 'premio' => $sala?->premio_primeiro_lugar],
+            2 => ['ordem' => 'order-1', 'altura' => 'h-20 sm:h-24 lg:h-32', 'cor' => 'from-slate-200 via-slate-400 to-slate-600 border-slate-100', 'medalha' => '🥈', 'premio' => $sala?->premio_segundo_lugar],
+            3 => ['ordem' => 'order-3', 'altura' => 'h-14 sm:h-16 lg:h-20', 'cor' => 'from-orange-300 via-amber-700 to-amber-900 border-orange-200', 'medalha' => '🥉', 'premio' => null],
+        ];
+    @endphp
+
+    <div class="sm-shell-lg max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 lg:py-6 w-full flex flex-col gap-4">
+        <header class="flex flex-wrap items-end justify-between gap-3 shrink-0">
+            <div class="min-w-0">
+                <a href="{{ route('apresentador.control', $salaId) }}" class="text-xs font-bold text-amber-300 hover:underline">← Voltar ao estúdio</a>
+                <h1 class="text-xl sm:text-3xl font-black text-white sm-logo-title mt-1 truncate">Pódio — {{ $sala->nome ?? ('Sala #' . $salaId) }}</h1>
             </div>
-            <div class="flex items-center gap-2.5">
-                <a href="{{ route('apresentador.control', ['sala' => $salaId, 'nova_partida' => 1]) }}"
-                   class="sm-cta !w-auto !py-2.5 !px-5 !text-xs cursor-pointer shadow-lg">
-                    <span>Nova Partida na Sala</span>
-                </a>
-                <a href="{{ route('apresentador.painel') }}"
-                   class="bg-blue-950 hover:bg-blue-900 border border-blue-400/30 text-blue-200 px-4 py-2.5 rounded-full font-bold text-xs transition">
-                    Painel de Salas
-                </a>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('apresentador.control', ['sala' => $salaId, 'nova_partida' => 1]) }}" class="sm-cta !w-auto !py-2 !px-4 !text-xs">Nova partida</a>
+                <a href="{{ route('apresentador.painel') }}" class="sm-arcade-btn !py-2 !px-4 !text-xs">Salas</a>
             </div>
         </header>
 
-        <!-- Classificação dos Participantes (Show do Milhão Pódio) -->
-        <div class="sm-panel p-6 sm:p-8 mb-8">
-            <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-3 border-b border-blue-400/20">
-                <h2 class="text-lg font-black text-amber-300 flex items-center gap-2 uppercase tracking-wider">
-                    <svg class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94A5.01 5.01 0 0011 15.9V19H7v2h10v-2h-4v-3.1c1.94-.37 3.5-1.99 3.61-3.96C19.08 11.63 21 9.55 21 7V5c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
-                    <span>Classificação Oficial & Premiação</span>
-                </h2>
-                @if($sala && ($sala->premio_primeiro_lugar || $sala->premio_segundo_lugar))
-                    <div class="flex flex-wrap gap-2 text-xs">
-                        @if($sala->premio_primeiro_lugar)
-                            <span class="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300 font-bold">
-                                1º Lugar: {{ $sala->premio_primeiro_lugar }}
-                            </span>
-                        @endif
-                        @if($sala->premio_segundo_lugar)
-                            <span class="px-3 py-1 rounded-full bg-slate-800 border border-slate-600 text-slate-200 font-bold">
-                                2º Lugar: {{ $sala->premio_segundo_lugar }}
-                            </span>
-                        @endif
-                    </div>
-                @endif
-            </div>
-
-            @if(isset($participantes) && $participantes->isNotEmpty())
-                <div class="space-y-2.5">
-                    @foreach($participantes as $idx => $p)
-                        <div class="flex items-center justify-between p-4 rounded-2xl {{ $idx === 0 ? 'bg-amber-500/20 border-2 border-amber-400/60' : ($idx === 1 ? 'bg-slate-800/80 border-2 border-slate-500/50' : 'bg-slate-950/80 border border-slate-800') }}">
-                            <div class="flex items-center gap-3">
-                                <span class="w-8 h-8 rounded-xl {{ $idx === 0 ? 'bg-amber-500 text-slate-950' : ($idx === 1 ? 'bg-slate-300 text-slate-950' : 'bg-slate-800 text-slate-300') }} font-black flex items-center justify-center text-sm">
-                                    {{ $idx + 1 }}º
-                                </span>
-                                <div>
-                                    <p class="font-bold text-white">{{ $p->nome }}</p>
-                                    @if($p->equipe)
-                                        <p class="text-xs text-slate-400">Equipe: {{ $p->equipe->nome }}</p>
-                                    @endif
-                                    @if($idx === 0 && !empty($sala?->premio_primeiro_lugar))
-                                        <p class="text-xs font-extrabold text-amber-300 mt-0.5">Prêmio 1º Lugar: {{ $sala->premio_primeiro_lugar }}</p>
-                                    @elseif($idx === 1 && !empty($sala?->premio_segundo_lugar))
-                                        <p class="text-xs font-extrabold text-slate-300 mt-0.5">Prêmio 2º Lugar: {{ $sala->premio_segundo_lugar }}</p>
+        <div class="flex-1 lg:min-h-0 grid grid-cols-1 lg:grid-cols-12 lg:grid-rows-[minmax(0,1fr)] gap-4">
+            <!-- Pódio + classificação -->
+            <section class="lg:col-span-7 sm-panel p-4 sm:p-6 shadow-2xl flex flex-col lg:min-h-0 {{ $restantes->isEmpty() ? 'justify-center' : '' }}">
+                @if($podio->isNotEmpty())
+                    <div class="flex items-end justify-center gap-2 sm:gap-4 pt-2 shrink-0">
+                        @foreach($podio as $idx => $p)
+                            @php $pos = $idx + 1; $d = $degraus[$pos]; @endphp
+                            <div class="{{ $d['ordem'] }} flex-1 max-w-[12rem] flex flex-col items-center text-center min-w-0">
+                                <span class="text-2xl sm:text-3xl {{ $pos === 1 ? 'animate-bounce' : '' }}">{{ $d['medalha'] }}</span>
+                                <p class="font-black text-white truncate max-w-full {{ $pos === 1 ? 'text-base sm:text-lg' : 'text-sm' }}">{{ $p->nome }}</p>
+                                @if($p->equipe)
+                                    <p class="text-[10px] text-blue-200/80 truncate max-w-full">{{ $p->equipe->nome }}</p>
+                                @endif
+                                <p class="font-mono font-black text-amber-300 text-sm">{{ $p->pontuacao_total }} pts</p>
+                                <div class="w-full {{ $d['altura'] }} mt-1.5 rounded-t-2xl bg-gradient-to-b {{ $d['cor'] }} border-2 border-b-0 flex flex-col items-center justify-start pt-2 shadow-2xl">
+                                    <span class="text-2xl sm:text-3xl font-black text-slate-950/80">{{ $pos }}º</span>
+                                    @if($d['premio'])
+                                        <span class="text-[10px] font-black text-slate-950/80 px-1.5 leading-tight line-clamp-2">{{ $d['premio'] }}</span>
                                     @endif
                                 </div>
                             </div>
-                            <span class="font-mono font-black text-xl text-amber-400">{{ $p->pontuacao_total }} pts</span>
-                        </div>
-                    @endforeach
-                </div>
-            @else
-                <p class="text-sm text-slate-400">Pontuação total registrada na sessão: <strong class="text-amber-400">{{ $resultados['pontuacao_total'] ?? 0 }} pts</strong></p>
-            @endif
-        </div>
+                        @endforeach
+                    </div>
+                    <div class="h-1.5 rounded-full bg-gradient-to-r from-transparent via-amber-400/60 to-transparent shrink-0"></div>
 
-        <!-- Histórico de Perguntas Jogadas -->
-        @if(!empty($resultados['historico_perguntas']))
-            <div class="bg-slate-900/95 border border-slate-800 rounded-3xl p-6 sm:p-8">
-                <h3 class="text-lg font-black text-white mb-4">Perguntas Apresentadas na Partida</h3>
-                <div class="space-y-3">
-                    @foreach($resultados['historico_perguntas'] as $index => $pergunta)
-                        <div class="p-4 rounded-2xl border border-slate-800 bg-slate-950/80">
-                            <div class="flex justify-between items-start gap-3 mb-1.5">
-                                <span class="font-bold text-white text-sm">
-                                    {{ $index + 1 }}. {{ $pergunta['texto'] ?? $pergunta->texto ?? '' }}
-                                </span>
-                                @if(!empty($pergunta['resposta_correta']))
-                                    <span class="shrink-0 text-xs font-black px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300">
-                                        {{ $pergunta['resposta_correta'] }}
-                                    </span>
-                                @endif
-                            </div>
+                    @if($restantes->isNotEmpty())
+                        <div class="mt-3 space-y-1.5 lg:flex-1 lg:min-h-0 overflow-y-auto pr-1">
+                            @foreach($restantes as $idx => $p)
+                                <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-blue-950/60 border border-blue-400/20">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <span class="w-7 h-7 rounded-lg bg-blue-900 text-blue-200 font-black flex items-center justify-center text-xs shrink-0">{{ $idx + 1 }}º</span>
+                                        <div class="min-w-0">
+                                            <p class="font-bold text-white text-sm truncate">{{ $p->nome }}</p>
+                                            @if($p->equipe)
+                                                <p class="text-[10px] text-blue-200/70 truncate">{{ $p->equipe->nome }}</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <span class="font-mono font-black text-amber-300 text-sm shrink-0">{{ $p->pontuacao_total }} pts</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                @else
+                    <div class="lg:flex-1 flex flex-col items-center justify-center text-center py-10">
+                        <span class="text-5xl">🏆</span>
+                        <p class="text-sm text-blue-200 mt-3">Nenhum participante pontuou nesta partida.</p>
+                        <p class="text-xs text-blue-300/70 mt-1">Pontuação registada: <strong class="text-amber-400">{{ $resultados['pontuacao_total'] ?? 0 }} pts</strong></p>
+                    </div>
+                @endif
+            </section>
+
+            <!-- Histórico de perguntas -->
+            <section class="lg:col-span-5 sm-panel p-4 sm:p-5 shadow-2xl flex flex-col lg:min-h-0">
+                <h2 class="text-sm font-black text-amber-300 uppercase tracking-wider mb-3 flex items-center justify-between shrink-0">
+                    <span>Perguntas da partida</span>
+                    <span class="sm-pill !px-2.5 !py-0.5 !text-[10px]">{{ count($historico) }}</span>
+                </h2>
+                <div class="space-y-2 lg:flex-1 lg:min-h-0 overflow-y-auto pr-1">
+                    @forelse($historico as $index => $pergunta)
+                        <div class="p-3 rounded-xl border border-blue-400/20 bg-blue-950/60">
+                            <p class="font-bold text-white text-xs sm:text-sm">{{ $index + 1 }}. {{ $pergunta['texto'] ?? '' }}</p>
+                            @if(!empty($pergunta['resposta_correta']))
+                                <p class="text-xs mt-1">Resposta: <strong class="text-emerald-300">{{ $pergunta['resposta_correta'] }}</strong></p>
+                            @endif
                             @if(!empty($pergunta['referencia_biblica']) || !empty($pergunta['explicacao']))
-                                <p class="text-xs text-slate-400">
-                                    {{ !empty($pergunta['referencia_biblica']) ? '[' . $pergunta['referencia_biblica'] . '] ' : '' }}
+                                <p class="text-[11px] text-blue-200/80 mt-0.5">
+                                    @if(!empty($pergunta['referencia_biblica']))<span class="text-amber-300 font-bold">[{{ $pergunta['referencia_biblica'] }}]</span>@endif
                                     {{ $pergunta['explicacao'] ?? '' }}
                                 </p>
                             @endif
                         </div>
-                    @endforeach
+                    @empty
+                        <p class="text-xs text-blue-200/70 text-center py-6">Sem histórico de perguntas.</p>
+                    @endforelse
                 </div>
-            </div>
-        @endif
+            </section>
+        </div>
     </div>
 
     <script>
         window.addEventListener('DOMContentLoaded', () => {
-            const som = new Audio('/audio/classico/ranking.wav');
-            som.volume = 0.45;
+            const ativo = typeof somEstaAtivo === 'function' ? somEstaAtivo() : (localStorage.getItem('biblia_show_som') !== 'off');
+            if (!ativo) return;
+            const som = new Audio("{{ asset('audio/classico/ranking.wav') }}");
+            som.volume = typeof obterVolumeGlobal === 'function' ? obterVolumeGlobal() * 0.5 : 0.45;
             som.play().catch(() => {});
         });
     </script>

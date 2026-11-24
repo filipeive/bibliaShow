@@ -31,9 +31,21 @@
                 gap: 1.75rem;
             }
         }
+
+        /* ===== Telão em ecrã inteiro: nada de scroll numa TV/projetor ===== */
+        @media (min-width: 1024px) {
+            .sm-proj-grid { grid-template-rows: minmax(0, 1fr); align-items: stretch; }
+        }
+        .proj-question-text { font-size: clamp(1.6rem, 4.4vh + .2vw, 3.4rem); line-height: 1.2; }
+        #opcoesContainer .sm-option { min-height: clamp(56px, 8vh, 84px); }
+        #opcoesContainer .sm-option span.truncate {
+            white-space: normal; overflow: hidden; text-overflow: clip;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+            font-size: clamp(1rem, 2.2vh + .2vw, 1.6rem); line-height: 1.2;
+        }
     </style>
 </head>
-<body class="sm-stage text-white min-h-screen p-5 sm:p-8">
+<body class="sm-stage text-white sm-viewport-lg min-h-screen lg:min-h-0 p-3 sm:p-5 xl:p-7 flex flex-col">
 
     @php
         $faseAtual = $fase_atual ?? 1;
@@ -58,9 +70,9 @@
         ];
     @endphp
 
-    <div class="max-w-[1880px] w-full mx-auto">
+    <div class="max-w-[1880px] w-full mx-auto flex-1 min-h-0 flex flex-col">
         <!-- Header da Projeção (Tema Show do Milhão Palco) -->
-        <header class="mb-6 flex flex-wrap justify-between items-center gap-4 border-b border-blue-400/20 pb-5">
+        <header class="mb-3 xl:mb-5 flex flex-wrap justify-between items-center gap-4 border-b border-blue-400/20 pb-3 xl:pb-4 shrink-0">
             <div>
                 <div class="flex items-center gap-2.5 mb-2">
                     <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -75,7 +87,7 @@
                         @endif
                     </span>
                 </div>
-                <h1 class="text-2xl sm:text-4xl font-black text-white sm-logo-title">{{ $sala->nome }}</h1>
+                <h1 class="text-2xl xl:text-4xl font-black text-white sm-logo-title">{{ $sala->nome }}</h1>
                 @if($sala->premio_primeiro_lugar || $sala->premio_segundo_lugar)
                     <div class="flex flex-wrap items-center gap-3 mt-2 text-xs">
                         @if($sala->premio_primeiro_lugar)
@@ -128,7 +140,7 @@
             <!-- ===================================================== -->
             <canvas id="canvasFestaTelao" class="fixed inset-0 pointer-events-none z-40"></canvas>
 
-            <div class="sm-proj-grid relative z-10 pb-8">
+            <div class="sm-proj-grid relative z-10 flex-1 min-h-0">
                 <!-- Coluna Esquerda: Informação Clássica de Jogo Finalizado -->
                 <div class="space-y-6 min-w-0">
                     <div class="sm-panel p-8 sm:p-12 text-center shadow-2xl relative overflow-hidden border-2 border-amber-400/60">
@@ -149,8 +161,8 @@
                 </div>
 
                 <!-- Coluna Direita: Classificação Oficial Ordenada (1º, 2º, 3º...) -->
-                <div class="space-y-5 min-w-0">
-                    <div class="sm-panel p-5 sm:p-6 shadow-2xl border-2 border-amber-400/50">
+                <div class="min-w-0 min-h-0 flex flex-col">
+                    <div class="sm-panel p-5 sm:p-6 shadow-2xl border-2 border-amber-400/50 lg:flex-1 lg:min-h-0 flex flex-col">
                         <div class="flex items-center justify-between mb-4 pb-3 border-b border-blue-400/20">
                             <h3 class="text-base sm:text-lg font-black text-white sm-logo-title uppercase tracking-wider flex items-center gap-2">
                                 <span>🏆</span> Classificação Oficial
@@ -158,7 +170,7 @@
                             <span class="text-xs font-bold text-amber-300 uppercase tracking-wider">{{ count($ranking ?? []) }} part.</span>
                         </div>
 
-                        <div class="space-y-2.5 max-h-[65vh] overflow-y-auto pr-1">
+                        <div class="space-y-2.5 max-h-[65vh] lg:max-h-none lg:flex-1 lg:min-h-0 overflow-y-auto pr-1">
                             @forelse(array_slice($ranking ?? [], 0, 15) as $index => $participante)
                                 @php
                                     $pos = $index + 1;
@@ -202,15 +214,15 @@
         <!-- 1. ESQUERDA (1fr): Card Principal da Pergunta & Opções   -->
         <!-- 2. DIREITA  (480px): Classificação, Resultados & QR      -->
         <!-- ======================================================== -->
-        <div class="sm-proj-grid">
+        <div class="sm-proj-grid flex-1 min-h-0">
 
             <!-- ===================================================== -->
             <!-- 1. COLUNA PRINCIPAL: CARD DA PERGUNTA & ALTERNATIVAS  -->
             <!-- ===================================================== -->
-            <div class="space-y-6 min-w-0" id="painelPergunta">
+            <div class="min-w-0 min-h-0 flex flex-col" id="painelPergunta">
                 @if($pergunta)
-                    <div class="sm-panel p-6 sm:p-8 shadow-2xl">
-                        <div class="flex justify-between items-center mb-6">
+                    <div class="sm-panel p-5 xl:p-8 shadow-2xl lg:flex-1 lg:min-h-0 flex flex-col">
+                        <div class="flex justify-between items-center mb-3 xl:mb-5 shrink-0">
                             <span class="sm-pill !px-4 !py-1 text-xs font-black uppercase tracking-wider" id="nivelBadge">
                                 {{ $faseAtual }}ª Fase • {{ $pergunta['dificuldade_nome'] ?? 'Bíblia Show' }}
                             </span>
@@ -223,19 +235,19 @@
                         </div>
 
                         <!-- Caixa Dourada/Azul Clássica da Pergunta -->
-                        <div class="sm-question p-6 sm:p-8 mb-6 shadow-2xl">
-                            <p class="sm-question-text text-4xl sm:text-5xl font-black text-white leading-snug" id="textoPergunta">
+                        <div class="sm-question p-5 xl:p-8 mb-3 xl:mb-5 shadow-2xl lg:flex-1 lg:min-h-0 flex items-center justify-center text-center overflow-hidden">
+                            <p class="sm-question-text proj-question-text font-black text-white" id="textoPergunta">
                                 {{ $pergunta['texto'] ?? $pergunta->texto }}
                             </p>
                         </div>
 
                         <!-- Banner de Dica Bíblica e Convidado Bíblico no Telão -->
-                        <div id="boxDicaBiblicaProj" class="{{ $dicaBiblica ? '' : 'hidden' }} mb-4 p-4 rounded-2xl bg-amber-500/20 border-2 border-amber-400/50 text-amber-200 text-base font-bold flex items-center gap-3 shadow-lg">
+                        <div id="boxDicaBiblicaProj" class="{{ $dicaBiblica ? '' : 'hidden' }} shrink-0 mb-3 px-4 py-3 rounded-2xl bg-amber-500/20 border-2 border-amber-400/50 text-amber-200 text-base font-bold flex items-center gap-3 shadow-lg">
                             <span class="text-xl">💡</span>
                             <span>{{ $dicaBiblica }}</span>
                         </div>
 
-                        <div id="boxConvidadoProj" class="{{ $dicaConvidado ? '' : 'hidden' }} mb-4 p-4 rounded-2xl bg-blue-950/90 border-2 border-blue-400/50 text-blue-100 font-bold text-base shadow-lg">
+                        <div id="boxConvidadoProj" class="{{ $dicaConvidado ? '' : 'hidden' }} shrink-0 mb-3 px-4 py-3 rounded-2xl bg-blue-950/90 border-2 border-blue-400/50 text-blue-100 font-bold text-base shadow-lg">
                             @if($dicaConvidado)
                                 <strong class="text-amber-300">{{ $dicaConvidado['convidado'] }}:</strong> {{ $dicaConvidado['mensagem'] }}
                             @endif
@@ -248,7 +260,7 @@
                             $corretaTexto = $gabaritoRevelado ? trim((string) ($pergunta['resposta_correta'] ?? '')) : '';
                         @endphp
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="opcoesContainer">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 xl:gap-4 shrink-0" id="opcoesContainer">
                             @foreach($opcoesArray as $idx => $opcao)
                                 @php
                                     $eliminada = in_array($idx, $opcoesEliminadas);
@@ -274,9 +286,9 @@
             <!-- ===================================================== -->
             <!-- 2. COLUNA LATERAL DIREITA: CLASSIFICAÇÃO, RESULTADOS, QR -->
             <!-- ===================================================== -->
-            <div class="space-y-5 min-w-0">
+            <div class="min-w-0 min-h-0 flex flex-col gap-3 xl:gap-5">
                 <!-- 1. Classificação Ao Vivo -->
-                <div class="sm-panel p-5 sm:p-6 shadow-xl">
+                <div class="sm-panel p-4 xl:p-6 shadow-xl shrink-0">
                     <div class="flex items-center gap-2.5 mb-3.5 pb-2.5 border-b border-blue-400/20">
                         <svg class="w-5 h-5 text-amber-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0" />
@@ -284,7 +296,7 @@
                         <h3 class="text-base sm:text-lg font-black text-white sm-logo-title uppercase tracking-wider">Classificação Ao Vivo</h3>
                     </div>
 
-                    <div class="space-y-2.5 max-h-52 overflow-y-auto pr-1" id="rankingList">
+                    <div class="space-y-2 xl:space-y-2.5 max-h-52 lg:max-h-[22vh] overflow-y-auto pr-1" id="rankingList">
                         @forelse(array_slice($ranking ?? [], 0, 6) as $index => $participante)
                             @php
                                 $temaRank = $temasParticipantes[abs((int) ($participante['id'] ?? $index)) % count($temasParticipantes)];
@@ -314,10 +326,10 @@
 
                 @if($estado !== 'terminado')
                 <!-- 2. Card de Resultado / Respostas Bloqueadas na Rodada -->
-                <div class="sm-panel p-5 sm:p-6 shadow-2xl relative overflow-hidden border-2 sm:border-3 border-amber-400 shadow-amber-500/20 bg-gradient-to-b from-[#0e2270] via-[#0a1854] to-[#060e33]">
+                <div class="sm-panel p-4 xl:p-6 shadow-2xl relative overflow-hidden lg:flex-1 lg:min-h-[10rem] flex flex-col border-2 sm:border-3 border-amber-400 shadow-amber-500/20 bg-gradient-to-b from-[#0e2270] via-[#0a1854] to-[#060e33]">
                     <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-amber-300 to-transparent"></div>
 
-                    <div class="flex items-center justify-between gap-3 mb-4 pb-3 border-b-2 border-amber-400/30">
+                    <div class="flex items-center justify-between gap-3 mb-3 xl:mb-4 pb-3 border-b-2 border-amber-400/30 shrink-0">
                         <div class="flex items-center gap-3 min-w-0">
                             <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-amber-300 via-amber-500 to-amber-600 text-slate-950 flex items-center justify-center shadow-md shadow-amber-500/40 border-2 border-amber-200 shrink-0">
                                 <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>
@@ -342,7 +354,7 @@
                         </span>
                     </div>
 
-                    <div id="gridParticipantesRodada" class="space-y-3 max-h-64 overflow-y-auto pr-1">
+                    <div id="gridParticipantesRodada" class="space-y-2.5 xl:space-y-3 max-h-64 lg:max-h-none lg:flex-1 lg:min-h-0 overflow-y-auto pr-1">
                         @php
                             $tempoEsgotadoInicial = ($tempo_restante ?? 0) <= 0 || !empty($tempo_esgotado) || !empty($gabaritoRevelado);
                         @endphp
@@ -444,7 +456,7 @@
                 </div>
 
                 <!-- 3. Participe pelo Celular -->
-                <div class="sm-panel p-4 text-center flex items-center justify-center gap-4">
+                <div class="sm-panel p-3 xl:p-4 text-center flex items-center justify-center gap-4 shrink-0">
                     <div id="qrcodeProj" class="p-2 bg-white rounded-xl shadow-lg border-2 border-amber-400 shrink-0"></div>
                     <div class="text-left min-w-0">
                         <span class="sm-pill !px-2.5 !py-0.5 !text-[10px] uppercase tracking-wider">Participe pelo Celular</span>

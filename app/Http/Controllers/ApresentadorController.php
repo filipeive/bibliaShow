@@ -110,13 +110,17 @@ class ApresentadorController extends Controller
         $sala = $this->verificarAcessoSala($request, $salaId);
         $sala->load(['participantes.equipe', 'equipes']);
 
-        if ($request->boolean('nova_partida') || $sala->status === 'terminada') {
+        $novaPartida = $request->boolean('nova_partida');
+
+        if ($novaPartida) {
             session()->forget('game_engine_'.$salaId);
             Jogo::where('sala_id', $salaId)->whereIn('estado', ['aguardando', 'em_curso', 'pausado'])->update(['estado' => 'terminado']);
             $sala->update(['status' => 'em_curso']);
+            ArenaCacheService::invalidateSala((int) $salaId);
         }
 
-        $engine = $this->carregarEngineDaSala($salaId);
+        // Numa nova partida nunca reaproveitar o motor da partida já encerrada
+        $engine = $novaPartida ? null : $this->carregarEngineDaSala($salaId);
 
         if ($engine && ($engine->getState()['estado'] ?? '') === 'em_curso' && $sala->status !== 'em_curso') {
             $sala->update(['status' => 'em_curso']);
@@ -144,7 +148,7 @@ class ApresentadorController extends Controller
         }
 
         $estadoMotor = $engine->getState();
-        $participantes = $sala->participantes()->conectados()->with('equipe')->orderByDesc('pontuacao_total')->get();
+        $participantes = $sala->participantes()->conectados()->with('equipe')->orderByDesc('pontuacao_total')->orderBy('id')->get();
         $equipes = $sala->equipes;
 
         $ranking = $participantes->map(function ($p) {
@@ -514,7 +518,7 @@ class ApresentadorController extends Controller
         }
 
         $resultados = $engine->getResults();
-        $participantes = $sala->participantes()->with('equipe')->orderByDesc('pontuacao_total')->get();
+        $participantes = $sala->participantes()->with('equipe')->orderByDesc('pontuacao_total')->orderBy('id')->get();
 
         return view('apresentador.resultado', compact(
             'salaId',
