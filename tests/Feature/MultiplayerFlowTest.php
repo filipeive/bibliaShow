@@ -410,4 +410,41 @@ class MultiplayerFlowTest extends TestCase
             ->postJson("/api/salas/{$sala->id}/responder", $payload)
             ->assertStatus(200);
     }
+
+    public function test_tempo_restante_continua_a_descer_mesmo_com_snapshot_em_cache(): void
+    {
+        $cenario = $this->criarCenarioBase();
+        $sala = $cenario['sala'];
+
+        $this->actingAs($cenario['apresentador'])->get("/apresentador/control/{$sala->id}")->assertStatus(200);
+
+        $primeiro = $this->getJson("/api/salas/{$sala->id}")->json('tempo_restante');
+
+        $this->travel(5)->seconds();
+        $depois = $this->getJson("/api/salas/{$sala->id}")->json('tempo_restante');
+
+        $this->assertSame($primeiro - 5, $depois);
+    }
+
+    public function test_rejeita_resposta_depois_do_gabarito_revelado(): void
+    {
+        $cenario = $this->criarCenarioBase();
+        $sala = $cenario['sala'];
+        $apresentador = $cenario['apresentador'];
+
+        $this->actingAs($apresentador)->get("/apresentador/control/{$sala->id}")->assertStatus(200);
+
+        $entrar = $this->postJson('/api/salas/entrar', ['codigo_acesso' => $sala->codigo_acesso, 'nome' => 'Rute']);
+
+        $this->actingAs($apresentador)->postJson("/apresentador/control/{$sala->id}/ajuda", ['tipo' => 'revelar'])->assertStatus(200);
+
+        $this->withHeaders(['X-Participante-Codigo' => $entrar->json('participante.codigo_acesso')])
+            ->postJson("/api/salas/{$sala->id}/responder", [
+                'participante_id' => $entrar->json('participante.id'),
+                'questao_id' => $cenario['questao']->id,
+                'resposta' => 'Deus',
+                'tempo_resposta' => 5,
+            ])
+            ->assertStatus(403);
+    }
 }

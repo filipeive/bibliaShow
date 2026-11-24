@@ -201,6 +201,9 @@ class ParticipantController extends Controller
                 if (! empty($estadoMotor['tempo_esgotado'])) {
                     return response()->json(['error' => 'Tempo esgotado para esta pergunta! Resposta não computada.'], 408);
                 }
+                if (! empty($estadoMotor['ajudas']['gabarito_revelado'])) {
+                    return response()->json(['error' => 'A resposta certa já foi revelada. Aguarde a próxima pergunta.'], 403);
+                }
             }
         }
 

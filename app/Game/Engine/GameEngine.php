@@ -61,6 +61,9 @@ class GameEngine
     /** Segundos que faltavam quando a partida foi pausada (retomados no resume). */
     private int $tempoPausado = 0;
 
+    /** Segundos que faltavam quando a resposta foi revelada (o relógio da ronda fica congelado). */
+    private int $tempoAoRevelar = 0;
+
     public function __construct(
         QuestionSelectorInterface $selector,
         ScoringInterface $scoring,
@@ -189,6 +192,7 @@ class GameEngine
             'maxErros' => $this->maxErros,
             'temposEsgotadosCount' => $this->temposEsgotadosCount,
             'tempoPausado' => $this->tempoPausado,
+            'tempoAoRevelar' => $this->tempoAoRevelar,
             'maxTemposEsgotados' => $this->maxTemposEsgotados,
             'state_data' => [
                 'estado' => $this->state->getEstado(),
@@ -246,6 +250,7 @@ class GameEngine
         $engine->maxErros = (int) ($data['maxErros'] ?? 3);
         $engine->temposEsgotadosCount = (int) ($data['temposEsgotadosCount'] ?? 0);
         $engine->tempoPausado = (int) ($data['tempoPausado'] ?? 0);
+        $engine->tempoAoRevelar = (int) ($data['tempoAoRevelar'] ?? 0);
         $engine->maxTemposEsgotados = (int) ($data['maxTemposEsgotados'] ?? 3);
 
         if (! empty($data['state_data']) && is_array($data['state_data'])) {
@@ -676,6 +681,9 @@ class GameEngine
         }
 
         $this->gabaritoReveladoAtual = ! $this->gabaritoReveladoAtual;
+        if ($this->gabaritoReveladoAtual) {
+            $this->tempoAoRevelar = $this->timer->tempoRestante();
+        }
 
         return [
             'sucesso' => true,
@@ -771,9 +779,11 @@ class GameEngine
             'sequencia_acertos' => $this->calcularSequenciaAtual(),
             'pontuacao' => $this->state->getPontuacao(),
             'ranking' => $this->state->getRanking(),
-            'tempo_restante' => $this->state->getEstado() === 'pausado'
-                ? $this->tempoPausado
-                : $this->timer->tempoRestante(),
+            'tempo_restante' => match (true) {
+                $this->state->getEstado() === 'pausado' => $this->tempoPausado,
+                $this->gabaritoReveladoAtual => $this->tempoAoRevelar,
+                default => $this->timer->tempoRestante(),
+            },
             'tempo_esgotado' => $this->timer->esgotado(),
             'erros_count' => $this->errosCount,
             'max_erros' => $this->maxErros,

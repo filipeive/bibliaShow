@@ -828,7 +828,7 @@
 
             if (typeof data.tempo_restante !== 'undefined') {
                 const seg = Number(data.tempo_restante);
-                if (Math.abs(tempoLocal - seg) > 1 || seg > tempoLocal) {
+                if (Math.abs(tempoLocal - seg) > 1) {
                     tempoLocal = seg;
                     if (seg > 10) {
                         ultimoSegundoTocado = null;

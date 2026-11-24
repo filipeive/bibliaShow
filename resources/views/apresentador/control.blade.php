@@ -291,9 +291,9 @@
                             <form action="{{ route('apresentador.ajuda', $sala->id) }}" method="POST" class="form-ajax-control">
                                 @csrf
                                 <input type="hidden" name="tipo" value="revelar">
-                                <button type="submit" id="btnToggleGabarito" class="st-btn is-emerald" title="Mostrar/ocultar a resposta certa no telão (tecla R)">
+                                <button type="submit" id="btnToggleGabarito" class="st-btn is-emerald" title="Mostrar a resposta certa no telão e encerrar a ronda (tecla R)">
                                     <svg class="w-4 h-4 shrink-0 hidden sm:block" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                    <span id="txtBtnGabarito">{{ $gabaritoRevelado ? 'Ocultar' : 'Revelar' }}</span>
+                                    <span id="txtBtnGabarito">{{ $gabaritoRevelado ? 'Ocultar resposta' : 'Mostrar resposta' }}</span>
                                     <span class="sm-kbd hidden lg:inline-flex">R</span>
                                 </button>
                             </form>
@@ -504,6 +504,7 @@
         let gabaritoVisivelTelao = {{ $gabaritoRevelado ? 'true' : 'false' }};
         let estadoSalaAtual = '{{ $estado }}';
         let respostaCorretaAtual = '{{ addslashes($respostaCorreta ?? '') }}';
+        const monitorRespostas = { total: 0, respondidos: 0 };
 
         function mostrarToastEstudio(mensagem, sucesso = true) {
             const toast = document.getElementById('toastEstudio');
@@ -527,6 +528,14 @@
             if (!form) return;
             e.preventDefault();
             if (form.dataset.confirmar && !window.confirm(form.dataset.confirmar)) return;
+
+            // Mostrar a resposta fecha a ronda: avisar se ainda há jogadores sem responder
+            const tipoAcao = form.querySelector('input[name="tipo"]')?.value;
+            const faltam = monitorRespostas.total - monitorRespostas.respondidos;
+            if (tipoAcao === 'revelar' && !gabaritoVisivelTelao && monitorRespostas.total > 0 && faltam > 0
+                && !window.confirm(`Ainda falta${faltam > 1 ? 'm' : ''} ${faltam} de ${monitorRespostas.total} jogador(es) responder.\nMostrar a resposta agora encerra a ronda para eles. Continuar?`)) {
+                return;
+            }
 
             const btnSubmit = form.querySelector('button[type="submit"]');
             if (btnSubmit) btnSubmit.disabled = true;
@@ -650,7 +659,7 @@
             if (badgeGab) badgeGab.classList.add('hidden');
 
             const txtGab = document.getElementById('txtBtnGabarito');
-            if (txtGab) txtGab.textContent = 'Revelar';
+            if (txtGab) txtGab.textContent = 'Mostrar resposta';
             gabaritoVisivelTelao = false;
 
             if (typeof data.tempo_restante !== 'undefined') {
@@ -693,7 +702,7 @@
                 }
                 const txtGab = document.getElementById('txtBtnGabarito');
                 if (txtGab) {
-                    txtGab.textContent = gabaritoVisivelTelao ? 'Ocultar' : 'Revelar';
+                    txtGab.textContent = gabaritoVisivelTelao ? 'Ocultar resposta' : 'Mostrar resposta';
                 }
             }
 
@@ -768,6 +777,8 @@
                 const respostasMap = data.respostas_rodada || {};
                 const respondidosCount = Object.keys(respostasMap).length;
                 const pct = totalPart > 0 ? Math.min(100, Math.round((respondidosCount / totalPart) * 100)) : 0;
+                monitorRespostas.total = totalPart;
+                monitorRespostas.respondidos = respondidosCount;
 
                 if (monitorTxt) {
                     if (totalPart === 0) {
@@ -789,7 +800,10 @@
                 }
 
                 if (typeof data.tempo_restante !== 'undefined') {
-                    atualizarCronometroEstudio(data.tempo_restante);
+                    const tempoServidor = Number(data.tempo_restante) || 0;
+                    if (Math.abs(tempoServidor - tempoEstudio) > 1) {
+                        atualizarCronometroEstudio(tempoServidor);
+                    }
                 }
 
                 if (!list || !data.ranking) return;
@@ -850,7 +864,7 @@
             el.classList.toggle('is-critico', tempoEstudio > 0 && tempoEstudio <= 10);
         }
         setInterval(() => {
-            if (estadoSalaAtual === 'em_curso' && tempoEstudio > 0) {
+            if (estadoSalaAtual === 'em_curso' && !gabaritoVisivelTelao && tempoEstudio > 0) {
                 atualizarCronometroEstudio(tempoEstudio - 1);
             }
         }, 1000);

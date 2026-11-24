@@ -326,4 +326,25 @@ class GameEngineTest extends TestCase
 
         $this->assertGreaterThanOrEqual(59, $restaurado->getState()['tempo_restante']);
     }
+
+    public function test_revelar_gabarito_congela_o_tempo_da_ronda(): void
+    {
+        $timer = new CountdownTimer;
+        $engine = new GameEngine(new RandomSelector, new StandardScoring, $timer, new GameState);
+        $engine->start([
+            ['id' => 1, 'texto' => 'Q1', 'resposta_correta' => 'A', 'explicacao' => 'Exp1'],
+        ], [['id' => 1, 'nome' => 'João']]);
+
+        $engine->revelarGabarito();
+        $tempoAoRevelar = $engine->getState()['tempo_restante'];
+
+        // Simula 10 segundos passados desde o início da pergunta
+        $inicio = new \ReflectionProperty($timer, 'inicio');
+        $inicio->setValue($timer, $inicio->getValue($timer) - 10);
+
+        $this->assertSame($tempoAoRevelar, $engine->getState()['tempo_restante']);
+
+        $engine->revelarGabarito();
+        $this->assertLessThanOrEqual($tempoAoRevelar - 10, $engine->getState()['tempo_restante']);
+    }
 }

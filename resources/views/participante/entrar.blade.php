@@ -969,9 +969,12 @@
 
         // Timer Local Suave com Som e Vibração nos 10s finais
         function tickCronometroLocal() {
-            if (estadoSessao.tempoRestante > 0 && !estadoSessao.jaRespondeuAtual && !estadoSessao.pausado) {
+            if (estadoSessao.tempoRestante > 0 && !estadoSessao.pausado && !estadoSessao.reveladoNaPerguntaAtual) {
                 estadoSessao.tempoRestante--;
                 atualizarVisualCronometro(estadoSessao.tempoRestante);
+
+                // O relógio continua para todos; sons e vibração só para quem ainda não respondeu
+                if (estadoSessao.jaRespondeuAtual) return;
 
                 if (estadoSessao.tempoRestante <= 10 && estadoSessao.tempoRestante > 0) {
                     vibrar(25);
@@ -1186,7 +1189,11 @@
                 }
 
                 if (data.tempo_restante !== undefined) {
-                    estadoSessao.tempoRestante = Number(data.tempo_restante);
+                    // Só corrige o relógio local quando a diferença é real (evita o "sobe e desce" de 1s)
+                    const tempoServidor = Number(data.tempo_restante);
+                    if (mudouPausa || Math.abs(tempoServidor - estadoSessao.tempoRestante) > 1) {
+                        estadoSessao.tempoRestante = tempoServidor;
+                    }
                     atualizarVisualCronometro(estadoSessao.tempoRestante);
                 }
 
@@ -1329,6 +1336,10 @@
                     estadoSessao.reveladoNaPerguntaAtual = false;
                     estadoSessao.tempoEsgotado = false;
                     estadoSessao.inicioPerguntaTimestamp = Date.now();
+                    if (data.tempo_restante !== undefined) {
+                        estadoSessao.tempoRestante = Number(data.tempo_restante);
+                        atualizarVisualCronometro(estadoSessao.tempoRestante);
+                    }
 
                     const fbMob = document.getElementById('feedbackResposta');
                     const fbDesk = document.getElementById('feedbackRespostaDesktop');
@@ -1376,23 +1387,26 @@
                         // Feedback pós-revelação
                         const fb = document.getElementById('feedbackResposta');
                         const fbDesk = document.getElementById('feedbackRespostaDesktop');
+                        const naoRespondeu = !estadoSessao.jaRespondeuAtual;
                         const fbHtml = `
                             <div class="font-black text-sm mb-0.5">
-                                ${acertou ? `✓ Certa Resposta! (+${pontosGanhos || placar.valor_pergunta || 10} pts)` : `✕ Que pena, você errou!`}
+                                ${naoRespondeu ? '⏹ Ronda encerrada — você não respondeu a tempo.' : (acertou ? `✓ Certa Resposta! (+${pontosGanhos || placar.valor_pergunta || 10} pts)` : `✕ Que pena, você errou!`)}
                             </div>
-                            ${!acertou && respostaCorreta ? `<div class="text-[11px] text-rose-200">Gabarito: <strong class="text-emerald-300 underline">${respostaCorreta}</strong></div>` : ''}
+                            ${(naoRespondeu || !acertou) && respostaCorreta ? `<div class="text-[11px] text-rose-200">Gabarito: <strong class="text-emerald-300 underline">${respostaCorreta}</strong></div>` : ''}
                             ${data.pergunta_atual?.referencia_biblica ? `<div class="text-[10px] mt-0.5 text-slate-300">[${data.pergunta_atual.referencia_biblica}]</div>` : ''}
                         `;
-                        const fbClasses = 'rounded-2xl p-3 border ' + (acertou
+                        const fbClasses = 'rounded-2xl p-3 border ' + (naoRespondeu
+                            ? 'bg-blue-950/80 border-blue-400/40 text-blue-100'
+                            : acertou
                             ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-100'
                             : 'bg-rose-950/80 border-rose-500/40 text-rose-100');
 
-                        if (fb && estadoSessao.jaRespondeuAtual) {
+                        if (fb) {
                             fb.className = fbClasses;
                             fb.innerHTML = fbHtml;
                             fb.classList.remove('hidden');
                         }
-                        if (fbDesk && estadoSessao.jaRespondeuAtual) {
+                        if (fbDesk) {
                             fbDesk.className = fbClasses + ' shrink-0';
                             fbDesk.innerHTML = fbHtml;
                             fbDesk.classList.remove('hidden');
@@ -1401,7 +1415,7 @@
                         renderizarPergunta(q);
                     }
 
-                    if (!estadoSessao.pausado && estadoSessao.tempoRestante <= 0 && !estadoSessao.jaRespondeuAtual) {
+                    if (!estadoSessao.pausado && !estadoSessao.reveladoNaPerguntaAtual && estadoSessao.tempoRestante <= 0 && !estadoSessao.jaRespondeuAtual) {
                         desabilitarOpcoesPorTempoEsgotado();
                     }
                 }
@@ -1425,7 +1439,7 @@
             const txtCartasDesk = document.getElementById('badgeCartasRestantesDesktop');
             const txtConvDesk = document.getElementById('badgeConvidadosRestantesDesktop');
 
-            const bloqueadoGeral = estadoSessao.jaRespondeuAtual || estadoSessao.pausado || estadoSessao.tempoEsgotado || (estadoSessao.tempoRestante <= 0);
+            const bloqueadoGeral = estadoSessao.jaRespondeuAtual || estadoSessao.pausado || estadoSessao.reveladoNaPerguntaAtual || estadoSessao.tempoEsgotado || (estadoSessao.tempoRestante <= 0);
 
             if (txtDica) txtDica.textContent = estadoSessao.dicasRestantes;
             if (txtDicaDesk) txtDicaDesk.textContent = estadoSessao.dicasRestantes;
@@ -1653,7 +1667,7 @@
         }
 
         async function confirmarOpcao(idx, textoOpcao) {
-            if (estadoSessao.jaRespondeuAtual || estadoSessao.pausado || estadoSessao.tempoEsgotado || estadoSessao.tempoRestante <= 0) {
+            if (estadoSessao.jaRespondeuAtual || estadoSessao.pausado || estadoSessao.reveladoNaPerguntaAtual || estadoSessao.tempoEsgotado || estadoSessao.tempoRestante <= 0) {
                 return;
             }
 
@@ -1723,6 +1737,7 @@
 
             document.querySelectorAll('.btn-opcao-mobile').forEach(btn => {
                 const idx = String(btn.dataset.indice);
+                btn.disabled = true;
                 btn.classList.remove('opcao-bloqueada', 'opacity-40', 'opacity-50');
                 const tagMob = document.getElementById(`tagMobile_${idx}`);
                 const tagDesk = document.getElementById(`tagDesktop_${idx}`);

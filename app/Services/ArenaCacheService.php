@@ -21,9 +21,24 @@ class ArenaCacheService
     {
         $key = self::snapshotKey($sala->id);
 
-        return Cache::remember($key, self::SNAPSHOT_TTL_SECONDS, function () use ($sala) {
+        $snapshot = Cache::remember($key, self::SNAPSHOT_TTL_SECONDS, function () use ($sala) {
             return self::buildSalaSnapshot($sala);
         });
+
+        return self::atualizarTempoRestante($snapshot);
+    }
+
+    /**
+     * O snapshot fica em cache alguns segundos; o tempo restante é recalculado a cada pedido
+     * a partir do prazo absoluto, para o cronómetro não "voltar atrás" nos ecrãs.
+     */
+    public static function atualizarTempoRestante(array $snapshot): array
+    {
+        if (! empty($snapshot['prazo_resposta'])) {
+            $snapshot['tempo_restante'] = max(0, (int) $snapshot['prazo_resposta'] - now()->getTimestamp());
+        }
+
+        return $snapshot;
     }
 
     /**
@@ -186,6 +201,9 @@ class ArenaCacheService
             'placar_milhao' => $placarMilhao,
             'ajudas' => $ajudasAtivas,
             'tempo_restante' => $tempoRestante,
+            'prazo_resposta' => ($estadoJogo === 'em_curso' && $tempoRestante > 0 && empty($ajudasAtivas['gabarito_revelado']))
+                ? now()->getTimestamp() + (int) $tempoRestante
+                : null,
             'pergunta_atual' => $perguntaPublica,
             'respostas_rodada' => $respostasRodada,
             'participantes' => $participantes->toArray(),
