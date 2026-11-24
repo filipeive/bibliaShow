@@ -379,4 +379,35 @@ class MultiplayerFlowTest extends TestCase
         $estado->assertJsonPath('estado', 'em_curso');
         $this->assertNotNull($estado->json('pergunta_atual'));
     }
+
+    public function test_pausa_congela_tempo_e_participante_responde_apos_retomar(): void
+    {
+        $cenario = $this->criarCenarioBase();
+        $sala = $cenario['sala'];
+        $apresentador = $cenario['apresentador'];
+        $questao = $cenario['questao'];
+
+        $this->actingAs($apresentador)->get("/apresentador/control/{$sala->id}")->assertStatus(200);
+
+        $entrar = $this->postJson('/api/salas/entrar', ['codigo_acesso' => $sala->codigo_acesso, 'nome' => 'Rute']);
+        $participanteId = $entrar->json('participante.id');
+        $codigo = $entrar->json('participante.codigo_acesso');
+
+        $this->actingAs($apresentador)->postJson("/apresentador/control/{$sala->id}/pausar")->assertStatus(200);
+
+        $emPausa = $this->getJson("/api/salas/{$sala->id}?participante_id={$participanteId}");
+        $emPausa->assertJsonPath('estado', 'pausado');
+        $this->assertGreaterThan(0, $emPausa->json('tempo_restante'));
+
+        $payload = ['participante_id' => $participanteId, 'questao_id' => $questao->id, 'resposta' => 'Deus', 'tempo_resposta' => 5];
+        $this->withHeaders(['X-Participante-Codigo' => $codigo])
+            ->postJson("/api/salas/{$sala->id}/responder", $payload)
+            ->assertStatus(403);
+
+        $this->actingAs($apresentador)->postJson("/apresentador/control/{$sala->id}/retomar")->assertStatus(200);
+
+        $this->withHeaders(['X-Participante-Codigo' => $codigo])
+            ->postJson("/api/salas/{$sala->id}/responder", $payload)
+            ->assertStatus(200);
+    }
 }

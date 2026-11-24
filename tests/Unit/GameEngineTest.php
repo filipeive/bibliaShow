@@ -294,8 +294,10 @@ class GameEngineTest extends TestCase
         ], [['id' => 1, 'nome' => 'João']]);
 
         $engine->pause();
-        $this->assertSame('pausado', $engine->getState()['estado']);
-        $this->assertSame(0, $engine->getState()['tempo_restante']);
+        $estadoPausado = $engine->getState();
+        $this->assertSame('pausado', $estadoPausado['estado']);
+        $this->assertGreaterThanOrEqual(59, $estadoPausado['tempo_restante'], 'Em pausa o tempo deve ficar congelado, não zerado.');
+        $this->assertFalse($estadoPausado['tempo_esgotado']);
 
         $engine->resume();
         $estado = $engine->getState();

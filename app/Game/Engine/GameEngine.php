@@ -771,7 +771,9 @@ class GameEngine
             'sequencia_acertos' => $this->calcularSequenciaAtual(),
             'pontuacao' => $this->state->getPontuacao(),
             'ranking' => $this->state->getRanking(),
-            'tempo_restante' => $this->timer->tempoRestante(),
+            'tempo_restante' => $this->state->getEstado() === 'pausado'
+                ? $this->tempoPausado
+                : $this->timer->tempoRestante(),
             'tempo_esgotado' => $this->timer->esgotado(),
             'erros_count' => $this->errosCount,
             'max_erros' => $this->maxErros,

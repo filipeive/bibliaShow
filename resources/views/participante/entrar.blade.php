@@ -821,6 +821,7 @@
             opcoesEliminadas: [],
             tempoRestante: 60,
             tempoEsgotado: false,
+            pausado: false,
             dicasRestantes: 3,
             cartasRestantes: 1,
             convidadosRestantes: 3,
@@ -968,7 +969,7 @@
 
         // Timer Local Suave com Som e Vibração nos 10s finais
         function tickCronometroLocal() {
-            if (estadoSessao.tempoRestante > 0 && !estadoSessao.jaRespondeuAtual) {
+            if (estadoSessao.tempoRestante > 0 && !estadoSessao.jaRespondeuAtual && !estadoSessao.pausado) {
                 estadoSessao.tempoRestante--;
                 atualizarVisualCronometro(estadoSessao.tempoRestante);
 
@@ -1172,6 +1173,16 @@
                 if (bannerPausa) {
                     bannerPausa.classList.toggle('hidden', data.estado !== 'pausado');
                     bannerPausa.classList.toggle('flex', data.estado === 'pausado');
+                }
+
+                // Pausa: o relógio congela e as opções ficam bloqueadas até o apresentador retomar
+                const estavaPausado = !!estadoSessao.pausado;
+                estadoSessao.pausado = data.estado === 'pausado';
+                const mudouPausa = estavaPausado !== estadoSessao.pausado;
+                if (mudouPausa && estadoSessao.pausado) {
+                    if (typeof Swal !== 'undefined' && Swal.isVisible()) Swal.close();
+                    fecharModalCartasParticipante();
+                    fecharModalConvidadoMobile();
                 }
 
                 if (data.tempo_restante !== undefined) {
@@ -1386,11 +1397,11 @@
                             fbDesk.innerHTML = fbHtml;
                             fbDesk.classList.remove('hidden');
                         }
-                    } else if (mudouEliminadas && !estadoSessao.jaRespondeuAtual) {
+                    } else if ((mudouEliminadas || mudouPausa) && !estadoSessao.jaRespondeuAtual) {
                         renderizarPergunta(q);
                     }
 
-                    if (estadoSessao.tempoRestante <= 0 && !estadoSessao.jaRespondeuAtual) {
+                    if (!estadoSessao.pausado && estadoSessao.tempoRestante <= 0 && !estadoSessao.jaRespondeuAtual) {
                         desabilitarOpcoesPorTempoEsgotado();
                     }
                 }
@@ -1414,7 +1425,7 @@
             const txtCartasDesk = document.getElementById('badgeCartasRestantesDesktop');
             const txtConvDesk = document.getElementById('badgeConvidadosRestantesDesktop');
 
-            const bloqueadoGeral = estadoSessao.jaRespondeuAtual || estadoSessao.tempoEsgotado || (estadoSessao.tempoRestante <= 0);
+            const bloqueadoGeral = estadoSessao.jaRespondeuAtual || estadoSessao.pausado || estadoSessao.tempoEsgotado || (estadoSessao.tempoRestante <= 0);
 
             if (txtDica) txtDica.textContent = estadoSessao.dicasRestantes;
             if (txtDicaDesk) txtDicaDesk.textContent = estadoSessao.dicasRestantes;
@@ -1434,7 +1445,7 @@
 
         async function usarAjudaMobile(tipo, indiceConvidado = null) {
             if (!estadoSessao.salaId || !estadoSessao.participanteId) return;
-            if (estadoSessao.tempoEsgotado || estadoSessao.tempoRestante <= 0 || estadoSessao.jaRespondeuAtual) {
+            if (estadoSessao.pausado || estadoSessao.tempoEsgotado || estadoSessao.tempoRestante <= 0 || estadoSessao.jaRespondeuAtual) {
                 return;
             }
 
@@ -1510,7 +1521,7 @@
         }
 
         function abrirModalCartasParticipante() {
-            if (estadoSessao.cartasRestantes <= 0 || estadoSessao.tempoEsgotado || estadoSessao.tempoRestante <= 0 || estadoSessao.jaRespondeuAtual) return;
+            if (estadoSessao.cartasRestantes <= 0 || estadoSessao.pausado || estadoSessao.tempoEsgotado || estadoSessao.tempoRestante <= 0 || estadoSessao.jaRespondeuAtual) return;
             vibrar(30);
             const m = document.getElementById('modalCartasMobile');
             if (m) m.classList.remove('hidden');
@@ -1528,7 +1539,7 @@
         }
 
         function abrirModalConvidadoMobile() {
-            if (estadoSessao.convidadosRestantes <= 0 || estadoSessao.tempoEsgotado || estadoSessao.tempoRestante <= 0 || estadoSessao.jaRespondeuAtual) return;
+            if (estadoSessao.convidadosRestantes <= 0 || estadoSessao.pausado || estadoSessao.tempoEsgotado || estadoSessao.tempoRestante <= 0 || estadoSessao.jaRespondeuAtual) return;
             vibrar(30);
             const m = document.getElementById('modalConvidadoMobile');
             if (m) m.classList.remove('hidden');
@@ -1564,7 +1575,7 @@
             const htmlOpcoesMobile = (q.opcoes || []).map((opcao, idx) => {
                 const isEliminada = eliminadas.includes(idx);
                 const isEscolhida = estadoSessao.opcaoEscolhida !== null && Number(estadoSessao.opcaoEscolhida) === idx;
-                const estaBloqueada = estadoSessao.jaRespondeuAtual || (estadoSessao.opcaoEscolhida !== null) || tempoZerado;
+                const estaBloqueada = estadoSessao.jaRespondeuAtual || (estadoSessao.opcaoEscolhida !== null) || tempoZerado || estadoSessao.pausado;
 
                 let classesBtn = 'btn-opcao-mobile sm-option ';
                 let tagHtml = '';
@@ -1601,7 +1612,7 @@
             const htmlOpcoesDesktop = (q.opcoes || []).map((opcao, idx) => {
                 const isEliminada = eliminadas.includes(idx);
                 const isEscolhida = estadoSessao.opcaoEscolhida !== null && Number(estadoSessao.opcaoEscolhida) === idx;
-                const estaBloqueada = estadoSessao.jaRespondeuAtual || (estadoSessao.opcaoEscolhida !== null) || tempoZerado;
+                const estaBloqueada = estadoSessao.jaRespondeuAtual || (estadoSessao.opcaoEscolhida !== null) || tempoZerado || estadoSessao.pausado;
 
                 let classesBtn = 'btn-opcao-mobile sm-arcade-btn is-blue w-full text-left p-4 sm:p-5 rounded-2xl border-2 transition flex items-center justify-between gap-3 cursor-pointer ';
                 let tagHtml = '';
@@ -1642,7 +1653,7 @@
         }
 
         async function confirmarOpcao(idx, textoOpcao) {
-            if (estadoSessao.jaRespondeuAtual || estadoSessao.tempoEsgotado || estadoSessao.tempoRestante <= 0) {
+            if (estadoSessao.jaRespondeuAtual || estadoSessao.pausado || estadoSessao.tempoEsgotado || estadoSessao.tempoRestante <= 0) {
                 return;
             }
 
